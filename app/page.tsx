@@ -1,63 +1,39 @@
-"use client";
-import { useEffect, useState } from "react";
-
-export default function DashboardPage() {
-  const [emails, setEmails] = useState<number | null>(null);
-  const [meetings, setMeetings] = useState<number | null>(null);
-  const [slack, setSlack] = useState<number | null>(null);
-  const [notion, setNotion] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const emailRes = await fetch("/api/gmail");
-        const emailData = await emailRes.json();
-        setEmails(emailData.unreadEmails);
-
-        const calRes = await fetch("/api/calendar");
-        const calData = await calRes.json();
-        setMeetings(calData.meetingsToday);
-
-        const slackRes = await fetch("/api/slack");
-        const slackData = await slackRes.json();
-        setSlack(slackData.unreadMessages);
-
-        const notionRes = await fetch("/api/notion");
-        const notionData = await notionRes.json();
-        setNotion(notionData.pages);
-      } catch (err: any) {
-        setError(err.message);
-      }
-    }
-    fetchData();
-  }, []);
-
+export default function HomePage() {
   return (
-    <div>
-      {error && <p className="text-red-500">{error}</p>}
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white">
+      {/* Hero Section */}
+      <section className="text-center py-20">
+        <h1 className="text-5xl font-extrabold mb-6">Composio Dashboard</h1>
+        <p className="text-lg mb-8">
+          Connect Gmail, Calendar, Notion, and Slack in one sleek workspace.
+        </p>
+        <a
+          href="/gmail"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+        >
+          Get Started
+        </a>
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-2">📧 Gmail</h2>
-          <p>{emails !== null ? `${emails} unread emails` : "Loading..."}</p>
+      {/* Integrations Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 px-10 pb-20">
+        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">📧 Gmail</h2>
+          <p>View and manage your emails seamlessly.</p>
         </div>
-
-        <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-2">📅 Calendar</h2>
-          <p>{meetings !== null ? `${meetings} meetings today` : "Loading..."}</p>
+        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">📅 Calendar</h2>
+          <p>Stay on top of events and deadlines.</p>
         </div>
-
-        <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-2">💬 Slack</h2>
-          <p>{slack !== null ? `${slack} unread messages` : "Loading..."}</p>
+        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">📓 Notion</h2>
+          <p>Access your workspace notes and projects.</p>
         </div>
-
-        <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-2">📓 Notion</h2>
-          <p>{notion !== null ? `${notion} pages` : "Loading..."}</p>
+        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">💬 Slack</h2>
+          <p>Check unread messages and team updates.</p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
