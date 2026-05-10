@@ -3,12 +3,20 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   return (
-    <nav className="flex flex-col h-full p-4 space-y-4">
-      <h2 className="text-xl font-bold mb-6">Composio Dashboard</h2>
-      <Link href="/gmail" className="hover:text-blue-500">📧 Gmail</Link>
-      <Link href="/calendar" className="hover:text-blue-500">📅 Calendar</Link>
-      <Link href="/notion" className="hover:text-blue-500">📓 Notion</Link>
-      <Link href="/slack" className="hover:text-blue-500">💬 Slack</Link>
+    <nav className="flex flex-col h-full p-6 space-y-6">
+      <h2 className="text-xl font-bold">Composio</h2>
+      <Link href="/gmail" className="flex items-center space-x-2 hover:text-blue-600">
+        <span>📧</span><span>Gmail</span>
+      </Link>
+      <Link href="/calendar" className="flex items-center space-x-2 hover:text-blue-600">
+        <span>📅</span><span>Calendar</span>
+      </Link>
+      <Link href="/notion" className="flex items-center space-x-2 hover:text-blue-600">
+        <span>📓</span><span>Notion</span>
+      </Link>
+      <Link href="/slack" className="flex items-center space-x-2 hover:text-blue-600">
+        <span>💬</span><span>Slack</span>
+      </Link>
       <div className="mt-auto">
         <ThemeToggle />
       </div>
