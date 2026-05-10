@@ -1,4 +1,4 @@
-export default function CalendarPage(() {
+export default function CalendarPage() {
   return (
     <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
       <h1 className="text-3xl font-semibold mb-6">📧 Gmail Integration</h1>
