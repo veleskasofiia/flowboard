@@ -1,24 +1,23 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState("light");
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme]);
+  const { setTheme } = useTheme();
 
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="ml-auto px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-    >
-      {theme === "dark" ? "Light Mode" : "Dark Mode"}
-    </button>
+    <div className="flex gap-2">
+      <button
+        onClick={() => setTheme("light")}
+        className="px-3 py-1 bg-gray-200 rounded"
+      >
+        Light
+      </button>
+      <button
+        onClick={() => setTheme("dark")}
+        className="px-3 py-1 bg-gray-800 text-white rounded"
+      >
+        Dark
+      </button>
+    </div>
   );
 }
