@@ -19,12 +19,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-screen flex bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <Providers>
-          <Navbar />
-          <main className="p-6 flex-1 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-            {children}
-          </main>
+          {/* Sidebar */}
+          <aside className="w-64 bg-white dark:bg-gray-800 shadow-md">
+            <Navbar />
+          </aside>
+
+          {/* Main content */}
+          <main className="flex-1 p-6">{children}</main>
         </Providers>
       </body>
     </html>

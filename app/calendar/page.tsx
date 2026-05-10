@@ -1,23 +1,10 @@
-export default async function CalendarPage() {
-  try {
-    const res = await fetch("https://api.composio.dev/slack/unread", {
-      headers: { Authorization: `Bearer ${process.env.COMPOSIO_API_KEY}` },
-      cache: "no-store", // avoid caching
-    });
-    const data = await res.json();
-
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">Calendar</h1>
-        <p>Unread Slack messages: {data.count}</p>
-      </div>
-    );
-  } catch (error) {
-    console.error("Slack API error:", error);
-    return (
-      <div className="p-6 text-red-600">
-        <p>Failed to load unread messages.</p>
-      </div>
-    );
-  }
+export default function CalendarPage() {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h1 className="text-2xl font-bold mb-4">📅 Calendar</h1>
+      <p className="text-gray-600 dark:text-gray-300">
+        This will show your calendar events.
+      </p>
+    </div>
+  );
 }
