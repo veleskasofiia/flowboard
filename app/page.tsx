@@ -1,41 +1,61 @@
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Hero Section */}
-      <section className="text-center py-20">
-        <h1 className="text-5xl font-extrabold mb-6">Composio Dashboard</h1>
-        <p className="text-lg mb-8">
-          Connect Gmail, Calendar, Notion, and Slack in one sleek workspace.
+      <header className="text-center py-16 bg-blue-600 text-white">
+        <h1 className="text-5xl font-extrabold mb-4">Getting Started with Composio</h1>
+        <p className="text-lg max-w-2xl mx-auto">
+          Learn how to connect Gmail, Calendar, Notion, and Slack in one dashboard.
         </p>
-      </section>
+      </header>
 
-      {/* Integration Buttons */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 px-10 pb-20">
-        <a
-          href="/gmail"
-          className="block text-center bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
-        >
-          📧 Gmail
-        </a>
-        <a
-          href="/calendar"
-          className="block text-center bg-green-600 hover:bg-green-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
-        >
-          📅 Calendar
-        </a>
-        <a
-          href="/notion"
-          className="block text-center bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
-        >
-          📓 Notion
-        </a>
-        <a
-          href="/slack"
-          className="block text-center bg-pink-600 hover:bg-pink-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
-        >
-          💬 Slack
-        </a>
-      </section>
+      {/* Steps Section */}
+      <main className="max-w-4xl mx-auto py-12 px-6 space-y-12">
+        {/* Step 1 */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Step 1: Connect Gmail</h2>
+          <p className="mb-4">
+            Navigate to the Gmail integration page and authorize access.
+          </p>
+          <pre className="bg-gray-800 text-green-300 p-4 rounded-lg overflow-x-auto">
+{`// Example Gmail API call
+fetch("/api/gmail")
+  .then(res => res.json())
+  .then(data => console.log(data));`}
+          </pre>
+        </section>
+
+        {/* Step 2 */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Step 2: Sync Calendar</h2>
+          <p className="mb-4">
+            View upcoming events and deadlines directly in your dashboard.
+          </p>
+          <pre className="bg-gray-800 text-green-300 p-4 rounded-lg overflow-x-auto">
+{`// Example Calendar API call
+fetch("/api/calendar")
+  .then(res => res.json())
+  .then(events => console.log(events));`}
+          </pre>
+        </section>
+
+        {/* Step 3 */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Step 3: Add Notion</h2>
+          <p className="mb-4">
+            Connect your Notion workspace to access notes and projects.
+          </p>
+        </section>
+
+        {/* Step 4 */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Step 4: Integrate Slack</h2>
+          <p className="mb-4">
+            Stay updated with unread messages and team notifications.
+          </p>
+        </section>
+      </main>
     </div>
   );
 }
+
