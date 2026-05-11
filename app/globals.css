@@ -1,8 +1,152 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html, body {
+/* Reset */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: Arial, sans-serif;
+  background-color: #fdfdfd;
+  color: #333;
+  height: 100%;
+  scroll-behavior: smooth; /* enables smooth scrolling for navbar links */
+}
+
+/* Smooth transitions for theme toggle */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hero section with animated gradient */
+.hero {
+  background: linear-gradient(270deg, #2563eb, #4f46e5, #9333ea);
+  background-size: 600% 600%;
+  animation: gradientShift 12s ease infinite;
+  color: white;
+  text-align: center;
+  padding: 5rem 2rem;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.hero button {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: #2563eb;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+.hero button:hover {
+  background: #e5e5e5;
+  transform: translateY(-2px);
+}
+
+/* Gradient animation */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Integration tiles */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  padding: 4rem 2rem;
+}
+
+.tile {
+  background: #2563eb;
+  color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.tile:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+
+/* Steps section */
+.steps {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.steps h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+.steps div {
+  margin-bottom: 1.5rem;
+}
+.steps h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+  background: #333;
+  color: #ccc;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Navbar */
+.navbar {
+  padding: 1rem;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.navbar .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.navbar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar li {
+  margin-bottom: 0.5rem;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.navbar a:hover {
+  color: #ffeb3b;
 }
