@@ -7,49 +7,35 @@ export default function HomePage() {
         <p className="text-lg mb-8">
           Connect Gmail, Calendar, Notion, and Slack in one sleek workspace.
         </p>
+      </section>
+
+      {/* Integration Buttons */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 px-10 pb-20">
         <a
           href="/gmail"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+          className="block text-center bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
         >
-          Get Started
+          📧 Gmail
         </a>
-      </section>
-
-      {/* Integrations Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 px-10 pb-20">
-        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">📧 Gmail</h2>
-          <p>View and manage your emails seamlessly.</p>
-        </div>
-        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">📅 Calendar</h2>
-          <p>Stay on top of events and deadlines.</p>
-        </div>
-        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">📓 Notion</h2>
-          <p>Access your workspace notes and projects.</p>
-        </div>
-        <div className="bg-white text-gray-900 rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">💬 Slack</h2>
-          <p>Check unread messages and team updates.</p>
-        </div>
-      </section>
-
-      {/* New Section */}
-      <section className="bg-blue-600 py-16 text-center">
-        <h2 className="text-4xl font-bold mb-4">Why Composio?</h2>
-        <p className="text-lg mb-6 max-w-2xl mx-auto">
-          Because managing multiple tools shouldn’t feel like chaos. 
-          Composio brings Gmail, Calendar, Notion, and Slack together in one clean dashboard.
-        </p>
         <a
           href="/calendar"
-          className="px-6 py-3 bg-white text-blue-600 hover:bg-gray-200 rounded-lg font-semibold"
+          className="block text-center bg-green-600 hover:bg-green-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
         >
-          Explore Calendar
+          📅 Calendar
+        </a>
+        <a
+          href="/notion"
+          className="block text-center bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
+        >
+          📓 Notion
+        </a>
+        <a
+          href="/slack"
+          className="block text-center bg-pink-600 hover:bg-pink-700 rounded-xl shadow-lg p-10 font-semibold text-2xl"
+        >
+          💬 Slack
         </a>
       </section>
     </div>
   );
 }
-
