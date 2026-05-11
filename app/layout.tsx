@@ -14,8 +14,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-screen flex bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased`}
+      >
         <Providers>
           {/* Sidebar */}
           <aside className="w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
