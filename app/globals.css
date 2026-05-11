@@ -1,152 +1,140 @@
 /* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
   font-family: Arial, sans-serif;
-  background-color: #fdfdfd;
   color: #333;
   height: 100%;
-  scroll-behavior: smooth; /* enables smooth scrolling for navbar links */
+  scroll-behavior: smooth;
 }
 
-/* Smooth transitions for theme toggle */
-body {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Hero section with animated gradient */
+/* Hero section */
 .hero {
-  background: linear-gradient(270deg, #2563eb, #4f46e5, #9333ea);
-  background-size: 600% 600%;
-  animation: gradientShift 12s ease infinite;
+  background: linear-gradient(90deg, #2563eb, #9333ea);
+  animation: headerFade 9s ease-in-out infinite;
   color: white;
   text-align: center;
-  padding: 5rem 2rem;
+  padding: 2.5rem 1.5rem;
 }
 
-.hero h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
+.hero h1 { font-size: 2rem; font-weight: 700; }
+.hero p { font-size: 1.4rem; font-weight: 600; margin-top: 0.75rem; }
+
+/* Sticky header */
+.sticky-header { position: sticky; top: 0; z-index: 1000; }
+
+/* Header bar */
+.header-bar { display: flex; justify-content: space-between; align-items: center; }
+
+/* Site title (instead of logo) */
+.site-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
 }
 
-.hero p {
-  font-size: 1.25rem;
-  max-width: 600px;
-  margin: 0 auto;
+/* Header buttons */
+.header-buttons { display: flex; gap: 1rem; }
+.header-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+  color: white;
+  border: 2px solid white;
 }
+.header-btn.primary { background: white; color: #2563eb; }
+.header-btn:hover { background: rgba(255,255,255,0.2); }
+.header-btn.primary:hover { background: #f3f4f6; }
 
-.hero button {
-  margin-top: 2rem;
-  padding: 0.75rem 1.5rem;
-  background: white;
+/* Main content gradient */
+.main-content { background: linear-gradient(135deg, #f3f4f6, #e0e7ff); padding: 2rem 0; }
+
+/* Feature grid */
+.feature-grid { display: flex; justify-content: center; gap: 2rem; margin: 2rem auto; max-width: 900px; }
+.feature-card {
+  background: white; border-radius: 12px; padding: 1.5rem; flex: 1;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08); transition: transform 0.3s;
+}
+.feature-card:hover { transform: translateY(-5px); }
+.feature-card h3 { color: #2563eb; margin-bottom: 0.5rem; }
+
+/* Workflow diagram */
+.workflow-section { text-align: center; padding: 2rem; }
+.workflow-section h2 { font-size: 1.8rem; color: #2563eb; margin-bottom: 1.5rem; }
+.workflow-diagram { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+.workflow-step {
+  background: #2563eb; color: white; padding: 1rem 1.5rem;
+  border-radius: 8px; font-weight: bold;
+}
+.arrow { font-size: 1.5rem; }
+
+/* About section */
+.about-section { text-align: center; padding: 2rem; max-width: 700px; margin: 0 auto; }
+.about-section h2 {
+  font-size: 1.8rem;
   color: #2563eb;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
+  margin-bottom: 0.75rem;
 }
-.hero button:hover {
-  background: #e5e5e5;
-  transform: translateY(-2px);
+.about-section p {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
 }
 
-/* Gradient animation */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* App roll */
+.app-roll {
+  display: flex; justify-content: center; align-items: center;
+  overflow-x: auto; gap: 1rem; padding: 1rem; scroll-snap-type: x mandatory;
 }
-
-/* Integration tiles */
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
-  padding: 4rem 2rem;
+.app-item {
+  flex: 0 0 auto; background: #2563eb; color: white; padding: 1.5rem;
+  border-radius: 12px; font-size: 1.3rem; font-weight: bold; text-align: center;
+  cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+  scroll-snap-align: center; min-width: 130px;
 }
-
-.tile {
-  background: #2563eb;
-  color: white;
-  border-radius: 12px;
-  padding: 2rem;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.tile:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-}
+.app-item:hover { transform: scale(1.15); box-shadow: 0 8px 16px rgba(0,0,0,0.25); }
 
 /* Steps section */
-.steps {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-.steps h2 {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-}
-.steps div {
-  margin-bottom: 1.5rem;
-}
-.steps h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
+.steps { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; text-align: center; }
+.steps h2 { font-size: 1.8rem; color: #2563eb; margin-bottom: 1.5rem; }
+.steps div { margin-bottom: 1.25rem; }
+.steps h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #333; }
+.steps p { font-size: 1rem; color: #555; }
 
-/* Footer */
-footer {
-  background: #333;
-  color: #ccc;
-  text-align: center;
-  padding: 1rem;
+/* Unified Button Style */
+.cta-button,
+.back-home,
+.form-submit {
+  display: block; margin: 1rem auto; padding: 0.9rem 1.8rem;
+  background: #2563eb; color: white; border-radius: 8px;
+  font-size: 1.1rem; font-weight: bold; text-decoration: none;
+  text-align: center; cursor: pointer; transition: background 0.3s, transform 0.2s;
 }
+.cta-button:hover,
+.back-home:hover,
+.form-submit:hover { background: #4f46e5; transform: scale(1.05); }
 
-/* Navbar */
-.navbar {
-  padding: 1rem;
-  background: #2563eb;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+/* Registration Form */
+.form-section { text-align: center; padding: 2rem 1rem; max-width: 500px; margin: 0 auto; }
+.form-section h2 { font-size: 1.6rem; color: #2563eb; margin-bottom: 1rem; }
+.register-form { display: flex; flex-direction: column; gap: 1rem; }
+.register-form input {
+  padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;
 }
+.register-form input:invalid { border-color: red; }
 
-.navbar .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
+/* Slim Footer */
+footer { background: transparent; color: #666; text-align: center; padding: 0.8rem; width: 100%; font-size: 0.85rem; }
 
-.navbar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.navbar li {
-  margin-bottom: 0.5rem;
-}
-
-.navbar a {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.navbar a:hover {
-  color: #ffeb3b;
+/* Animation */
+@keyframes headerFade {
+  0% { background-color: #2563eb; }
+  33% { background-color: #4f46e5; }
+  66% { background-color: #9333ea; }
+  100% { background-color: #2563eb; }
 }
