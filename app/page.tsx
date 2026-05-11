@@ -34,6 +34,22 @@ export default function HomePage() {
           <p>Check unread messages and team updates.</p>
         </div>
       </section>
+
+      {/* New Section */}
+      <section className="bg-blue-600 py-16 text-center">
+        <h2 className="text-4xl font-bold mb-4">Why Composio?</h2>
+        <p className="text-lg mb-6 max-w-2xl mx-auto">
+          Because managing multiple tools shouldn’t feel like chaos. 
+          Composio brings Gmail, Calendar, Notion, and Slack together in one clean dashboard.
+        </p>
+        <a
+          href="/calendar"
+          className="px-6 py-3 bg-white text-blue-600 hover:bg-gray-200 rounded-lg font-semibold"
+        >
+          Explore Calendar
+        </a>
+      </section>
     </div>
   );
 }
+
