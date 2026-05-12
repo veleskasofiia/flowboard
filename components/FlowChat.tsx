@@ -58,11 +58,11 @@ export default function FlowChat() {
       });
     }
 
-    // Call AI backend
-    const res = await fetch("/api/flow-assistant", {
+    // Call AI agent backend (Claude + Composio)
+    const res = await fetch("/api/agent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input }),
+      body: JSON.stringify({ message: input, entityId: user?.id ?? "default" }),
     });
     const data = await res.json();
 

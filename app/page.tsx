@@ -1,196 +1,168 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import Image from "next/image";
+import { supabase } from "@/lib/supabaseClient";
+
+const APPS = [
+  { key: "gmail",    label: "Gmail",            icon: "📧" },
+  { key: "outlook",  label: "Outlook",          icon: "📨" },
+  { key: "calendar", label: "Google Calendar",  icon: "📅" },
+  { key: "slack",    label: "Slack",            icon: "💬" },
+  { key: "discord",  label: "Discord",          icon: "🎮" },
+  { key: "notion",   label: "Notion",           icon: "📓" },
+  { key: "todoist",  label: "Todoist",          icon: "✅" },
+] as const;
+
+type AppKey = (typeof APPS)[number]["key"];
+type Status = "idle" | "connecting" | "connected";
 
 export default function HomePage() {
-  const [showForm, setShowForm] = useState(false);
+  const [statuses, setStatuses] = useState<Record<AppKey, Status>>(
+    Object.fromEntries(APPS.map((a) => [a.key, "idle"])) as Record<AppKey, Status>
+  );
 
-  const [statuses, setStatuses] = useState({
-    gmail: "Connecting...",
-    calendar: "Pending...",
-    notion: "Pending...",
-    slack: "Pending...",
-    trello: "Pending...",
-    github: "Pending...",
-    outlook: "Pending...",
-    discord: "Pending...",
-    dropbox: "Pending...",
-    zoom: "Pending..."
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authSuccess, setAuthSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  function handleAppClick(key: AppKey) {
+    const current = statuses[key];
+    if (current === "connecting") return;
 
-  const [progress, setProgress] = useState({
-    gmail: 0,
-    calendar: 0,
-    notion: 0,
-    slack: 0,
-    trello: 0,
-    github: 0,
-    outlook: 0,
-    discord: 0,
-    dropbox: 0,
-    zoom: 0
-  });
+    if (current === "connected") {
+      setStatuses((prev) => ({ ...prev, [key]: "idle" }));
+      return;
+    }
 
-  useEffect(() => {
-    const apps = [
-      { key: "gmail", delay: 0 },
-      { key: "calendar", delay: 2000 },
-      { key: "notion", delay: 4000 },
-      { key: "slack", delay: 6000 },
-      { key: "trello", delay: 8000 },
-      { key: "github", delay: 10000 },
-      { key: "outlook", delay: 12000 },
-      { key: "discord", delay: 14000 },
-      { key: "dropbox", delay: 16000 },
-      { key: "zoom", delay: 18000 },
-    ];
+    setStatuses((prev) => ({ ...prev, [key]: "connecting" }));
+    setTimeout(() => {
+      setStatuses((prev) => ({ ...prev, [key]: "connected" }));
+    }, 1800);
+  }
 
-    apps.forEach(app => {
-      setTimeout(() => {
-        let interval = setInterval(() => {
-          setProgress(prev => {
-            if (prev[app.key] < 100) return { ...prev, [app.key]: prev[app.key] + 5 };
-            clearInterval(interval);
-            setStatuses(prev => ({ ...prev, [app.key]: "✅ Connected" }));
-            return prev;
-          });
-        }, 100);
-      }, app.delay);
-    });
-  }, []);
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    setAuthError("");
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({ email, password });
+    setLoading(false);
+    if (error) {
+      setAuthError(error.message);
+    } else {
+      setAuthSuccess(true);
+    }
+  }
 
   return (
     <div>
-      {/* Sticky Hero Header */}
+      {/* Hero */}
       <header className="hero sticky-header">
         <div className="header-bar">
-          <h1 className="site-title">FlowBoard</h1>
+          <span className="logo-lockup">
+            <Image src="/logo.svg" alt="FlowBoard logo" width={52} height={52} />
+            <h1 className="site-title">FlowBoard</h1>
+          </span>
           <div className="header-buttons">
-            <a href="/signin" className="header-btn">Sign In</a>
-            <a href="/connected" className="header-btn primary">Go to Connected</a>
+            <a href="/auth/login" className="header-btn">Sign In</a>
+            <a href="/connected" className="header-btn primary">Go to Dashboard</a>
           </div>
         </div>
         <p>All your tools, one Flow</p>
       </header>
 
-      {/* Main content area with gradient background */}
       <div className="main-content">
-        {/* Feature Grid */}
-        <section className="feature-grid">
-          <div className="feature-card">
-            <h3>🔗 Connect</h3>
-            <p>Bring Gmail, Slack, Notion, and more into one workspace.</p>
-          </div>
-          <div className="feature-card">
-            <h3>⚡ Sync</h3>
-            <p>Keep your data updated in real time across all tools.</p>
-          </div>
-          <div className="feature-card">
-            <h3>🤖 Automate</h3>
-            <p>Save hours by automating repetitive tasks effortlessly.</p>
+
+        {/* App tiles */}
+        <section className="section-block">
+          <h2 className="section-title">Connect Your Apps</h2>
+          <p className="section-subtitle">Click an app to connect it to FlowBoard.</p>
+          <div className="app-tiles">
+            {APPS.map((app) => {
+              const status = statuses[app.key];
+              return (
+                <button
+                  key={app.key}
+                  className={`app-tile ${app.key} ${status}`}
+                  onClick={() => handleAppClick(app.key)}
+                >
+                  <span className="app-icon">{app.icon}</span>
+                  <span className="app-name">{app.label}</span>
+                  <span className="app-status">
+                    {status === "idle" && "Connect"}
+                    {status === "connecting" && "Connecting…"}
+                    {status === "connected" && "✓ Connected"}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 
-        {/* Workflow Diagram */}
-        <section className="workflow-section">
-          <h2>Visualize Your Flow</h2>
-          <div className="workflow-diagram">
-            <div className="workflow-step">📧 Gmail</div>
-            <span className="arrow">➡️</span>
-            <div className="workflow-step">📅 Calendar</div>
-            <span className="arrow">➡️</span>
-            <div className="workflow-step">💬 Slack</div>
-            <span className="arrow">➡️</span>
-            <div className="workflow-step">✅ Done</div>
-          </div>
-        </section>
-
-        {/* Status Tiles Section */}
-        <section className="status-tiles">
-          {Object.keys(statuses).map(app => (
-            <div key={app} className={`status-tile ${app}`}>
-              <span>
-                {app === "gmail" && "📧 Gmail"}
-                {app === "calendar" && "📅 Calendar"}
-                {app === "notion" && "📓 Notion"}
-                {app === "slack" && "💬 Slack"}
-                {app === "trello" && "🗂 Trello"}
-                {app === "github" && "💻 GitHub"}
-                {app === "outlook" && "📨 Outlook"}
-                {app === "discord" && "🎮 Discord"}
-                {app === "dropbox" && "📂 Dropbox"}
-                {app === "zoom" && "🎥 Zoom"}
-              </span>
-              <p>{statuses[app]}</p>
-              <div className="progress-bar">
-                <div style={{ width: `${progress[app]}%` }}></div>
-              </div>
+        {/* Why FlowBoard */}
+        <section className="section-block why-section">
+          <h2 className="section-title">Why use FlowBoard?</h2>
+          <p className="why-text">
+            FlowBoard brings all your essential tools into one simple, browser‑based dashboard.
+            No extra installs, no complicated setup. Just one place to manage Gmail, Outlook,
+            Google Calendar, Slack, Discord, and Notion with smart features like spam filtering,
+            meeting reminders, and automatic archiving. Stay organized, save time, and keep your
+            workflow flowing.
+          </p>
+          <div className="feature-grid">
+            <div className="feature-card">
+              <h3>🔗 Connect</h3>
+              <p>Bring all your tools into one workspace with a single click.</p>
             </div>
-          ))}
-        </section>
-
-        {/* About Section */}
-        <section className="about-section">
-          <h2>Why FlowBoard?</h2>
-          <p>
-            Managing multiple apps can feel overwhelming — emails in Gmail, meetings in Calendar,
-            notes in Notion, and conversations in Slack. FlowBoard brings them all together in one
-            unified dashboard, so you don’t waste time switching tabs or missing important updates.
-          </p>
-          <p>
-            With FlowBoard, you can see everything at a glance, automate repetitive tasks, and keep
-            your work flowing smoothly. It’s the simplest way to stay connected and productive.
-          </p>
-        </section>
-
-        {/* Steps Section */}
-        <section className="steps">
-          <h2>How It Works</h2>
-          <div>
-            <h3>1. Connect Your Apps</h3>
-            <p>Link Gmail, Calendar, Slack, Notion, and more in seconds.</p>
-          </div>
-          <div>
-            <h3>2. Sync Your Data</h3>
-            <p>FlowBoard keeps everything updated in real time across all tools.</p>
-          </div>
-          <div>
-            <h3>3. Automate Workflows</h3>
-            <p>Save hours by automating repetitive tasks and focusing on what matters.</p>
+            <div className="feature-card">
+              <h3>⚡ Sync</h3>
+              <p>Keep your data updated in real time across every app.</p>
+            </div>
+            <div className="feature-card">
+              <h3>🤖 Automate</h3>
+              <p>Let the AI agent handle repetitive tasks so you don&apos;t have to.</p>
+            </div>
           </div>
         </section>
 
-        {/* Registration Form / CTA */}
-        {showForm ? (
-          <section className="form-section">
-            <h2>Register Now</h2>
-            <form className="register-form">
-              <input type="text" placeholder="First Name" required />
-              <input type="text" placeholder="Surname" required />
-              <input type="email" placeholder="Email Address" required />
+        {/* Signup form */}
+        <section className="section-block signup-section">
+          <h2 className="section-title">Get Started for Free</h2>
+          <p className="section-subtitle">Create your FlowBoard account in seconds.</p>
+          {authSuccess ? (
+            <div className="signup-success">
+              <p>🎉 Account created! Check your email to confirm, then{" "}
+                <a href="/auth/login">sign in</a>.
+              </p>
+            </div>
+          ) : (
+            <form className="signup-form" onSubmit={handleSignup}>
+              <input
+                type="email"
+                placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Choose a password (min 6 chars)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                pattern="^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$"
-                title="Password must be at least 8 characters, include one uppercase letter, one number, and one special character."
+                minLength={6}
               />
-              <input type="password" placeholder="Confirm Password" required />
-              <button type="submit" className="form-submit">Sign Up</button>
+              {authError && <p className="auth-error">{authError}</p>}
+              <button type="submit" disabled={loading}>
+                {loading ? "Creating account…" : "Create Account"}
+              </button>
+              <p className="signin-link">
+                Already have an account? <a href="/auth/login">Sign in</a>
+              </p>
             </form>
-          </section>
-        ) : (
-          <div className="cta-block">
-            <button onClick={() => setShowForm(true)} className="cta-button">
-              🚀 Get Started for Free
-            </button>
-            <a href="/connected" className="back-home">🔗 Go to Connected Apps</a>
-          </div>
-        )}
+          )}
+        </section>
 
-        {/* Footer */}
-        <footer>
-          <p>Made with ❤️ by FlowBoard</p>
-        </footer>
       </div>
     </div>
   );
