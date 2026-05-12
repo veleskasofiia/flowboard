@@ -46,7 +46,8 @@ export async function POST(req: Request) {
       messages,
     });
 
-    const text = response.content.find((b) => b.type === "text")?.text;
+    const textBlock = response.content.find((b): b is Anthropic.TextBlock => b.type === "text");
+    const text = textBlock?.text;
 
     if (response.stop_reason !== "tool_use") {
       return NextResponse.json({ reply: text ?? "Done." });
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
       if (block.type !== "tool_use") continue;
       try {
         const result = await toolset.executeAction({
-          actionName: block.name,
+          action: block.name,
           params: block.input as Record<string, unknown>,
           entityId,
         });
