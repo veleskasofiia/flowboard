@@ -1,86 +1,85 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { ComposioToolSet } from "composio-core";
+import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const SYSTEM_PROMPT = `You are the FlowBoard AI assistant. You help users build workflows that connect their apps: Gmail, Outlook, Google Calendar, Google Drive, Slack, Discord, Notion, Todoist, and GitHub.
 
-const SYSTEM_PROMPT = `You are the FlowBoard AI assistant. You help users manage their connected apps: Gmail, Google Calendar, Slack, Notion, and GitHub.
-When a user asks you to do something with their apps, use the available tools to take action.
-Be concise and tell the user what you did.`;
+When a user asks how to connect apps or set up a workflow, give clear and friendly guidance:
+- Explain which nodes to drag onto the canvas
+- Explain how to connect them with arrows
+- Give a short example of what will happen when the workflow runs
+
+Be concise and helpful.`;
 
 export async function POST(req: Request) {
   const { message, entityId = "default" } = await req.json();
 
-  if (!process.env.ANTHROPIC_API_KEY || !process.env.COMPOSIO_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return NextResponse.json(
-      { reply: "Server is missing API keys. Add ANTHROPIC_API_KEY and COMPOSIO_API_KEY to .env.local." },
+      { reply: "Missing GROQ_API_KEY — add it to .env.local and restart the server." },
       { status: 500 }
     );
   }
 
-  const toolset = new ComposioToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-  const rawTools = await toolset.getToolsSchema({
-    apps: ["gmail", "googlecalendar", "slack", "notion", "github"],
-  });
+  // ── With Composio tools (if key is configured) ───────────────────────────
+  if (process.env.COMPOSIO_API_KEY) {
+    const { OpenAIToolSet } = await import("composio-core");
+    const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
 
-  const tools: Anthropic.Tool[] = rawTools.map((tool) => ({
-    name: tool.name,
-    description: tool.description,
-    input_schema: {
-      type: "object",
-      properties: tool.parameters.properties as Record<string, unknown>,
-      required: tool.parameters.required,
-    },
-  }));
-
-  const messages: Anthropic.MessageParam[] = [{ role: "user", content: message }];
-
-  // Agentic loop — runs until Claude stops requesting tool use
-  for (let step = 0; step < 10; step++) {
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      tools,
-      messages,
+    const tools = await toolset.getTools({
+      apps: ["gmail", "googlecalendar", "slack", "notion", "github"],
     });
 
-    const textBlock = response.content.find((b): b is Anthropic.TextBlock => b.type === "text");
-    const text = textBlock?.text;
+    const messages: Groq.Chat.ChatCompletionMessageParam[] = [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: message },
+    ];
 
-    if (response.stop_reason !== "tool_use") {
-      return NextResponse.json({ reply: text ?? "Done." });
-    }
+    for (let step = 0; step < 10; step++) {
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tools: tools as any,
+        tool_choice: "auto",
+        max_tokens: 4096,
+      });
 
-    messages.push({ role: "assistant", content: response.content });
+      const choice = response.choices[0];
 
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
-    for (const block of response.content) {
-      if (block.type !== "tool_use") continue;
-      try {
-        const result = await toolset.executeAction({
-          action: block.name,
-          params: block.input as Record<string, unknown>,
-          entityId,
-        });
-        toolResults.push({
-          type: "tool_result",
-          tool_use_id: block.id,
+      if (choice.finish_reason !== "tool_calls") {
+        return NextResponse.json({ reply: choice.message.content ?? "Done." });
+      }
+
+      messages.push(choice.message);
+
+      // Execute each tool call via Composio
+      const toolCalls = choice.message.tool_calls ?? [];
+      for (const call of toolCalls) {
+        const result = await toolset.executeToolCall(call, entityId);
+        messages.push({
+          role: "tool",
+          tool_call_id: call.id,
           content: JSON.stringify(result),
-        });
-      } catch (err) {
-        toolResults.push({
-          type: "tool_result",
-          tool_use_id: block.id,
-          content: `Error: ${err instanceof Error ? err.message : String(err)}`,
-          is_error: true,
         });
       }
     }
 
-    messages.push({ role: "user", content: toolResults });
+    return NextResponse.json({ reply: "Reached maximum steps without a final answer." });
   }
 
-  return NextResponse.json({ reply: "Reached maximum steps without a final answer." });
+  // ── Plain chat (no Composio — fully free) ────────────────────────────────
+  const response = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: message },
+    ],
+    max_tokens: 1024,
+  });
+
+  return NextResponse.json({
+    reply: response.choices[0].message.content ?? "Sorry, I couldn't generate a reply.",
+  });
 }
