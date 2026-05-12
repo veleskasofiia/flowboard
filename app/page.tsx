@@ -1,20 +1,72 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function HomePage() {
   const [showForm, setShowForm] = useState(false);
 
-  const apps = ["📧 Gmail", "📅 Calendar", "📓 Notion", "💬 Slack", "🗂 Trello", "💻 GitHub"];
+  const [statuses, setStatuses] = useState({
+    gmail: "Connecting...",
+    calendar: "Pending...",
+    notion: "Pending...",
+    slack: "Pending...",
+    trello: "Pending...",
+    github: "Pending...",
+    outlook: "Pending...",
+    discord: "Pending...",
+    dropbox: "Pending...",
+    zoom: "Pending..."
+  });
+
+  const [progress, setProgress] = useState({
+    gmail: 0,
+    calendar: 0,
+    notion: 0,
+    slack: 0,
+    trello: 0,
+    github: 0,
+    outlook: 0,
+    discord: 0,
+    dropbox: 0,
+    zoom: 0
+  });
+
+  useEffect(() => {
+    const apps = [
+      { key: "gmail", delay: 0 },
+      { key: "calendar", delay: 2000 },
+      { key: "notion", delay: 4000 },
+      { key: "slack", delay: 6000 },
+      { key: "trello", delay: 8000 },
+      { key: "github", delay: 10000 },
+      { key: "outlook", delay: 12000 },
+      { key: "discord", delay: 14000 },
+      { key: "dropbox", delay: 16000 },
+      { key: "zoom", delay: 18000 },
+    ];
+
+    apps.forEach(app => {
+      setTimeout(() => {
+        let interval = setInterval(() => {
+          setProgress(prev => {
+            if (prev[app.key] < 100) return { ...prev, [app.key]: prev[app.key] + 5 };
+            clearInterval(interval);
+            setStatuses(prev => ({ ...prev, [app.key]: "✅ Connected" }));
+            return prev;
+          });
+        }, 100);
+      }, app.delay);
+    });
+  }, []);
 
   return (
     <div>
       {/* Sticky Hero Header */}
       <header className="hero sticky-header">
         <div className="header-bar">
-          <h1>FlowBoard</h1>
+          <h1 className="site-title">FlowBoard</h1>
           <div className="header-buttons">
             <a href="/signin" className="header-btn">Sign In</a>
-            <a href="/get-started" className="header-btn primary">Get Started</a>
+            <a href="/connected" className="header-btn primary">Go to Connected</a>
           </div>
         </div>
         <p>All your tools, one Flow</p>
@@ -52,8 +104,29 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Spacer before CTA */}
-        <div className="spacer"></div>
+        {/* Status Tiles Section */}
+        <section className="status-tiles">
+          {Object.keys(statuses).map(app => (
+            <div key={app} className={`status-tile ${app}`}>
+              <span>
+                {app === "gmail" && "📧 Gmail"}
+                {app === "calendar" && "📅 Calendar"}
+                {app === "notion" && "📓 Notion"}
+                {app === "slack" && "💬 Slack"}
+                {app === "trello" && "🗂 Trello"}
+                {app === "github" && "💻 GitHub"}
+                {app === "outlook" && "📨 Outlook"}
+                {app === "discord" && "🎮 Discord"}
+                {app === "dropbox" && "📂 Dropbox"}
+                {app === "zoom" && "🎥 Zoom"}
+              </span>
+              <p>{statuses[app]}</p>
+              <div className="progress-bar">
+                <div style={{ width: `${progress[app]}%` }}></div>
+              </div>
+            </div>
+          ))}
+        </section>
 
         {/* About Section */}
         <section className="about-section">
@@ -67,15 +140,6 @@ export default function HomePage() {
             With FlowBoard, you can see everything at a glance, automate repetitive tasks, and keep
             your work flowing smoothly. It’s the simplest way to stay connected and productive.
           </p>
-        </section>
-
-        {/* App Roll */}
-        <section className="app-roll">
-          {apps.map((app, index) => (
-            <div key={index} className="app-item">
-              {app}
-            </div>
-          ))}
         </section>
 
         {/* Steps Section */}

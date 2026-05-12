@@ -26,12 +26,8 @@ html, body {
 /* Header bar */
 .header-bar { display: flex; justify-content: space-between; align-items: center; }
 
-/* Site title (instead of logo) */
-.site-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
-}
+/* Site title */
+.site-title { font-size: 2rem; font-weight: 700; color: white; }
 
 /* Header buttons */
 .header-buttons { display: flex; gap: 1rem; }
@@ -50,7 +46,7 @@ html, body {
 .header-btn:hover { background: rgba(255,255,255,0.2); }
 .header-btn.primary:hover { background: #f3f4f6; }
 
-/* Main content gradient */
+/* Main content gradient (homepage) */
 .main-content { background: linear-gradient(135deg, #f3f4f6, #e0e7ff); padding: 2rem 0; }
 
 /* Feature grid */
@@ -74,30 +70,8 @@ html, body {
 
 /* About section */
 .about-section { text-align: center; padding: 2rem; max-width: 700px; margin: 0 auto; }
-.about-section h2 {
-  font-size: 1.8rem;
-  color: #2563eb;
-  margin-bottom: 0.75rem;
-}
-.about-section p {
-  font-size: 1rem;
-  color: #444;
-  line-height: 1.6;
-  margin-bottom: 0.75rem;
-}
-
-/* App roll */
-.app-roll {
-  display: flex; justify-content: center; align-items: center;
-  overflow-x: auto; gap: 1rem; padding: 1rem; scroll-snap-type: x mandatory;
-}
-.app-item {
-  flex: 0 0 auto; background: #2563eb; color: white; padding: 1.5rem;
-  border-radius: 12px; font-size: 1.3rem; font-weight: bold; text-align: center;
-  cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
-  scroll-snap-align: center; min-width: 130px;
-}
-.app-item:hover { transform: scale(1.15); box-shadow: 0 8px 16px rgba(0,0,0,0.25); }
+.about-section h2 { font-size: 1.8rem; color: #2563eb; margin-bottom: 0.75rem; }
+.about-section p { font-size: 1rem; color: #444; line-height: 1.6; margin-bottom: 0.75rem; }
 
 /* Steps section */
 .steps { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; text-align: center; }
@@ -105,6 +79,103 @@ html, body {
 .steps div { margin-bottom: 1.25rem; }
 .steps h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #333; }
 .steps p { font-size: 1rem; color: #555; }
+
+/* Status tiles (homepage + connected) */
+.status-tiles, .tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.status-tile, .tile {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.status-tile:hover, .tile:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+.status-tile p, .tile p { margin-top: 0.5rem; font-size: 0.9rem; color: #555; }
+.connecting { color: #f59e0b; }
+
+/* Progress bar */
+.progress-bar {
+  background: #e5e7eb;
+  border-radius: 6px;
+  height: 8px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+.progress-bar div {
+  background: linear-gradient(90deg, #2563eb, #9333ea);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Brand accent borders */
+.status-tile.gmail, .tile.gmail    { border-top: 4px solid #ea4335; }
+.status-tile.calendar, .tile.calendar { border-top: 4px solid #4285f4; }
+.status-tile.notion, .tile.notion   { border-top: 4px solid #000000; }
+.status-tile.slack, .tile.slack    { border-top: 4px solid #36c5f0; }
+.status-tile.trello, .tile.trello  { border-top: 4px solid #0079bf; }
+.status-tile.github, .tile.github  { border-top: 4px solid #333333; }
+.status-tile.outlook, .tile.outlook { border-top: 4px solid #0078d4; }
+.status-tile.discord, .tile.discord { border-top: 4px solid #5865f2; }
+.status-tile.dropbox, .tile.dropbox { border-top: 4px solid #0061ff; }
+.status-tile.zoom, .tile.zoom       { border-top: 4px solid #2d8cff; }
+
+/* Connected page layout (schema + chat) */
+.connected-layout {
+  display: flex;
+  height: calc(100vh - 80px);
+}
+.schema-panel {
+  flex: 2;
+  border-right: 2px solid #e5e7eb;
+}
+.chat-panel {
+  flex: 1;
+  padding: 1rem;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+}
+.chat-panel h2 {
+  font-size: 1.4rem;
+  color: #2563eb;
+  margin-bottom: 1rem;
+}
+.chat-box {
+  flex: 1;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-y: auto;
+}
+.chat-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.chat-input input {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.chat-input button {
+  padding: 0.6rem 1.2rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.chat-input button:hover { background: #4f46e5; }
 
 /* Unified Button Style */
 .cta-button,
@@ -119,16 +190,7 @@ html, body {
 .back-home:hover,
 .form-submit:hover { background: #4f46e5; transform: scale(1.05); }
 
-/* Registration Form */
-.form-section { text-align: center; padding: 2rem 1rem; max-width: 500px; margin: 0 auto; }
-.form-section h2 { font-size: 1.6rem; color: #2563eb; margin-bottom: 1rem; }
-.register-form { display: flex; flex-direction: column; gap: 1rem; }
-.register-form input {
-  padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;
-}
-.register-form input:invalid { border-color: red; }
-
-/* Slim Footer */
+/* Footer */
 footer { background: transparent; color: #666; text-align: center; padding: 0.8rem; width: 100%; font-size: 0.85rem; }
 
 /* Animation */
@@ -136,5 +198,4 @@ footer { background: transparent; color: #666; text-align: center; padding: 0.8r
   0% { background-color: #2563eb; }
   33% { background-color: #4f46e5; }
   66% { background-color: #9333ea; }
-  100% { background-color: #2563eb; }
-}
+  100%
