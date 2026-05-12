@@ -2,44 +2,26 @@
 import { useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 const APPS = [
-  { key: "gmail",    label: "Gmail",            icon: "📧" },
-  { key: "outlook",  label: "Outlook",          icon: "📨" },
-  { key: "calendar", label: "Google Calendar",  icon: "📅" },
-  { key: "slack",    label: "Slack",            icon: "💬" },
-  { key: "discord",  label: "Discord",          icon: "🎮" },
-  { key: "notion",   label: "Notion",           icon: "📓" },
-  { key: "todoist",  label: "Todoist",          icon: "✅" },
+  { key: "gmail",    label: "Gmail",           icon: "📧" },
+  { key: "outlook",  label: "Outlook",         icon: "📨" },
+  { key: "calendar", label: "Google Calendar", icon: "📅" },
+  { key: "gdrive",   label: "Google Drive",    icon: "📁" },
+  { key: "slack",    label: "Slack",           icon: "💬" },
+  { key: "discord",  label: "Discord",         icon: "🎮" },
+  { key: "notion",   label: "Notion",          icon: "📓" },
+  { key: "todoist",  label: "Todoist",         icon: "✅" },
 ] as const;
 
-type AppKey = (typeof APPS)[number]["key"];
-type Status = "idle" | "connecting" | "connected";
-
 export default function HomePage() {
-  const [statuses, setStatuses] = useState<Record<AppKey, Status>>(
-    Object.fromEntries(APPS.map((a) => [a.key, "idle"])) as Record<AppKey, Status>
-  );
-
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [authSuccess, setAuthSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  function handleAppClick(key: AppKey) {
-    const current = statuses[key];
-    if (current === "connecting") return;
-
-    if (current === "connected") {
-      setStatuses((prev) => ({ ...prev, [key]: "idle" }));
-      return;
-    }
-
-    setStatuses((prev) => ({ ...prev, [key]: "connecting" }));
-    setTimeout(() => {
-      setStatuses((prev) => ({ ...prev, [key]: "connected" }));
-    }, 1800);
-  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -76,26 +58,19 @@ export default function HomePage() {
         {/* App tiles */}
         <section className="section-block">
           <h2 className="section-title">Connect Your Apps</h2>
-          <p className="section-subtitle">Click an app to connect it to FlowBoard.</p>
+          <p className="section-subtitle">Sign up to start connecting your tools to FlowBoard.</p>
           <div className="app-tiles">
-            {APPS.map((app) => {
-              const status = statuses[app.key];
-              return (
-                <button
-                  key={app.key}
-                  className={`app-tile ${app.key} ${status}`}
-                  onClick={() => handleAppClick(app.key)}
-                >
-                  <span className="app-icon">{app.icon}</span>
-                  <span className="app-name">{app.label}</span>
-                  <span className="app-status">
-                    {status === "idle" && "Connect"}
-                    {status === "connecting" && "Connecting…"}
-                    {status === "connected" && "✓ Connected"}
-                  </span>
-                </button>
-              );
-            })}
+            {APPS.map((app) => (
+              <button
+                key={app.key}
+                className={`app-tile ${app.key}`}
+                onClick={() => router.push("/auth/signup")}
+              >
+                <span className="app-icon">{app.icon}</span>
+                <span className="app-name">{app.label}</span>
+                <span className="app-status">Connect →</span>
+              </button>
+            ))}
           </div>
         </section>
 

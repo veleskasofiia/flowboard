@@ -420,10 +420,7 @@ html, body {
 .app-tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.12); }
 .app-icon { font-size: 2rem; }
 .app-name { font-size: 0.95rem; font-weight: 600; color: #333; }
-.app-status { font-size: 0.8rem; color: #888; }
-.app-tile.connecting .app-status { color: #f59e0b; }
-.app-tile.connected .app-status { color: #16a34a; font-weight: 600; }
-.app-tile.connected { background: #f0fdf4; }
+.app-status { font-size: 0.8rem; color: #6366f1; font-weight: 500; }
 
 .app-tile.gmail    { border-top-color: #ea4335; }
 .app-tile.outlook  { border-top-color: #0078d4; }
@@ -431,6 +428,7 @@ html, body {
 .app-tile.slack    { border-top-color: #36c5f0; }
 .app-tile.discord  { border-top-color: #5865f2; }
 .app-tile.notion   { border-top-color: #000000; }
+.app-tile.gdrive   { border-top-color: #34a853; }
 .app-tile.todoist  { border-top-color: #db4035; }
 
 /* Why section */

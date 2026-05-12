@@ -34,6 +34,7 @@ const PALETTE: AppEntry[] = [
   { key: "gmail",    label: "Gmail",             icon: "📧", color: "#ea4335", category: "action"  },
   { key: "outlook",  label: "Outlook",           icon: "📨", color: "#0078d4", category: "action"  },
   { key: "calendar", label: "Google Calendar",   icon: "📅", color: "#4285f4", category: "action"  },
+  { key: "gdrive",   label: "Google Drive",      icon: "📁", color: "#34a853", category: "action"  },
   { key: "slack",    label: "Slack",             icon: "💬", color: "#36c5f0", category: "action"  },
   { key: "discord",  label: "Discord",           icon: "🎮", color: "#5865f2", category: "action"  },
   { key: "notion",   label: "Notion",            icon: "📓", color: "#374151", category: "action"  },
