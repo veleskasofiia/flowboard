@@ -324,13 +324,6 @@ export default function ConnectedAppsPage() {
   const [runResult, setRunResult] = useState<string | null>(null);
   const [saveTrigger, setSaveTrigger] = useState(0);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const entityIdRef = useRef<string>("default");
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) entityIdRef.current = user.id;
-    });
-  }, []);
 
   function handleSave() {
     setSaveStatus("saving");
@@ -346,6 +339,9 @@ export default function ConnectedAppsPage() {
     setRunning(true);
     setRunResult(null);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const entityId = user?.id ?? "default";
+
       const payload = nodesRef.current.map((n) => ({
         label: (n.data as AppNodeData).label,
         category: (n.data as AppNodeData).category,
@@ -353,7 +349,7 @@ export default function ConnectedAppsPage() {
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nodes: payload, entityId: entityIdRef.current }),
+        body: JSON.stringify({ nodes: payload, entityId }),
       });
       const data = await res.json();
       const result: string = data.result ?? "Workflow ran.";
