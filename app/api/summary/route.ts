@@ -35,8 +35,8 @@ export async function POST(req: Request) {
         orderBy: "startTime",
         maxResults: 100,
       }),
-      // max_results 500 gives best count; nextPageToken means there are even more
-      exec("GMAIL_LIST_THREADS", { query: "is:unread", max_results: 500 }),
+      // in:inbox filters to what the user actually sees as unread; max 500 threads
+      exec("GMAIL_LIST_THREADS", { query: "is:unread in:inbox", max_results: 500 }),
       exec("OUTLOOK_OUTLOOK_LIST_EVENTS", {
         filter: `start/dateTime ge '${monday.toISOString()}' and end/dateTime le '${sunday.toISOString()}'`,
         top: 100,
