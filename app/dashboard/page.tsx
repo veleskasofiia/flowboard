@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
+type RunRecord = { id: number; result: string; nodes: string[]; ts: string };
+
 const APPS = [
   { key: "gmail",    label: "Gmail",            icon: "📧", color: "#ea4335" },
   { key: "outlook",  label: "Outlook Mail",     icon: "📨", color: "#0078d4" },
@@ -65,6 +67,7 @@ export default function DashboardPage() {
   const [daysAsMember, setDaysAsMember] = useState(0);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
+  const [recentRuns, setRecentRuns] = useState<RunRecord[]>([]);
 
   useEffect(() => {
     async function init() {
@@ -83,6 +86,9 @@ export default function DashboardPage() {
       setDaysAsMember(days);
 
       setLoading(false);
+
+      const runs: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
+      setRecentRuns(runs.slice(0, 5));
     }
     init();
   }, [router]);
@@ -204,7 +210,41 @@ export default function DashboardPage() {
           </section>
         </div>
 
+        {/* Recent workflow runs */}
+        <section className="dash-card dash-runs">
+          <h2 className="dash-card-title">Recent Workflow Runs</h2>
+          <p className="dash-card-sub">
+            Results from your last runs in the <a href="/connected">Workflow Builder</a>.
+          </p>
+          {recentRuns.length === 0 ? (
+            <div className="dash-runs-empty">
+              <span>No runs yet.</span>
+              <a href="/connected" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>
+                ▶ Run your first workflow
+              </a>
+            </div>
+          ) : (
+            <div className="dash-runs-list">
+              {recentRuns.map((run) => (
+                <div key={run.id} className="dash-run-item">
+                  <div className="dash-run-meta">
+                    <span className="dash-run-nodes">{run.nodes.join(" → ")}</span>
+                    <span className="dash-run-ts">
+                      {new Date(run.ts).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  <pre className="dash-run-result">{run.result}</pre>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
       </main>
+
+      <footer className="dash-footer">
+        <p>© 2026 FlowBoard · <a href="/docs">Documentation</a> · <a href="/">Home</a></p>
+      </footer>
     </div>
   );
 }

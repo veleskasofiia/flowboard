@@ -141,6 +141,10 @@ export default function HomePage() {
         </section>
 
       </div>
+
+      <footer style={{ background: "#1e293b", color: "#94a3b8", textAlign: "center", padding: "1.25rem", fontSize: "0.85rem" }}>
+        <p>© 2026 FlowBoard · <a href="/docs" style={{ color: "#93c5fd", textDecoration: "none" }}>Documentation</a> · <a href="/auth/login" style={{ color: "#93c5fd", textDecoration: "none" }}>Sign In</a></p>
+      </footer>
     </div>
   );
 }

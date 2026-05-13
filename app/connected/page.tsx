@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -14,6 +14,7 @@ import ReactFlow, {
   Position,
   type Connection,
   type NodeTypes,
+  type Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowChat from "../../components/FlowChat";
@@ -131,11 +132,15 @@ const initialEdges = [
 
 // ─── Inner canvas (needs ReactFlowProvider context) ───────────────────────────
 
-function WorkflowCanvas() {
+function WorkflowCanvas({ nodesRef }: { nodesRef: React.MutableRefObject<Node[]> }) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes, nodesRef]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, ...defaultEdgeOptions }, eds)),
@@ -249,6 +254,40 @@ function PaletteGroup({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ConnectedAppsPage() {
+  const nodesRef = useRef<Node[]>([]);
+  const [running, setRunning] = useState(false);
+  const [runResult, setRunResult] = useState<string | null>(null);
+
+  async function handleRun() {
+    setRunning(true);
+    setRunResult(null);
+    try {
+      const payload = nodesRef.current.map((n) => ({
+        label: (n.data as AppNodeData).label,
+        category: (n.data as AppNodeData).category,
+      }));
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nodes: payload }),
+      });
+      const data = await res.json();
+      const result: string = data.result ?? "Workflow ran.";
+      setRunResult(result);
+      const prev: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
+      prev.unshift({
+        id: Date.now(),
+        result,
+        nodes: payload.map((n) => n.label),
+        ts: new Date().toISOString(),
+      });
+      localStorage.setItem("flowboard_runs", JSON.stringify(prev.slice(0, 10)));
+    } catch {
+      setRunResult("Run failed. Please try again.");
+    }
+    setRunning(false);
+  }
+
   return (
     <div className="workflow-page">
       {/* Top bar */}
@@ -256,10 +295,23 @@ export default function ConnectedAppsPage() {
         <a href="/" className="topbar-back">← Home</a>
         <span className="topbar-title">My Workflow</span>
         <div className="topbar-actions">
-          <button className="topbar-btn run-btn">▶ Run</button>
+          <button className="topbar-btn run-btn" onClick={handleRun} disabled={running}>
+            {running ? "⏳ Running…" : "▶ Run"}
+          </button>
           <a href="/auth/login" className="topbar-btn">Sign In</a>
         </div>
       </header>
+
+      {/* Run result banner */}
+      {runResult && (
+        <div className="run-result-banner">
+          <div className="run-result-inner">
+            <span className="run-result-title">✅ Workflow Result</span>
+            <button className="run-result-close" onClick={() => setRunResult(null)}>✕</button>
+          </div>
+          <pre className="run-result-body">{runResult}</pre>
+        </div>
+      )}
 
       {/* Body */}
       <div className="workflow-body">
@@ -267,7 +319,7 @@ export default function ConnectedAppsPage() {
 
         <div className="canvas-area">
           <ReactFlowProvider>
-            <WorkflowCanvas />
+            <WorkflowCanvas nodesRef={nodesRef} />
           </ReactFlowProvider>
         </div>
 
@@ -278,3 +330,5 @@ export default function ConnectedAppsPage() {
     </div>
   );
 }
+
+type RunRecord = { id: number; result: string; nodes: string[]; ts: string };
