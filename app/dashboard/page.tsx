@@ -7,6 +7,20 @@ import NavBar from "@/components/NavBar";
 
 type RunRecord = { id: number; result: string; nodes: string[]; ts: string };
 
+type Meeting = { title: string; start: string; source: string };
+type Summary = {
+  meetings_count: number | null;
+  meetings: Meeting[];
+  next_meeting: Meeting | null;
+  gmail_unread: number | null;
+  outlook_unread: number | null;
+  connected: string[];
+  error?: string;
+};
+
+const SUMMARY_CACHE_KEY = "flowboard_summary";
+const SUMMARY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 const APPS = [
   { key: "gmail",    label: "Gmail",            icon: "📧", color: "#ea4335" },
   { key: "outlook",  label: "Outlook Mail",     icon: "📨", color: "#0078d4" },
@@ -68,6 +82,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
   const [recentRuns, setRecentRuns] = useState<RunRecord[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -89,9 +105,34 @@ export default function DashboardPage() {
 
       const runs: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
       setRecentRuns(runs.slice(0, 5));
+
+      // Load summary — use cache if fresh, else fetch
+      const cached = localStorage.getItem(SUMMARY_CACHE_KEY);
+      if (cached) {
+        const { ts, data } = JSON.parse(cached);
+        if (Date.now() - ts < SUMMARY_TTL_MS) { setSummary(data); return; }
+      }
+      fetchSummary(user.id);
     }
     init();
   }, [router]);
+
+  async function fetchSummary(entityId: string) {
+    setSummaryLoading(true);
+    try {
+      const res = await fetch("/api/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entityId }),
+      });
+      const data: Summary = await res.json();
+      setSummary(data);
+      localStorage.setItem(SUMMARY_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    } catch {
+      setSummary({ meetings_count: null, meetings: [], next_meeting: null, gmail_unread: null, outlook_unread: null, connected: [], error: "failed" });
+    }
+    setSummaryLoading(false);
+  }
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -118,27 +159,117 @@ export default function DashboardPage() {
 
       <main className="dash-main">
 
-        {/* Welcome + stats */}
+        {/* Welcome */}
         <div className="dash-top-row">
           <div className="dash-welcome">
             <h1>{greeting()}, <span>{user?.email?.split("@")[0]}</span> 👋</h1>
-            <p>Member since {joinedDate}</p>
-          </div>
-          <div className="dash-mini-stats">
-            <div className="dash-mini-stat">
-              <span className="dash-mini-val">{daysAsMember}</span>
-              <span className="dash-mini-label">Days with FlowBoard</span>
-            </div>
-            <div className="dash-mini-stat">
-              <span className="dash-mini-val">{APPS.length}</span>
-              <span className="dash-mini-label">Apps available</span>
-            </div>
-            <div className="dash-mini-stat">
-              <span className="dash-mini-val">{messageCount}</span>
-              <span className="dash-mini-label">AI messages sent</span>
-            </div>
+            <p>Member since {joinedDate} · {daysAsMember} days with FlowBoard · {messageCount} AI messages</p>
           </div>
         </div>
+
+        {/* Your Week — real data from connected apps */}
+        <section className="dash-card dash-week">
+          <div className="dash-week-header">
+            <h2 className="dash-card-title" style={{ margin: 0 }}>Your Week at a Glance</h2>
+            <button
+              className="dash-week-refresh"
+              onClick={() => user && fetchSummary(user.id)}
+              disabled={summaryLoading}
+            >
+              {summaryLoading ? "Loading…" : "↺ Refresh"}
+            </button>
+          </div>
+
+          {summaryLoading && !summary && (
+            <div className="dash-week-loading">
+              <div className="dash-spinner" style={{ width: 28, height: 28 }} />
+              <span>Fetching your meetings and emails…</span>
+            </div>
+          )}
+
+          {!summaryLoading && !summary && (
+            <div className="dash-week-empty">
+              <p>Connect your calendars and email to see your week here.</p>
+              <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.5rem" }}>🔗 Connect Apps</a>
+            </div>
+          )}
+
+          {summary && !summary.error && (
+            <>
+              <div className="dash-week-stats">
+                {/* Meetings this week */}
+                <div className="dash-week-stat" style={{ borderColor: "#4285f4" }}>
+                  <span className="dash-week-icon">📅</span>
+                  <span className="dash-week-val">
+                    {summary.meetings_count !== null ? summary.meetings_count : "—"}
+                  </span>
+                  <span className="dash-week-label">meetings this week</span>
+                  {summary.next_meeting && (
+                    <span className="dash-week-sub">
+                      Next: {summary.next_meeting.title}<br />
+                      {new Date(summary.next_meeting.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}{" "}
+                      {new Date(summary.next_meeting.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  )}
+                </div>
+
+                {/* Gmail unread */}
+                <div className="dash-week-stat" style={{ borderColor: "#ea4335" }}>
+                  <span className="dash-week-icon">📧</span>
+                  <span className="dash-week-val">
+                    {summary.gmail_unread !== null ? summary.gmail_unread : "—"}
+                  </span>
+                  <span className="dash-week-label">unread Gmail</span>
+                  {summary.gmail_unread === null && (
+                    <a href="/connect" className="dash-week-connect">Connect Gmail →</a>
+                  )}
+                </div>
+
+                {/* Outlook unread */}
+                <div className="dash-week-stat" style={{ borderColor: "#0078d4" }}>
+                  <span className="dash-week-icon">📨</span>
+                  <span className="dash-week-val">
+                    {summary.outlook_unread !== null ? summary.outlook_unread : "—"}
+                  </span>
+                  <span className="dash-week-label">unread Outlook</span>
+                  {summary.outlook_unread === null && (
+                    <a href="/connect" className="dash-week-connect">Connect Outlook →</a>
+                  )}
+                </div>
+              </div>
+
+              {/* Meeting list */}
+              {summary.meetings.length > 0 && (
+                <div className="dash-meeting-list">
+                  <p className="dash-meeting-list-title">This week&apos;s meetings</p>
+                  {summary.meetings.slice(0, 8).map((m, i) => (
+                    <div key={i} className="dash-meeting-row">
+                      <span className="dash-meeting-src">{m.source === "google" ? "📅" : "📆"}</span>
+                      <span className="dash-meeting-title">{m.title}</span>
+                      <span className="dash-meeting-time">
+                        {new Date(m.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}{" "}
+                        {new Date(m.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {summary.meetings_count === null && summary.gmail_unread === null && summary.outlook_unread === null && (
+                <div className="dash-week-empty" style={{ marginTop: "0.75rem" }}>
+                  <p>No apps are connected yet. Connect your calendars and email to see real data here.</p>
+                  <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.5rem" }}>🔗 Connect Apps</a>
+                </div>
+              )}
+            </>
+          )}
+
+          {summary?.error && (
+            <div className="dash-week-empty">
+              <p>Could not load your data. <button className="dash-week-retry" onClick={() => user && fetchSummary(user.id)}>Try again</button></p>
+            </div>
+          )}
+        </section>
 
         {/* Connect Apps CTA */}
         <section className="dash-card dash-connect-cta">
