@@ -176,6 +176,7 @@ html, body {
   transition: background 0.15s;
 }
 .topbar-btn:hover { background: #f8fafc; }
+.topbar-nav { display: flex; align-items: center; gap: 0.25rem; }
 .topbar-btn.run-btn {
   background: linear-gradient(90deg, #2563eb, #7c3aed);
   color: white;

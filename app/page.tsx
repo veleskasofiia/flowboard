@@ -49,7 +49,8 @@ export default function HomePage() {
           </span>
           <div className="header-buttons">
             <a href="/auth/login" className="header-btn">Sign In</a>
-            <a href="/connected" className="header-btn primary">Go to Dashboard</a>
+            <a href="/connected" className="header-btn">Workflow Builder</a>
+            <a href="/dashboard" className="header-btn primary">Dashboard</a>
           </div>
         </div>
         <p>All your tools, one Flow</p>

@@ -368,7 +368,10 @@ export default function ConnectedAppsPage() {
     <div className="workflow-page">
       {/* Top bar */}
       <header className="workflow-topbar">
-        <a href="/" className="topbar-back">← Home</a>
+        <div className="topbar-nav">
+          <a href="/" className="topbar-back">← Home</a>
+          <a href="/dashboard" className="topbar-back">Dashboard</a>
+        </div>
         <span className="topbar-title">My Workflow</span>
         <div className="topbar-actions">
           <button className="topbar-btn run-btn" onClick={handleRun} disabled={running}>
