@@ -1,26 +1,10 @@
-import Image from "next/image";
-
-export const metadata = { title: "Documentation – FlowBoard" };
+"use client";
+import NavBar from "@/components/NavBar";
 
 export default function DocsPage() {
   return (
     <div className="docs-page">
-      <header className="docs-header">
-        <a href="/" className="docs-logo-link">
-          <Image src="/logo.svg" alt="FlowBoard" width={36} height={36} />
-          <span className="docs-logo-text">FlowBoard</span>
-        </a>
-        <nav className="docs-nav">
-          <a href="#overview">Overview</a>
-          <a href="#getting-started">Getting Started</a>
-          <a href="#workflow-builder">Workflow Builder</a>
-          <a href="#nodes">Nodes</a>
-          <a href="#ai-assistant">AI Assistant</a>
-          <a href="#dashboard">Dashboard</a>
-          <a href="#technology">Technology</a>
-          <a href="#faq">FAQ</a>
-        </nav>
-      </header>
+      <NavBar />
 
       <div className="docs-layout">
         <aside className="docs-toc">

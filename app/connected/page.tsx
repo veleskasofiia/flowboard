@@ -20,6 +20,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import FlowChat from "../../components/FlowChat";
 import { supabase } from "../../lib/supabaseClient";
+import NavBar from "../../components/NavBar";
 
 // ─── App catalogue ───────────────────────────────────────────────────────────
 
@@ -366,27 +367,20 @@ export default function ConnectedAppsPage() {
 
   return (
     <div className="workflow-page">
-      {/* Top bar */}
-      <header className="workflow-topbar">
-        <div className="topbar-nav">
-          <a href="/" className="topbar-back">← Home</a>
-          <a href="/dashboard" className="topbar-back">Dashboard</a>
-        </div>
+      <NavBar />
+
+      {/* Workflow toolbar */}
+      <div className="workflow-toolbar">
         <span className="topbar-title">My Workflow</span>
         <div className="topbar-actions">
           <button className="topbar-btn run-btn" onClick={handleRun} disabled={running}>
             {running ? "⏳ Running…" : "▶ Run"}
           </button>
-          <button
-            className="topbar-btn save-btn"
-            onClick={handleSave}
-            disabled={saveStatus === "saving"}
-          >
+          <button className="topbar-btn save-btn" onClick={handleSave} disabled={saveStatus === "saving"}>
             {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "✓ Saved" : saveStatus === "error" ? "⚠ Sign in to save" : "💾 Save"}
           </button>
-          <a href="/auth/login" className="topbar-btn">Sign In</a>
         </div>
-      </header>
+      </div>
 
       {/* Run result banner */}
       {runResult && (

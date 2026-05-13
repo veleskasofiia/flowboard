@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
+import NavBar from "@/components/NavBar";
 
 type RunRecord = { id: number; result: string; nodes: string[]; ts: string };
 
@@ -114,19 +114,7 @@ export default function DashboardPage() {
 
   return (
     <div className="dash-page">
-      <header className="dash-nav">
-        <span className="dash-nav-logo">
-          <Image src="/logo.svg" alt="FlowBoard" width={32} height={32} />
-          FlowBoard
-        </span>
-        <nav className="dash-nav-links">
-          <span className="dash-nav-link active">Dashboard</span>
-          <a href="/connect" className="dash-nav-link">Connect Apps</a>
-          <a href="/connected" className="dash-nav-link">Workflow Builder</a>
-          <a href="/" className="dash-nav-link">Home</a>
-        </nav>
-        <button className="dash-signout" onClick={handleSignOut}>Sign Out</button>
-      </header>
+      <NavBar onSignOut={handleSignOut} />
 
       <main className="dash-main">
 

@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
+import NavBar from "@/components/NavBar";
 
 const APPS = [
   { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
@@ -82,20 +82,7 @@ export default function ConnectPage() {
 
   return (
     <div className="dash-page">
-      <header className="dash-nav">
-        <span className="dash-nav-logo">
-          <Image src="/logo.svg" alt="FlowBoard" width={32} height={32} />
-          FlowBoard
-        </span>
-        <nav className="dash-nav-links">
-          <a href="/dashboard" className="dash-nav-link">Dashboard</a>
-          <span className="dash-nav-link active">Connect Apps</span>
-          <a href="/connected" className="dash-nav-link">Workflow Builder</a>
-        </nav>
-        <button className="dash-signout" onClick={async () => { await supabase.auth.signOut(); router.push("/"); }}>
-          Sign Out
-        </button>
-      </header>
+      <NavBar onSignOut={() => { supabase.auth.signOut(); router.push("/"); }} />
 
       <main className="dash-main">
         <div className="dash-top-row">

@@ -129,6 +129,60 @@ html, body {
 .status-tile.dropbox, .tile.dropbox { border-top: 4px solid #0061ff; }
 .status-tile.zoom, .tile.zoom       { border-top: 4px solid #2d8cff; }
 
+/* ── Shared NavBar ───────────────────────────────────────────────── */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: #1e293b;
+  padding: 0 1.5rem;
+  height: 52px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.app-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+}
+.app-nav-links {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+}
+.app-nav-link {
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.app-nav-link:hover { background: #334155; color: white; }
+.app-nav-link.active { background: #2563eb; color: white; }
+.app-nav-signout {
+  margin-left: auto;
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.app-nav-signout:hover { border-color: #94a3b8; color: white; }
+
 /* ── Workflow page (n8n-style) ───────────────────────────────────── */
 .workflow-page {
   display: flex;
@@ -138,25 +192,17 @@ html, body {
   background: #f1f5f9;
 }
 
-/* Top bar */
-.workflow-topbar {
+/* Workflow toolbar (below NavBar) */
+.workflow-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: white;
   border-bottom: 1px solid #e2e8f0;
   padding: 0 1.25rem;
-  height: 52px;
+  height: 44px;
   flex-shrink: 0;
-  z-index: 100;
 }
-.topbar-back {
-  font-size: 0.88rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-}
-.topbar-back:hover { color: #2563eb; }
 .topbar-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -176,7 +222,6 @@ html, body {
   transition: background 0.15s;
 }
 .topbar-btn:hover { background: #f8fafc; }
-.topbar-nav { display: flex; align-items: center; gap: 0.25rem; }
 .topbar-btn.run-btn {
   background: linear-gradient(90deg, #2563eb, #7c3aed);
   color: white;
