@@ -35,10 +35,8 @@ export async function POST(req: Request) {
         orderBy: "startTime",
         maxResults: 100,
       }),
-      // No max_results so resultSizeEstimate reflects true total unread
-      exec("GMAIL_LIST_THREADS", {
-        query: "is:unread",
-      }),
+      // GMAIL_LIST_LABELS returns every label with messagesUnread — exact total, no pagination
+      exec("GMAIL_LIST_LABELS", { user_id: "me" }),
       exec("OUTLOOK_OUTLOOK_LIST_EVENTS", {
         filter: `start/dateTime ge '${monday.toISOString()}' and end/dateTime le '${sunday.toISOString()}'`,
         top: 100,
@@ -73,17 +71,20 @@ export async function POST(req: Request) {
     }
 
     // ── Gmail ───────────────────────────────────────────────────────────
-    // Response shape: { data: { threads: [...], nextPageToken?: string } }
-    // resultSizeEstimate is not forwarded by Composio; use threads.length.
-    // nextPageToken means more pages exist — surface a "+" indicator via gmail_has_more.
+    // GMAIL_LIST_LABELS returns all labels; INBOX label has exact messagesUnread count.
     let gmailUnread: number | null = null;
-    let gmailHasMore = false;
     if (gmailResult.status === "fulfilled" && !gmailResult.value?.error) {
       try {
-        const d = gmailResult.value.data;
-        const threads: unknown[] = Array.isArray(d?.threads) ? d.threads : [];
-        gmailHasMore = !!d?.nextPageToken;
-        gmailUnread = threads.length;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = gmailResult.value.data as any;
+        const labels: unknown[] = Array.isArray(d?.labels) ? d.labels : [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const inbox = labels.find((l: any) => l?.id === "INBOX") as any;
+        if (inbox && typeof inbox.messagesUnread === "number") {
+          gmailUnread = inbox.messagesUnread;
+        } else if (inbox && typeof inbox.threadsUnread === "number") {
+          gmailUnread = inbox.threadsUnread;
+        }
         connected.push("gmail");
       } catch { /* ignore */ }
     }
@@ -129,7 +130,7 @@ export async function POST(req: Request) {
       meetings,
       next_meeting: nextMeeting,
       gmail_unread: gmailUnread,
-      gmail_has_more: gmailHasMore,
+      gmail_has_more: false,
       outlook_unread: outlookUnread,
       connected,
     });
