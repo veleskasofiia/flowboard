@@ -1134,6 +1134,110 @@ footer {
 .docs-footer a { color: #93c5fd; text-decoration: none; }
 .docs-footer a:hover { text-decoration: underline; }
 
+/* ── Connect Apps page ──────────────────────────────────────────────── */
+.connect-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+.connect-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.15s;
+}
+.connect-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.connect-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.connect-icon { font-size: 2rem; line-height: 1; }
+.connect-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+.connect-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-top: 3px;
+}
+.connect-badge.connected { background: #dcfce7; color: #15803d; }
+.connect-badge.not-connected { background: #f1f5f9; color: #94a3b8; }
+.connect-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 2px solid;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  text-align: center;
+}
+.connect-btn:hover:not(:disabled) { opacity: 0.85; }
+.connect-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.connect-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+.connect-info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1rem;
+}
+.connect-info h3 { font-size: 0.95rem; font-weight: 700; color: #1e40af; margin-bottom: 0.6rem; }
+.connect-info ol { padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.connect-info li { font-size: 0.88rem; color: #1e40af; line-height: 1.6; }
+.connect-info a { color: #2563eb; font-weight: 600; }
+
+/* Dashboard Connect CTA */
+.dash-connect-cta { margin-bottom: 0; }
+.dash-connect-cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Callback page */
+.callback-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  font-family: Arial, sans-serif;
+}
+.callback-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  max-width: 420px;
+  width: 100%;
+}
+.callback-icon { font-size: 3.5rem; margin-bottom: 0.75rem; }
+.callback-card h1 { font-size: 1.8rem; font-weight: 800; color: #15803d; margin-bottom: 0.5rem; }
+.callback-card p { color: #475569; font-size: 1rem; line-height: 1.6; margin-bottom: 0.4rem; }
+.callback-redirect { font-size: 0.85rem; color: #94a3b8; }
+
 /* Docs tech grid */
 .docs-tech-grid {
   display: flex;

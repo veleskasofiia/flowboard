@@ -121,6 +121,7 @@ export default function DashboardPage() {
         </span>
         <nav className="dash-nav-links">
           <span className="dash-nav-link active">Dashboard</span>
+          <a href="/connect" className="dash-nav-link">Connect Apps</a>
           <a href="/connected" className="dash-nav-link">Workflow Builder</a>
           <a href="/" className="dash-nav-link">Home</a>
         </nav>
@@ -150,6 +151,19 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Connect Apps CTA */}
+        <section className="dash-card dash-connect-cta">
+          <div className="dash-connect-cta-inner">
+            <div>
+              <h2 className="dash-card-title" style={{ marginBottom: "0.3rem" }}>Connect Your Apps</h2>
+              <p className="dash-card-sub" style={{ margin: 0 }}>Sign in to Gmail, Slack, Notion and more so the AI assistant can take real actions on your behalf.</p>
+            </div>
+            <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", whiteSpace: "nowrap" }}>
+              🔗 Connect Apps
+            </a>
+          </div>
+        </section>
 
         {/* How to build a workflow */}
         <section className="dash-card dash-guide">
