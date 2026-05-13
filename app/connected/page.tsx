@@ -15,9 +15,11 @@ import ReactFlow, {
   type Connection,
   type NodeTypes,
   type Node,
+  type Edge,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowChat from "../../components/FlowChat";
+import { supabase } from "../../lib/supabaseClient";
 
 // ─── App catalogue ───────────────────────────────────────────────────────────
 
@@ -145,18 +147,63 @@ function loadCanvas() {
 
 // ─── Inner canvas (needs ReactFlowProvider context) ───────────────────────────
 
-function WorkflowCanvas({ nodesRef }: { nodesRef: React.MutableRefObject<Node[]> }) {
+function WorkflowCanvas({
+  nodesRef,
+  edgesRef,
+  saveTrigger,
+  onSaveComplete,
+}: {
+  nodesRef: React.MutableRefObject<Node[]>;
+  edgesRef: React.MutableRefObject<Edge[]>;
+  saveTrigger: number;
+  onSaveComplete: (ok: boolean) => void;
+}) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const saved = loadCanvas();
   const [nodes, setNodes, onNodesChange] = useNodesState(saved.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(saved.edges);
 
+  // Keep refs in sync and auto-save to localStorage
   useEffect(() => {
     nodesRef.current = nodes;
+    edgesRef.current = edges;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, edges, nodesRef]);
+  }, [nodes, edges]);
+
+  // On mount: load from Supabase if user is logged in
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase
+        .from("workflows")
+        .select("nodes, edges")
+        .eq("user_id", user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) {
+            setNodes(data.nodes);
+            setEdges(data.edges);
+          }
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Save to Supabase when parent triggers it
+  useEffect(() => {
+    if (saveTrigger === 0) return;
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { onSaveComplete(false); return; }
+      const { error } = await supabase.from("workflows").upsert(
+        { user_id: user.id, nodes: nodesRef.current, edges: edgesRef.current, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      );
+      onSaveComplete(!error);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saveTrigger]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, ...defaultEdgeOptions }, eds)),
@@ -271,8 +318,21 @@ function PaletteGroup({
 
 export default function ConnectedAppsPage() {
   const nodesRef = useRef<Node[]>([]);
+  const edgesRef = useRef<Edge[]>([]);
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState<string | null>(null);
+  const [saveTrigger, setSaveTrigger] = useState(0);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  function handleSave() {
+    setSaveStatus("saving");
+    setSaveTrigger((t) => t + 1);
+  }
+
+  function handleSaveComplete(ok: boolean) {
+    setSaveStatus(ok ? "saved" : "error");
+    setTimeout(() => setSaveStatus("idle"), 2500);
+  }
 
   async function handleRun() {
     setRunning(true);
@@ -314,6 +374,13 @@ export default function ConnectedAppsPage() {
           <button className="topbar-btn run-btn" onClick={handleRun} disabled={running}>
             {running ? "⏳ Running…" : "▶ Run"}
           </button>
+          <button
+            className="topbar-btn save-btn"
+            onClick={handleSave}
+            disabled={saveStatus === "saving"}
+          >
+            {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "✓ Saved" : saveStatus === "error" ? "⚠ Sign in to save" : "💾 Save"}
+          </button>
           <a href="/auth/login" className="topbar-btn">Sign In</a>
         </div>
       </header>
@@ -335,7 +402,12 @@ export default function ConnectedAppsPage() {
 
         <div className="canvas-area">
           <ReactFlowProvider>
-            <WorkflowCanvas nodesRef={nodesRef} />
+            <WorkflowCanvas
+              nodesRef={nodesRef}
+              edgesRef={edgesRef}
+              saveTrigger={saveTrigger}
+              onSaveComplete={handleSaveComplete}
+            />
           </ReactFlowProvider>
         </div>
 

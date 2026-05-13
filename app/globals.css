@@ -182,6 +182,13 @@ html, body {
   border: none;
 }
 .topbar-btn.run-btn:hover { opacity: 0.9; }
+.topbar-btn.save-btn {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+.topbar-btn.save-btn:hover { background: #dcfce7; }
+.topbar-btn.save-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
 /* Body: palette + canvas + chat */
 .workflow-body {
@@ -1126,6 +1133,28 @@ footer {
 }
 .docs-footer a { color: #93c5fd; text-decoration: none; }
 .docs-footer a:hover { text-decoration: underline; }
+
+/* Docs tech grid */
+.docs-tech-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.docs-tech-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+.docs-tech-icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
+.docs-tech-card strong { display: block; font-size: 0.95rem; color: #1e293b; margin-bottom: 0.2rem; }
+.docs-tech-card p { margin: 0; font-size: 0.87rem; color: #64748b; line-height: 1.6; }
+.docs-tech-card a { color: #2563eb; text-decoration: none; }
+.docs-tech-card a:hover { text-decoration: underline; }
 
 @media (max-width: 700px) {
   .docs-layout { flex-direction: column; }

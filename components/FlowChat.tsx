@@ -96,7 +96,8 @@ export default function FlowChat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your request..."
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+          placeholder="Type your request…"
         />
         <button onClick={sendMessage}>Send</button>
       </div>

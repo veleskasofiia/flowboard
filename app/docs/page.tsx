@@ -17,6 +17,7 @@ export default function DocsPage() {
           <a href="#nodes">Nodes</a>
           <a href="#ai-assistant">AI Assistant</a>
           <a href="#dashboard">Dashboard</a>
+          <a href="#technology">Technology</a>
           <a href="#faq">FAQ</a>
         </nav>
       </header>
@@ -43,6 +44,7 @@ export default function DocsPage() {
             </li>
             <li><a href="#ai-assistant">AI Assistant</a></li>
             <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#technology">Technology</a></li>
             <li><a href="#faq">FAQ</a></li>
           </ul>
         </aside>
@@ -283,6 +285,50 @@ export default function DocsPage() {
 
           <hr className="docs-divider" />
 
+          <section id="technology">
+            <h2>Technology</h2>
+            <p>FlowBoard is built on open, reliable infrastructure:</p>
+            <div className="docs-tech-grid">
+              <div className="docs-tech-card">
+                <span className="docs-tech-icon">🗄️</span>
+                <div>
+                  <strong>
+                    <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">Supabase</a>
+                  </strong>
+                  <p>
+                    Authentication, user accounts, and cloud workflow storage are all powered by
+                    Supabase — an open-source Firebase alternative built on PostgreSQL. Your data
+                    is stored securely and is only accessible to you.
+                  </p>
+                </div>
+              </div>
+              <div className="docs-tech-card">
+                <span className="docs-tech-icon">🤖</span>
+                <div>
+                  <strong>Groq AI</strong>
+                  <p>
+                    The AI assistant and workflow simulation engine run on{" "}
+                    <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer">Groq</a>
+                    {" "}using the Llama 3.3 70B model — a fast, open-source large language model.
+                  </p>
+                </div>
+              </div>
+              <div className="docs-tech-card">
+                <span className="docs-tech-icon">⚡</span>
+                <div>
+                  <strong>Next.js + ReactFlow</strong>
+                  <p>
+                    The frontend is built with Next.js (React framework) and{" "}
+                    <a href="https://reactflow.dev" target="_blank" rel="noopener noreferrer">ReactFlow</a>
+                    {" "}for the interactive drag-and-drop canvas. Deployed on Vercel.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <hr className="docs-divider" />
+
           <section id="faq">
             <h2>FAQ</h2>
 
@@ -321,9 +367,12 @@ export default function DocsPage() {
             <details className="docs-faq-item">
               <summary>Can I save my workflow?</summary>
               <p>
-                Yes — your workflow is saved automatically in your browser as you build it. When you
-                come back to the Workflow Builder, your nodes and connections are restored exactly
-                as you left them.
+                Yes — in two ways. Your workflow is auto-saved locally in your browser as you build
+                it, so it survives page reloads even without an account. If you are signed in, you
+                can also click the <strong>💾 Save</strong> button in the top bar to save your
+                workflow to your account in the cloud (powered by{" "}
+                <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">Supabase</a>
+                ). Cloud saves are synced across devices.
               </p>
             </details>
 
