@@ -13,6 +13,7 @@ type Summary = {
   meetings: Meeting[];
   next_meeting: Meeting | null;
   gmail_unread: number | null;
+  gmail_has_more: boolean;
   outlook_unread: number | null;
   connected: string[];
   error?: string;
@@ -129,7 +130,7 @@ export default function DashboardPage() {
       setSummary(data);
       localStorage.setItem(SUMMARY_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
     } catch {
-      setSummary({ meetings_count: null, meetings: [], next_meeting: null, gmail_unread: null, outlook_unread: null, connected: [], error: "failed" });
+      setSummary({ meetings_count: null, meetings: [], next_meeting: null, gmail_unread: null, gmail_has_more: false, outlook_unread: null, connected: [], error: "failed" });
     }
     setSummaryLoading(false);
   }
@@ -224,7 +225,9 @@ export default function DashboardPage() {
                 <div className="dash-week-stat" style={{ borderColor: "#ea4335" }}>
                   <span className="dash-week-icon">📧</span>
                   <span className="dash-week-val">
-                    {summary.gmail_unread !== null ? summary.gmail_unread : "—"}
+                    {summary.gmail_unread !== null
+                      ? `${summary.gmail_unread}${summary.gmail_has_more ? "+" : ""}`
+                      : "—"}
                   </span>
                   <span className="dash-week-label">unread Gmail</span>
                   {summary.gmail_unread === null && (

@@ -1,12 +1,5 @@
 import { NextResponse } from "next/server";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function dig(obj: any, ...keys: string[]): any {
-  for (const k of keys) {
-    if (obj?.[k] !== undefined) return obj[k];
-  }
-  return undefined;
-}
 
 export async function POST(req: Request) {
   try {
@@ -62,70 +55,67 @@ export async function POST(req: Request) {
     const connected: string[] = [];
 
     // ── Google Calendar ─────────────────────────────────────────────────
+    // Response shape: { data: { items: [...], ... } }
     let gcalOk = false;
     if (gcalResult.status === "fulfilled" && !gcalResult.value?.error) {
       try {
         const d = gcalResult.value.data;
-        const items = dig(d, "items", "response", "events") ?? [];
-        if (Array.isArray(items)) {
-          for (const ev of items) {
-            const start = ev.start?.dateTime ?? ev.start?.date ?? null;
-            if (start && ev.summary) meetings.push({ title: ev.summary, start, source: "google" });
-          }
-          gcalOk = true;
-          connected.push("googlecalendar");
+        const items: unknown[] = Array.isArray(d?.items) ? d.items : [];
+        for (const ev of items) {
+          const e = ev as Record<string, unknown>;
+          const s = (e.start as Record<string, string> | undefined);
+          const start = s?.dateTime ?? s?.date ?? null;
+          if (start && e.summary) meetings.push({ title: e.summary as string, start, source: "google" });
         }
+        gcalOk = true;
+        connected.push("googlecalendar");
       } catch { /* ignore */ }
     }
 
     // ── Gmail ───────────────────────────────────────────────────────────
+    // Response shape: { data: { threads: [...], nextPageToken?: string } }
+    // resultSizeEstimate is not forwarded by Composio; use threads.length.
+    // nextPageToken means more pages exist — surface a "+" indicator via gmail_has_more.
     let gmailUnread: number | null = null;
+    let gmailHasMore = false;
     if (gmailResult.status === "fulfilled" && !gmailResult.value?.error) {
       try {
         const d = gmailResult.value.data;
-        // resultSizeEstimate = total matching threads (not capped by page size)
-        const estimate = dig(d, "resultSizeEstimate");
-        const threads = dig(d, "threads") ?? [];
-        if (typeof estimate === "number" && estimate > 0) {
-          gmailUnread = estimate;
-        } else if (Array.isArray(threads)) {
-          gmailUnread = threads.length;
-        } else {
-          gmailUnread = 0;
-        }
+        const threads: unknown[] = Array.isArray(d?.threads) ? d.threads : [];
+        gmailHasMore = !!d?.nextPageToken;
+        gmailUnread = threads.length;
         connected.push("gmail");
       } catch { /* ignore */ }
     }
 
     // ── Outlook Calendar ────────────────────────────────────────────────
+    // Response shape: { data: { response_data: { value: [...] } } }
     let outlookCalOk = false;
     if (outlookCalResult.status === "fulfilled" && !outlookCalResult.value?.error) {
       try {
-        const d = outlookCalResult.value.data;
-        const items = dig(d, "value", "events", "items") ?? [];
-        if (Array.isArray(items)) {
-          for (const ev of items) {
-            const start = ev.start?.dateTime ?? null;
-            if (start && ev.subject) meetings.push({ title: ev.subject, start, source: "outlook" });
-          }
-          outlookCalOk = true;
-          connected.push("outlook_calendar");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = outlookCalResult.value.data as any;
+        const items: unknown[] = Array.isArray(d?.response_data?.value) ? d.response_data.value : [];
+        for (const ev of items) {
+          const e = ev as Record<string, unknown>;
+          const s = (e.start as Record<string, string> | undefined);
+          const start = s?.dateTime ?? null;
+          if (start && e.subject) meetings.push({ title: e.subject as string, start, source: "outlook" });
         }
+        outlookCalOk = true;
+        connected.push("outlook_calendar");
       } catch { /* ignore */ }
     }
 
     // ── Outlook Mail ────────────────────────────────────────────────────
+    // Response shape: { data: { response_data: { value: [...] } } }
     let outlookUnread: number | null = null;
     if (outlookMailResult.status === "fulfilled" && !outlookMailResult.value?.error) {
       try {
-        const d = outlookMailResult.value.data;
-        const msgs = dig(d, "value", "messages", "items") ?? [];
-        const count = dig(d, "@odata.count", "totalCount");
-        if (typeof count === "number") {
-          outlookUnread = count;
-        } else if (Array.isArray(msgs)) {
-          outlookUnread = msgs.length;
-        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = outlookMailResult.value.data as any;
+        const msgs: unknown[] = Array.isArray(d?.response_data?.value) ? d.response_data.value : [];
+        outlookUnread = msgs.length;
         connected.push("outlook_mail");
       } catch { /* ignore */ }
     }
@@ -139,6 +129,7 @@ export async function POST(req: Request) {
       meetings,
       next_meeting: nextMeeting,
       gmail_unread: gmailUnread,
+      gmail_has_more: gmailHasMore,
       outlook_unread: outlookUnread,
       connected,
     });
