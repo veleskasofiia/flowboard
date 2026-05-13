@@ -7,12 +7,15 @@ import type { User } from "@supabase/supabase-js";
 
 const APPS = [
   { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
+  { key: "outlook",        label: "Outlook Mail",     icon: "📨", color: "#0078d4", composioApp: "outlook" },
+  { key: "ocal",           label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", composioApp: "microsoft_calendar" },
   { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
+  { key: "ical",           label: "iCal",             icon: "🗓️", color: "#007aff", composioApp: "ical" },
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
   { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
+  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
   { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
   { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
-  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
 ];
 
 type ConnectedApp = { appName: string; status: string };
