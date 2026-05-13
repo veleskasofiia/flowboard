@@ -321,19 +321,18 @@ export default function DocsPage() {
             <details className="docs-faq-item">
               <summary>Can I save my workflow?</summary>
               <p>
-                Workflow saving is coming soon. For now, the canvas resets when you reload the page.
+                Yes — your workflow is saved automatically in your browser as you build it. When you
+                come back to the Workflow Builder, your nodes and connections are restored exactly
+                as you left them.
               </p>
             </details>
 
             <details className="docs-faq-item">
               <summary>The AI assistant isn&apos;t responding. What do I do?</summary>
               <p>
-                Make sure the <code>GROQ_API_KEY</code> environment variable is set in your
-                deployment. Get a free key at{" "}
-                <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer">
-                  console.groq.com
-                </a>
-                .
+                The AI assistant is fully managed by FlowBoard — you do not need an API key or any
+                account with a third-party service. If the assistant stops responding, try refreshing
+                the page. If the problem persists, the service may be temporarily unavailable.
               </p>
             </details>
           </section>

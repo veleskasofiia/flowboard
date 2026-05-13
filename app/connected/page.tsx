@@ -111,7 +111,7 @@ const defaultEdgeOptions = {
   animated: true,
 };
 
-const initialNodes = [
+const DEFAULT_NODES = [
   {
     id: "1",
     type: "appNode",
@@ -126,21 +126,37 @@ const initialNodes = [
   },
 ];
 
-const initialEdges = [
+const DEFAULT_EDGES = [
   { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
 ];
+
+const STORAGE_KEY = "flowboard_canvas";
+
+function loadCanvas() {
+  if (typeof window === "undefined") return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
+    return JSON.parse(saved);
+  } catch {
+    return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
+  }
+}
 
 // ─── Inner canvas (needs ReactFlowProvider context) ───────────────────────────
 
 function WorkflowCanvas({ nodesRef }: { nodesRef: React.MutableRefObject<Node[]> }) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const saved = loadCanvas();
+  const [nodes, setNodes, onNodesChange] = useNodesState(saved.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(saved.edges);
 
   useEffect(() => {
     nodesRef.current = nodes;
-  }, [nodes, nodesRef]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes, edges, nodesRef]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, ...defaultEdgeOptions }, eds)),
