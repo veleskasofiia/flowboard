@@ -1213,6 +1213,30 @@ footer {
   color: #94a3b8;
   font-size: 0.88rem;
 }
+.dash-how-to {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+.dash-how-to-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 0.6rem;
+}
+.dash-how-to-steps {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.dash-how-to-steps li {
+  font-size: 0.85rem;
+  color: #1e40af;
+  line-height: 1.5;
+}
+.dash-how-to-steps a { color: #2563eb; }
 .dash-week-retry {
   background: none;
   border: none;

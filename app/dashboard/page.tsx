@@ -188,9 +188,16 @@ export default function DashboardPage() {
           )}
 
           {!summaryLoading && !summary && (
-            <div className="dash-week-empty">
-              <p>Connect your calendars and email to see your week here.</p>
-              <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.5rem" }}>🔗 Connect Apps</a>
+            <div className="dash-how-to">
+              <p className="dash-how-to-title">To see your real meetings and emails here:</p>
+              <ol className="dash-how-to-steps">
+                <li>Go to <a href="/connect"><strong>Connect Apps</strong></a> in the top navigation.</li>
+                <li>Click <strong>Connect Gmail</strong> and sign in with your Google account.</li>
+                <li>Click <strong>Connect Outlook Mail</strong> and sign in with your Microsoft account.</li>
+                <li>Click <strong>Connect Google Calendar</strong> and/or <strong>Connect Outlook Mail</strong> (Outlook Calendar is included automatically).</li>
+                <li>Come back here and click <strong>↺ Refresh</strong>.</li>
+              </ol>
+              <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>🔗 Go to Connect Apps</a>
             </div>
           )}
 
@@ -256,9 +263,16 @@ export default function DashboardPage() {
               )}
 
               {summary.meetings_count === null && summary.gmail_unread === null && summary.outlook_unread === null && (
-                <div className="dash-week-empty" style={{ marginTop: "0.75rem" }}>
-                  <p>No apps are connected yet. Connect your calendars and email to see real data here.</p>
-                  <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.5rem" }}>🔗 Connect Apps</a>
+                <div className="dash-how-to" style={{ marginTop: "0.75rem" }}>
+                  <p className="dash-how-to-title">No apps connected yet. Here&apos;s how to fix that:</p>
+                  <ol className="dash-how-to-steps">
+                    <li>Go to <a href="/connect"><strong>Connect Apps</strong></a> in the navigation bar.</li>
+                    <li>Click <strong>Connect Gmail</strong> → sign in with Google → come back.</li>
+                    <li>Click <strong>Connect Outlook Mail</strong> → sign in with Microsoft → come back.</li>
+                    <li>Click <strong>Connect Google Calendar</strong> if you use it.</li>
+                    <li>Click <strong>↺ Refresh</strong> on this card.</li>
+                  </ol>
+                  <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>🔗 Connect Apps</a>
                 </div>
               )}
             </>

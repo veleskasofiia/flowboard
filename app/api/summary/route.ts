@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function dig(obj: any, ...keys: string[]): any {
+  for (const k of keys) {
+    if (obj?.[k] !== undefined) return obj[k];
+  }
+  return undefined;
+}
+
 export async function POST(req: Request) {
   try {
     const { entityId } = await req.json();
@@ -22,130 +30,110 @@ export async function POST(req: Request) {
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
 
-    // Run all fetches in parallel — each is isolated so one failure won't block others
+    const exec = (action: string, params: Record<string, unknown>) =>
+      toolset.executeAction({ action, params, entityId });
+
     const [gcalResult, gmailResult, outlookCalResult, outlookMailResult] = await Promise.allSettled([
-
-      // Google Calendar events this week
-      toolset.executeAction({
-        action: "GOOGLECALENDAR_EVENTS_LIST",
-        params: {
-          calendarId: "primary",
-          timeMin: monday.toISOString(),
-          timeMax: sunday.toISOString(),
-          singleEvents: true,
-          orderBy: "startTime",
-          maxResults: 50,
-        },
-        entityId,
+      exec("GOOGLECALENDAR_EVENTS_LIST", {
+        calendarId: "primary",
+        timeMin: monday.toISOString(),
+        timeMax: sunday.toISOString(),
+        singleEvents: true,
+        orderBy: "startTime",
+        maxResults: 100,
       }),
-
-      // Gmail unread emails
-      toolset.executeAction({
-        action: "GMAIL_FETCH_EMAILS",
-        params: { query: "is:unread", max_results: 200, ids_only: true },
-        entityId,
+      // Use LIST_THREADS so resultSizeEstimate gives total unread, not just page
+      exec("GMAIL_LIST_THREADS", {
+        query: "is:unread",
+        max_results: 500,
       }),
-
-      // Outlook calendar events this week
-      toolset.executeAction({
-        action: "OUTLOOK_OUTLOOK_LIST_EVENTS",
-        params: {
-          filter: `start/dateTime ge '${monday.toISOString()}' and end/dateTime le '${sunday.toISOString()}'`,
-          top: 50,
-          timezone: "UTC",
-        },
-        entityId,
+      exec("OUTLOOK_OUTLOOK_LIST_EVENTS", {
+        filter: `start/dateTime ge '${monday.toISOString()}' and end/dateTime le '${sunday.toISOString()}'`,
+        top: 100,
+        timezone: "UTC",
       }),
-
-      // Outlook unread messages
-      toolset.executeAction({
-        action: "OUTLOOK_OUTLOOK_SEARCH_MESSAGES",
-        params: { query: "isread:false", size: 200 },
-        entityId,
+      exec("OUTLOOK_OUTLOOK_SEARCH_MESSAGES", {
+        query: "isread:false",
+        size: 500,
       }),
     ]);
 
-    // ── Parse Google Calendar ───────────────────────────────────────────
     type Meeting = { title: string; start: string; source: string };
     const meetings: Meeting[] = [];
+    const connected: string[] = [];
+
+    // ── Google Calendar ─────────────────────────────────────────────────
     let gcalOk = false;
-
-    if (gcalResult.status === "fulfilled") {
+    if (gcalResult.status === "fulfilled" && !gcalResult.value?.error) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw: any = gcalResult.value;
-        const items = raw?.items ?? raw?.data?.items ?? raw?.response?.items ?? [];
-        for (const ev of items) {
-          const start = ev.start?.dateTime ?? ev.start?.date ?? null;
-          if (start && ev.summary) {
-            meetings.push({ title: ev.summary, start, source: "google" });
+        const d = gcalResult.value.data;
+        const items = dig(d, "items", "response", "events") ?? [];
+        if (Array.isArray(items)) {
+          for (const ev of items) {
+            const start = ev.start?.dateTime ?? ev.start?.date ?? null;
+            if (start && ev.summary) meetings.push({ title: ev.summary, start, source: "google" });
           }
+          gcalOk = true;
+          connected.push("googlecalendar");
         }
-        gcalOk = true;
       } catch { /* ignore */ }
     }
 
-    // ── Parse Gmail ─────────────────────────────────────────────────────
+    // ── Gmail ───────────────────────────────────────────────────────────
     let gmailUnread: number | null = null;
-
-    if (gmailResult.status === "fulfilled") {
+    if (gmailResult.status === "fulfilled" && !gmailResult.value?.error) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw: any = gmailResult.value;
-        const messages =
-          raw?.messages ?? raw?.data?.messages ?? raw?.response?.messages ??
-          raw?.emails ?? raw?.data?.emails ?? [];
-        gmailUnread = Array.isArray(messages) ? messages.length : null;
-        if (gmailUnread === null && typeof raw?.resultSizeEstimate === "number") {
-          gmailUnread = raw.resultSizeEstimate;
+        const d = gmailResult.value.data;
+        // resultSizeEstimate = total matching threads (not capped by page size)
+        const estimate = dig(d, "resultSizeEstimate");
+        const threads = dig(d, "threads") ?? [];
+        if (typeof estimate === "number" && estimate > 0) {
+          gmailUnread = estimate;
+        } else if (Array.isArray(threads)) {
+          gmailUnread = threads.length;
+        } else {
+          gmailUnread = 0;
         }
+        connected.push("gmail");
       } catch { /* ignore */ }
     }
 
-    // ── Parse Outlook Calendar ──────────────────────────────────────────
+    // ── Outlook Calendar ────────────────────────────────────────────────
     let outlookCalOk = false;
-
-    if (outlookCalResult.status === "fulfilled") {
+    if (outlookCalResult.status === "fulfilled" && !outlookCalResult.value?.error) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw: any = outlookCalResult.value;
-        const items = raw?.value ?? raw?.data?.value ?? raw?.response?.value ?? [];
-        for (const ev of items) {
-          const start = ev.start?.dateTime ?? null;
-          if (start && ev.subject) {
-            meetings.push({ title: ev.subject, start, source: "outlook" });
+        const d = outlookCalResult.value.data;
+        const items = dig(d, "value", "events", "items") ?? [];
+        if (Array.isArray(items)) {
+          for (const ev of items) {
+            const start = ev.start?.dateTime ?? null;
+            if (start && ev.subject) meetings.push({ title: ev.subject, start, source: "outlook" });
           }
+          outlookCalOk = true;
+          connected.push("outlook_calendar");
         }
-        outlookCalOk = true;
       } catch { /* ignore */ }
     }
 
-    // ── Parse Outlook Mail ──────────────────────────────────────────────
+    // ── Outlook Mail ────────────────────────────────────────────────────
     let outlookUnread: number | null = null;
-
-    if (outlookMailResult.status === "fulfilled") {
+    if (outlookMailResult.status === "fulfilled" && !outlookMailResult.value?.error) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw: any = outlookMailResult.value;
-        const msgs =
-          raw?.value ?? raw?.data?.value ?? raw?.response?.value ??
-          raw?.messages ?? raw?.data?.messages ?? [];
-        outlookUnread = Array.isArray(msgs) ? msgs.length : null;
+        const d = outlookMailResult.value.data;
+        const msgs = dig(d, "value", "messages", "items") ?? [];
+        const count = dig(d, "@odata.count", "totalCount");
+        if (typeof count === "number") {
+          outlookUnread = count;
+        } else if (Array.isArray(msgs)) {
+          outlookUnread = msgs.length;
+        }
+        connected.push("outlook_mail");
       } catch { /* ignore */ }
     }
 
-    // Sort meetings by start time
     meetings.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-
-    // Next meeting = first meeting that hasn't ended yet
     const now = new Date();
     const nextMeeting = meetings.find((m) => new Date(m.start) >= now) ?? null;
-
-    const connected: string[] = [];
-    if (gcalOk) connected.push("googlecalendar");
-    if (gmailUnread !== null) connected.push("gmail");
-    if (outlookCalOk) connected.push("outlook_calendar");
-    if (outlookUnread !== null) connected.push("outlook_mail");
 
     return NextResponse.json({
       meetings_count: gcalOk || outlookCalOk ? meetings.length : null,
