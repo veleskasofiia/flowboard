@@ -29,18 +29,19 @@ type AppEntry = {
 };
 
 const PALETTE: AppEntry[] = [
-  { key: "webhook",  label: "Webhook",          icon: "⚡", color: "#f59e0b", category: "trigger" },
-  { key: "schedule", label: "Schedule",          icon: "⏰", color: "#8b5cf6", category: "trigger" },
-  { key: "gmail",    label: "Gmail",             icon: "📧", color: "#ea4335", category: "action"  },
-  { key: "outlook",  label: "Outlook",           icon: "📨", color: "#0078d4", category: "action"  },
-  { key: "calendar", label: "Google Calendar",   icon: "📅", color: "#4285f4", category: "action"  },
-  { key: "gdrive",   label: "Google Drive",      icon: "📁", color: "#34a853", category: "action"  },
-  { key: "slack",    label: "Slack",             icon: "💬", color: "#36c5f0", category: "action"  },
-  { key: "discord",  label: "Discord",           icon: "🎮", color: "#5865f2", category: "action"  },
-  { key: "notion",   label: "Notion",            icon: "📓", color: "#374151", category: "action"  },
-  { key: "todoist",  label: "Todoist",           icon: "✅", color: "#db4035", category: "action"  },
-  { key: "github",   label: "GitHub",            icon: "🐙", color: "#333333", category: "action"  },
-  { key: "ifelse",   label: "IF Condition",      icon: "🔀", color: "#6b7280", category: "action"  },
+  { key: "webhook",  label: "Webhook",            icon: "⚡", color: "#f59e0b", category: "trigger" },
+  { key: "schedule", label: "Schedule",            icon: "⏰", color: "#8b5cf6", category: "trigger" },
+  { key: "gmail",    label: "Gmail",               icon: "📧", color: "#ea4335", category: "action"  },
+  { key: "outlook",  label: "Outlook Mail",        icon: "📨", color: "#0078d4", category: "action"  },
+  { key: "ocal",     label: "Outlook Calendar",    icon: "📆", color: "#0f6cbd", category: "action"  },
+  { key: "calendar", label: "Google Calendar",     icon: "📅", color: "#4285f4", category: "action"  },
+  { key: "ical",     label: "iCal",                icon: "🗓️", color: "#007aff", category: "action"  },
+  { key: "gdrive",   label: "Google Drive",        icon: "📁", color: "#34a853", category: "action"  },
+  { key: "slack",    label: "Slack",               icon: "💬", color: "#36c5f0", category: "action"  },
+  { key: "discord",  label: "Discord",             icon: "🎮", color: "#5865f2", category: "action"  },
+  { key: "notion",   label: "Notion",              icon: "📓", color: "#374151", category: "action"  },
+  { key: "todoist",  label: "Todoist",             icon: "✅", color: "#db4035", category: "action"  },
+  { key: "ifelse",   label: "IF Condition",        icon: "🔀", color: "#6b7280", category: "action"  },
 ];
 
 const PALETTE_BY_KEY = Object.fromEntries(PALETTE.map((a) => [a.key, a]));

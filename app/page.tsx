@@ -5,14 +5,16 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 const APPS = [
-  { key: "gmail",    label: "Gmail",           icon: "📧" },
-  { key: "outlook",  label: "Outlook",         icon: "📨" },
-  { key: "calendar", label: "Google Calendar", icon: "📅" },
-  { key: "gdrive",   label: "Google Drive",    icon: "📁" },
-  { key: "slack",    label: "Slack",           icon: "💬" },
-  { key: "discord",  label: "Discord",         icon: "🎮" },
-  { key: "notion",   label: "Notion",          icon: "📓" },
-  { key: "todoist",  label: "Todoist",         icon: "✅" },
+  { key: "gmail",    label: "Gmail",              icon: "📧" },
+  { key: "outlook",  label: "Outlook Mail",       icon: "📨" },
+  { key: "ocal",     label: "Outlook Calendar",   icon: "📆" },
+  { key: "calendar", label: "Google Calendar",    icon: "📅" },
+  { key: "ical",     label: "iCal",               icon: "🗓️" },
+  { key: "gdrive",   label: "Google Drive",       icon: "📁" },
+  { key: "slack",    label: "Slack",              icon: "💬" },
+  { key: "discord",  label: "Discord",            icon: "🎮" },
+  { key: "notion",   label: "Notion",             icon: "📓" },
+  { key: "todoist",  label: "Todoist",            icon: "✅" },
 ] as const;
 
 export default function HomePage() {

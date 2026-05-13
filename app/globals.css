@@ -640,6 +640,8 @@ html, body {
 .app-tile.discord  { border-top-color: #5865f2; }
 .app-tile.notion   { border-top-color: #000000; }
 .app-tile.gdrive   { border-top-color: #34a853; }
+.app-tile.ocal     { border-top-color: #0f6cbd; }
+.app-tile.ical     { border-top-color: #007aff; }
 .app-tile.todoist  { border-top-color: #db4035; }
 
 /* Why section */
