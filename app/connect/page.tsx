@@ -7,10 +7,10 @@ import type { User } from "@supabase/supabase-js";
 
 const APPS = [
   { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
-  { key: "outlook",        label: "Outlook Mail",     icon: "📨", color: "#0078d4", composioApp: "outlook" },
-  { key: "ocal",           label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", composioApp: "microsoft_calendar" },
+  { key: "outlook",        label: "Outlook Mail",     icon: "📨", color: "#0078d4", composioApp: "outlook",         note: "Also connects Outlook Calendar" },
+  { key: "ocal",           label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", composioApp: null,              note: "Included when you connect Outlook Mail" },
   { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
-  { key: "ical",           label: "iCal",             icon: "🗓️", color: "#007aff", composioApp: "ical" },
+  { key: "ical",           label: "iCal",             icon: "🗓️", color: "#007aff", composioApp: null,              note: "OAuth not supported — use Google Calendar or Outlook" },
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
   { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
   { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
@@ -111,26 +111,33 @@ export default function ConnectPage() {
 
         <div className="connect-grid">
           {APPS.map((app) => {
-            const connected = isConnected(app.composioApp);
-            const isLoading = connecting === app.composioApp;
+            const unavailable = app.composioApp === null;
+            const connected = !unavailable && isConnected(app.composioApp!);
+            const isLoading = !unavailable && connecting === app.composioApp;
             return (
-              <div key={app.key} className="connect-card" style={{ borderTopColor: app.color }}>
+              <div key={app.key} className="connect-card" style={{ borderTopColor: app.color, opacity: unavailable ? 0.7 : 1 }}>
                 <div className="connect-card-top">
                   <span className="connect-icon">{app.icon}</span>
                   <div>
                     <div className="connect-name">{app.label}</div>
                     {connected && <span className="connect-badge connected">✓ Connected</span>}
-                    {!connected && <span className="connect-badge not-connected">Not connected</span>}
+                    {!connected && !unavailable && <span className="connect-badge not-connected">Not connected</span>}
+                    {unavailable && <span className="connect-badge not-connected">ℹ {app.note}</span>}
                   </div>
                 </div>
-                <button
-                  className="connect-btn"
-                  style={{ background: connected ? "#f0fdf4" : app.color, color: connected ? "#15803d" : "white", borderColor: connected ? "#bbf7d0" : app.color }}
-                  onClick={() => !connected && handleConnect(app.composioApp)}
-                  disabled={isLoading || connected}
-                >
-                  {isLoading ? "Redirecting…" : connected ? "✓ Connected" : `Connect ${app.label}`}
-                </button>
+                {!unavailable && (
+                  <button
+                    className="connect-btn"
+                    style={{ background: connected ? "#f0fdf4" : app.color, color: connected ? "#15803d" : "white", borderColor: connected ? "#bbf7d0" : app.color }}
+                    onClick={() => !connected && handleConnect(app.composioApp!)}
+                    disabled={isLoading || connected}
+                  >
+                    {isLoading ? "Redirecting…" : connected ? "✓ Connected" : `Connect ${app.label}`}
+                  </button>
+                )}
+                {!unavailable && app.note && !connected && (
+                  <p className="connect-app-note">ℹ {app.note}</p>
+                )}
               </div>
             );
           })}
