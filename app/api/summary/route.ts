@@ -42,10 +42,9 @@ export async function POST(req: Request) {
         orderBy: "startTime",
         maxResults: 100,
       }),
-      // Use LIST_THREADS so resultSizeEstimate gives total unread, not just page
+      // No max_results so resultSizeEstimate reflects true total unread
       exec("GMAIL_LIST_THREADS", {
         query: "is:unread",
-        max_results: 500,
       }),
       exec("OUTLOOK_OUTLOOK_LIST_EVENTS", {
         filter: `start/dateTime ge '${monday.toISOString()}' and end/dateTime le '${sunday.toISOString()}'`,
