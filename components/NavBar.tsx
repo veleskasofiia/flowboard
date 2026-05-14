@@ -4,10 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
 
 const LINKS = [
-  { href: "/dashboard",  label: "Dashboard" },
-  { href: "/connect",    label: "Connect Apps" },
-  { href: "/connected",  label: "Workflow Builder" },
-  { href: "/",           label: "Home" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/connect",   label: "Connect Apps" },
+  { href: "/workflow",  label: "Workflow Builder" },
 ];
 
 export default function NavBar({ onSignOut }: { onSignOut?: () => void }) {

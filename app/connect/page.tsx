@@ -136,7 +136,7 @@ export default function ConnectPage() {
             <li>Click <strong>Connect</strong> on any app above.</li>
             <li>You will be redirected to that app&apos;s sign-in page (e.g. Google, Slack).</li>
             <li>After signing in, you are brought back here and the app shows as <strong>Connected</strong>.</li>
-            <li>Go to the <a href="/connected">Workflow Builder</a> and ask the AI assistant to do something — it will now act on your real accounts.</li>
+            <li>Go to the <a href="/workflow">Workflow Builder</a> and ask the AI assistant to do something — it will now act on your real accounts.</li>
           </ol>
         </div>
       </main>

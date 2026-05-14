@@ -305,7 +305,7 @@ export default function DashboardPage() {
         <section className="dash-card dash-guide">
           <h2 className="dash-card-title">How to Build a Workflow</h2>
           <p className="dash-card-sub">
-            Open the <a href="/connected">Workflow Builder</a> and follow these three steps.
+            Open the <a href="/workflow">Workflow Builder</a> and follow these three steps.
           </p>
           <div className="dash-steps">
             {STEPS.map((s) => (
@@ -317,7 +317,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-          <a href="/connected" className="dash-action-btn primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
+          <a href="/workflow" className="dash-action-btn primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
             ⚡ Open Workflow Builder
           </a>
         </section>
@@ -341,7 +341,7 @@ export default function DashboardPage() {
           <section className="dash-card">
             <h2 className="dash-card-title">Ask the AI Assistant</h2>
             <p className="dash-card-sub">
-              Open the <a href="/connected">Workflow Builder</a>, then copy a prompt below and paste it into the AI chat.
+              Open the <a href="/workflow">Workflow Builder</a>, then copy a prompt below and paste it into the AI chat.
             </p>
             <div className="dash-prompts">
               {AI_PROMPTS.map((p) => (
@@ -364,12 +364,12 @@ export default function DashboardPage() {
         <section className="dash-card dash-runs">
           <h2 className="dash-card-title">Recent Workflow Runs</h2>
           <p className="dash-card-sub">
-            Results from your last runs in the <a href="/connected">Workflow Builder</a>.
+            Results from your last runs in the <a href="/workflow">Workflow Builder</a>.
           </p>
           {recentRuns.length === 0 ? (
             <div className="dash-runs-empty">
               <span>No runs yet.</span>
-              <a href="/connected" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>
+              <a href="/workflow" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>
                 ▶ Run your first workflow
               </a>
             </div>

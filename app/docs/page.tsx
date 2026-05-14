@@ -81,7 +81,7 @@ export default function DocsPage() {
           <section id="workflow-builder">
             <h2>Workflow Builder</h2>
             <p>
-              The Workflow Builder is the main workspace at <code>/connected</code>. It has three
+              The Workflow Builder is the main workspace at <code>/workflow</code>. It has three
               areas: the <strong>left panel</strong> (node palette), the <strong>canvas</strong>
               (your workflow), and the <strong>AI chat panel</strong> on the right.
             </p>
@@ -374,7 +374,7 @@ export default function DocsPage() {
       </div>
 
       <footer className="docs-footer">
-        <p>© 2026 FlowBoard · <a href="/">Home</a> · <a href="/dashboard">Dashboard</a> · <a href="/connected">Workflow Builder</a></p>
+        <p>© 2026 FlowBoard · <a href="/">Home</a> · <a href="/dashboard">Dashboard</a> · <a href="/workflow">Workflow Builder</a></p>
       </footer>
     </div>
   );
