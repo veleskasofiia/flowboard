@@ -1496,6 +1496,12 @@ footer {
 }
 .connect-btn:hover:not(:disabled) { opacity: 0.85; }
 .connect-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.disconnect-btn {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1.5px solid #fecaca;
+}
+.disconnect-btn:hover:not(:disabled) { background: #fee2e2; opacity: 1; }
 .connect-error {
   background: #fef2f2;
   border: 1px solid #fecaca;

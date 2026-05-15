@@ -18,7 +18,7 @@ const APPS = [
   { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
 ];
 
-type ConnectedApp = { appName: string; status: string };
+type ConnectedApp = { id: string; appName: string; status: string };
 
 export default function ConnectPage() {
   const router = useRouter();
@@ -26,6 +26,7 @@ export default function ConnectPage() {
   const [loading, setLoading] = useState(true);
   const [connections, setConnections] = useState<ConnectedApp[]>([]);
   const [connecting, setConnecting] = useState<string | null>(null);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,10 +71,25 @@ export default function ConnectPage() {
     }
   }
 
-  function isConnected(composioApp: string) {
-    return connections.some(
+  async function handleDisconnect(connectionId: string) {
+    setDisconnecting(connectionId);
+    try {
+      await fetch("/api/connect", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ connectionId }),
+      });
+      if (user) fetchConnections(user.id);
+    } catch {
+      setError("Failed to disconnect. Please try again.");
+    }
+    setDisconnecting(null);
+  }
+
+  function getConnection(composioApp: string) {
+    return connections.find(
       (c) => c.appName?.toLowerCase() === composioApp.toLowerCase() && c.status !== "FAILED"
-    );
+    ) ?? null;
   }
 
   if (loading) {
@@ -99,8 +115,10 @@ export default function ConnectPage() {
         <div className="connect-grid">
           {APPS.map((app) => {
             const unavailable = app.composioApp === null;
-            const connected = !unavailable && isConnected(app.composioApp!);
-            const isLoading = !unavailable && connecting === app.composioApp;
+            const conn = !unavailable ? getConnection(app.composioApp!) : null;
+            const connected = !!conn;
+            const isConnecting = !unavailable && connecting === app.composioApp;
+            const isDisconnecting = !!conn && disconnecting === conn.id;
             return (
               <div key={app.key} className="connect-card" style={{ borderTopColor: app.color, opacity: unavailable ? 0.7 : 1 }}>
                 <div className="connect-card-top">
@@ -112,14 +130,23 @@ export default function ConnectPage() {
                     {unavailable && <span className="connect-badge not-connected">ℹ {app.note}</span>}
                   </div>
                 </div>
-                {!unavailable && (
+                {!unavailable && !connected && (
                   <button
                     className="connect-btn"
-                    style={{ background: connected ? "#f0fdf4" : app.color, color: connected ? "#15803d" : "white", borderColor: connected ? "#bbf7d0" : app.color }}
-                    onClick={() => !connected && handleConnect(app.composioApp!)}
-                    disabled={isLoading || connected}
+                    style={{ background: app.color, color: "white", borderColor: app.color }}
+                    onClick={() => handleConnect(app.composioApp!)}
+                    disabled={isConnecting}
                   >
-                    {isLoading ? "Redirecting…" : connected ? "✓ Connected" : `Connect ${app.label}`}
+                    {isConnecting ? "Redirecting…" : `Connect ${app.label}`}
+                  </button>
+                )}
+                {!unavailable && connected && (
+                  <button
+                    className="connect-btn disconnect-btn"
+                    onClick={() => handleDisconnect(conn!.id)}
+                    disabled={isDisconnecting}
+                  >
+                    {isDisconnecting ? "Disconnecting…" : "Disconnect"}
                   </button>
                 )}
                 {!unavailable && app.note && !connected && (
