@@ -135,9 +135,11 @@ const nodeTypes: NodeTypes = { appNode: AppNode };
 
 // ─── Custom deletable edge ────────────────────────────────────────────────────
 
-function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, markerEnd }: EdgeProps) {
+function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, markerEnd, selected }: EdgeProps) {
   const { setEdges } = useReactFlow();
+  const [hovered, setHovered] = useState(false);
   const [edgePath, labelX, labelY] = getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition });
+  const showBtn = selected || hovered;
 
   return (
     <>
@@ -148,8 +150,12 @@ function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition,
             position: "absolute",
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: "all",
+            opacity: showBtn ? 1 : 0,
+            transition: "opacity 0.15s",
           }}
-          className="nodrag nopan edge-delete-btn-wrap"
+          className="nodrag nopan"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
         >
           <button
             className="edge-delete-btn"

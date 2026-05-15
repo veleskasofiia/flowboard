@@ -959,9 +959,8 @@ footer {
 .dash-footer a:hover { text-decoration: underline; }
 
 /* ── Edge delete button ─────────────────────────────────────────────── */
-.edge-delete-btn-wrap { opacity: 0; transition: opacity 0.15s; }
-.react-flow__edge:hover .edge-delete-btn-wrap,
-.react-flow__edge.selected .edge-delete-btn-wrap { opacity: 1; }
+.react-flow__edge-path { cursor: pointer; }
+.react-flow__edge-interaction { stroke-width: 20 !important; }
 
 .edge-delete-btn {
   width: 20px;
