@@ -958,6 +958,33 @@ footer {
 .dash-footer a { color: #93c5fd; text-decoration: none; }
 .dash-footer a:hover { text-decoration: underline; }
 
+/* ── Edge delete button ─────────────────────────────────────────────── */
+.edge-delete-btn-wrap { opacity: 0; transition: opacity 0.15s; }
+.react-flow__edge:hover .edge-delete-btn-wrap,
+.react-flow__edge.selected .edge-delete-btn-wrap { opacity: 1; }
+
+.edge-delete-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid #94a3b8;
+  background: white;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.edge-delete-btn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
 /* ── Connected apps widget ──────────────────────────────────────────── */
 .dash-conn-grid {
   display: grid;

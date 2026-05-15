@@ -12,10 +12,15 @@ import ReactFlow, {
   useEdgesState,
   Handle,
   Position,
+  BaseEdge,
+  EdgeLabelRenderer,
+  getSmoothStepPath,
   type Connection,
   type NodeTypes,
+  type EdgeTypes,
   type Node,
   type Edge,
+  type EdgeProps,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import FlowChat from "../../components/FlowChat";
@@ -128,8 +133,41 @@ function AppNode({ data, selected, id }: { data: AppNodeData; selected: boolean;
 
 const nodeTypes: NodeTypes = { appNode: AppNode };
 
+// ─── Custom deletable edge ────────────────────────────────────────────────────
+
+function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, markerEnd }: EdgeProps) {
+  const { setEdges } = useReactFlow();
+  const [edgePath, labelX, labelY] = getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition });
+
+  return (
+    <>
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: "absolute",
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            pointerEvents: "all",
+          }}
+          className="nodrag nopan edge-delete-btn-wrap"
+        >
+          <button
+            className="edge-delete-btn"
+            onClick={() => setEdges((eds) => eds.filter((e) => e.id !== id))}
+            title="Remove connection"
+          >
+            ×
+          </button>
+        </div>
+      </EdgeLabelRenderer>
+    </>
+  );
+}
+
+const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
+
 const defaultEdgeOptions = {
-  type: "smoothstep",
+  type: "deletable",
   style: { stroke: "#94a3b8", strokeWidth: 2 },
   animated: true,
 };
@@ -150,7 +188,7 @@ const DEFAULT_NODES = [
 ];
 
 const DEFAULT_EDGES = [
-  { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+  { id: "e1-2", source: "1", target: "2", type: "deletable", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
 ];
 
 const STORAGE_KEY = "flowboard_canvas";
@@ -263,6 +301,7 @@ function WorkflowCanvas({
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
