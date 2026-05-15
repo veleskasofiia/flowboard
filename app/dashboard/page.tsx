@@ -68,6 +68,90 @@ const AI_PROMPTS = [
   "Create a workflow that filters emails by subject",
 ];
 
+type ExampleNode = { id: string; type: string; position: { x: number; y: number }; data: { label: string; icon: string; color: string; category: "trigger" | "action" } };
+type ExampleEdge = { id: string; source: string; target: string; type: string; animated: boolean; style: { stroke: string; strokeWidth: number } };
+
+const EXAMPLE_WORKFLOWS = [
+  {
+    id: "email-digest",
+    title: "Daily Email Digest to Slack",
+    description: "Every morning, fetch unread Gmail threads, filter important ones, and post a summary to your Slack channel.",
+    tags: ["Gmail", "IF Condition", "Slack", "Notion"],
+    color: "#6366f1",
+    steps: [
+      { icon: "⏰", label: "Schedule", desc: "Runs every day at 8 AM" },
+      { icon: "📧", label: "Gmail", desc: "Fetch unread inbox threads" },
+      { icon: "🔀", label: "IF Condition", desc: "Is it marked important?" },
+      { icon: "💬", label: "Slack", desc: "Post digest to #daily-inbox" },
+      { icon: "📓", label: "Notion", desc: "Log all others to a database" },
+    ],
+    nodes: [
+      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",     icon: "⏰", color: "#8b5cf6", category: "trigger" } },
+      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Gmail",         icon: "📧", color: "#ea4335", category: "action"  } },
+      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition",  icon: "🔀", color: "#6b7280", category: "action"  } },
+      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Slack",         icon: "💬", color: "#36c5f0", category: "action"  } },
+      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Notion",        icon: "📓", color: "#374151", category: "action"  } },
+    ] as ExampleNode[],
+    edges: [
+      { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+      { id: "e2-3", source: "2", target: "3", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#36c5f0", strokeWidth: 2 } },
+      { id: "e3-5", source: "3", target: "5", type: "smoothstep", animated: true, style: { stroke: "#374151", strokeWidth: 2 } },
+    ] as ExampleEdge[],
+  },
+  {
+    id: "meeting-prep",
+    title: "Automatic Meeting Prep Notes",
+    description: "Before each meeting, pull calendar details, search related emails, and create a Notion prep page automatically.",
+    tags: ["Schedule", "Google Calendar", "Gmail", "Notion"],
+    color: "#0ea5e9",
+    steps: [
+      { icon: "⏰", label: "Schedule", desc: "Runs every morning at 7 AM" },
+      { icon: "📅", label: "Google Calendar", desc: "Get today's meetings" },
+      { icon: "📧", label: "Gmail", desc: "Find related email threads" },
+      { icon: "📓", label: "Notion", desc: "Create a prep page per meeting" },
+    ],
+    nodes: [
+      { id: "1", type: "appNode", position: { x: 60,  y: 180 }, data: { label: "Schedule",        icon: "⏰", color: "#8b5cf6", category: "trigger" } },
+      { id: "2", type: "appNode", position: { x: 300, y: 180 }, data: { label: "Google Calendar",  icon: "📅", color: "#4285f4", category: "action"  } },
+      { id: "3", type: "appNode", position: { x: 540, y: 180 }, data: { label: "Gmail",            icon: "📧", color: "#ea4335", category: "action"  } },
+      { id: "4", type: "appNode", position: { x: 780, y: 180 }, data: { label: "Notion",           icon: "📓", color: "#374151", category: "action"  } },
+    ] as ExampleNode[],
+    edges: [
+      { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+      { id: "e2-3", source: "2", target: "3", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+    ] as ExampleEdge[],
+  },
+  {
+    id: "client-followup",
+    title: "Weekly Client Follow-up System",
+    description: "Every Friday, check overdue Todoist tasks, send follow-up emails via Outlook, and notify your team on Slack.",
+    tags: ["Schedule", "Todoist", "IF Condition", "Outlook", "Slack"],
+    color: "#f59e0b",
+    steps: [
+      { icon: "⏰", label: "Schedule", desc: "Runs every Friday at 4 PM" },
+      { icon: "✅", label: "Todoist", desc: "Get overdue tasks" },
+      { icon: "🔀", label: "IF Condition", desc: "Is the task a client task?" },
+      { icon: "📨", label: "Outlook Mail", desc: "Send follow-up email to client" },
+      { icon: "💬", label: "Slack", desc: "Notify team in #clients" },
+    ],
+    nodes: [
+      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",    icon: "⏰", color: "#8b5cf6", category: "trigger" } },
+      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Todoist",      icon: "✅", color: "#db4035", category: "action"  } },
+      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition", icon: "🔀", color: "#6b7280", category: "action"  } },
+      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Outlook Mail", icon: "📨", color: "#0078d4", category: "action"  } },
+      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Slack",        icon: "💬", color: "#36c5f0", category: "action"  } },
+    ] as ExampleNode[],
+    edges: [
+      { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+      { id: "e2-3", source: "2", target: "3", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
+      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#0078d4", strokeWidth: 2 } },
+      { id: "e3-5", source: "3", target: "5", type: "smoothstep", animated: true, style: { stroke: "#36c5f0", strokeWidth: 2 } },
+    ] as ExampleEdge[],
+  },
+];
+
 function greeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -144,6 +228,11 @@ export default function DashboardPage() {
     navigator.clipboard.writeText(prompt);
     setCopied(prompt);
     setTimeout(() => setCopied(null), 1500);
+  }
+
+  function loadWorkflow(wf: typeof EXAMPLE_WORKFLOWS[0]) {
+    localStorage.setItem("flowboard_canvas", JSON.stringify({ nodes: wf.nodes, edges: wf.edges }));
+    router.push("/workflow");
   }
 
   if (loading) {
@@ -320,6 +409,41 @@ export default function DashboardPage() {
           <a href="/workflow" className="dash-action-btn primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
             ⚡ Open Workflow Builder
           </a>
+        </section>
+
+        {/* Example Workflows */}
+        <section className="dash-card">
+          <h2 className="dash-card-title">Example Workflows</h2>
+          <p className="dash-card-sub">Click <strong>Load</strong> to open any example directly in the Workflow Builder.</p>
+          <div className="dash-examples">
+            {EXAMPLE_WORKFLOWS.map((wf) => (
+              <div key={wf.id} className="dash-example" style={{ borderTopColor: wf.color }}>
+                <div className="dash-example-header">
+                  <div>
+                    <h3 className="dash-example-title">{wf.title}</h3>
+                    <p className="dash-example-desc">{wf.description}</p>
+                  </div>
+                  <button className="dash-example-btn" style={{ background: wf.color }} onClick={() => loadWorkflow(wf)}>
+                    ⚡ Load
+                  </button>
+                </div>
+                <div className="dash-example-flow">
+                  {wf.steps.map((step, i) => (
+                    <div key={i} className="dash-example-flow-row">
+                      <div className="dash-example-node">
+                        <span className="dash-example-node-icon">{step.icon}</span>
+                        <div>
+                          <div className="dash-example-node-label">{step.label}</div>
+                          <div className="dash-example-node-desc">{step.desc}</div>
+                        </div>
+                      </div>
+                      {i < wf.steps.length - 1 && <span className="dash-example-arrow">→</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         <div className="dash-bottom">

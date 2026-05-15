@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>FlowBoard — How It Works</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #6366f1, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 48px;
+    font-size: 1rem;
+  }
+
+  /* ── Layout ── */
+  .diagram {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* ── Row ── */
+  .row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+  }
+
+  /* ── Box ── */
+  .box {
+    border-radius: 14px;
+    padding: 20px 22px;
+    min-width: 180px;
+    max-width: 260px;
+    flex: 1;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .box-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+  .box-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+  }
+  .box-desc {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+  .box-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-bottom: 10px;
+  }
+
+  /* ── Colors ── */
+  .c-purple { background: #1e1b4b; border-color: #6366f1; }
+  .c-purple .box-title { color: #a5b4fc; }
+  .c-purple .box-tag { background: #312e81; color: #a5b4fc; }
+
+  .c-blue { background: #0c1a2e; border-color: #38bdf8; }
+  .c-blue .box-title { color: #7dd3fc; }
+  .c-blue .box-tag { background: #0c2340; color: #7dd3fc; }
+
+  .c-green { background: #052e16; border-color: #22c55e; }
+  .c-green .box-title { color: #86efac; }
+  .c-green .box-tag { background: #14532d; color: #86efac; }
+
+  .c-orange { background: #1c1007; border-color: #f59e0b; }
+  .c-orange .box-title { color: #fcd34d; }
+  .c-orange .box-tag { background: #451a03; color: #fcd34d; }
+
+  .c-pink { background: #1e0a1e; border-color: #e879f9; }
+  .c-pink .box-title { color: #f0abfc; }
+  .c-pink .box-tag { background: #4a044e; color: #f0abfc; }
+
+  .c-gray { background: #1e293b; border-color: #475569; }
+  .c-gray .box-title { color: #cbd5e1; }
+  .c-gray .box-tag { background: #0f172a; color: #94a3b8; }
+
+  /* ── Arrow ── */
+  .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    color: #475569;
+    font-size: 1.4rem;
+    line-height: 1;
+    min-height: 36px;
+    user-select: none;
+  }
+  .arrow-label {
+    font-size: 0.65rem;
+    color: #64748b;
+    margin-top: 3px;
+    text-align: center;
+    max-width: 140px;
+  }
+
+  /* ── H-arrow row (between side boxes) ── */
+  .h-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 1.2rem;
+    min-width: 32px;
+    flex-shrink: 0;
+    padding-top: 52px;
+  }
+
+  /* ── Wide single box ── */
+  .box-wide {
+    max-width: 600px;
+    width: 100%;
+  }
+
+  /* ── Apps row ── */
+  .apps-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .app-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    color: #cbd5e1;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    margin-top: 48px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>FlowBoard — How It Works</h1>
+<p class="subtitle">End-to-end architecture of your app</p>
+
+<div class="diagram">
+
+  <!-- Row 1: User -->
+  <div class="row">
+    <div class="box c-blue box-wide" style="text-align:center;">
+      <span class="box-tag">Entry point</span>
+      <span class="box-icon">🧑‍💻</span>
+      <div class="box-title">You (the user)</div>
+      <div class="box-desc">Open FlowBoard in your browser at composio-dashboard-mu.vercel.app</div>
+    </div>
+  </div>
+
+  <div class="arrow">↓<div class="arrow-label">sign in / sign up</div></div>
+
+  <!-- Row 2: Auth -->
+  <div class="row">
+    <div class="box c-purple box-wide" style="text-align:center;">
+      <span class="box-tag">Authentication</span>
+      <span class="box-icon">🔐</span>
+      <div class="box-title">Supabase Auth</div>
+      <div class="box-desc">
+        Email &amp; password login. Creates your account and gives you a unique <strong>User ID</strong>
+        — this ID is your key to all your data and connected apps.
+        <br/><br/>
+        Also stores: <strong>messages</strong> (AI chat history) · <strong>workflows</strong> (saved canvas)
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">↓<div class="arrow-label">User ID passed everywhere</div></div>
+
+  <!-- Row 3: Three pages -->
+  <div class="row">
+
+    <!-- Dashboard -->
+    <div class="box c-blue">
+      <span class="box-tag">Page 1</span>
+      <span class="box-icon">📊</span>
+      <div class="box-title">Dashboard</div>
+      <div class="box-desc">
+        Your weekly overview. Calls <code>/api/summary</code> to fetch:
+        <br/>• Meetings this week
+        <br/>• Unread Gmail (inbox)
+        <br/>• Unread Outlook mail
+        <br/><br/>
+        Cached 5 min in localStorage.
+      </div>
+    </div>
+
+    <div class="h-arrow">→</div>
+
+    <!-- Connect Apps -->
+    <div class="box c-orange">
+      <span class="box-tag">Page 2</span>
+      <span class="box-icon">🔗</span>
+      <div class="box-title">Connect Apps</div>
+      <div class="box-desc">
+        Calls <code>/api/connect</code> → Composio starts OAuth flow → you log in to Google / Microsoft → tokens stored in Composio under your User ID.
+        <br/><br/>
+        Apps: Gmail · Google Calendar · Outlook · Slack · Notion · Drive · Discord · Todoist
+      </div>
+    </div>
+
+    <div class="h-arrow">→</div>
+
+    <!-- Workflow Builder -->
+    <div class="box c-green">
+      <span class="box-tag">Page 3</span>
+      <span class="box-icon">⚡</span>
+      <div class="box-title">Workflow Builder</div>
+      <div class="box-desc">
+        Drag &amp; drop nodes onto a canvas. Connect them with arrows. Save to Supabase. Press <strong>Run</strong> to execute.
+        <br/><br/>
+        Canvas saved to localStorage + Supabase <em>workflows</em> table.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="arrow">↓<div class="arrow-label">▶ Run button pressed</div></div>
+
+  <!-- Row 4: Composio bridge -->
+  <div class="row">
+    <div class="box c-orange box-wide" style="text-align:center;">
+      <span class="box-tag">The Bridge</span>
+      <span class="box-icon">🌉</span>
+      <div class="box-title">Composio</div>
+      <div class="box-desc">
+        Holds your OAuth tokens. Translates tool calls into real API requests to third-party services using your account.
+        Every call goes through your User ID so Composio knows which account to use.
+      </div>
+      <div class="apps-row" style="justify-content:center; margin-top:14px;">
+        <div class="app-chip">📧 Gmail</div>
+        <div class="app-chip">📅 Google Calendar</div>
+        <div class="app-chip">📨 Outlook Mail</div>
+        <div class="app-chip">📆 Outlook Calendar</div>
+        <div class="app-chip">💬 Slack</div>
+        <div class="app-chip">📓 Notion</div>
+        <div class="app-chip">📁 Google Drive</div>
+        <div class="app-chip">✅ Todoist</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">↓<div class="arrow-label">tool results returned</div></div>
+
+  <!-- Row 5: Two AIs -->
+  <div class="row">
+
+    <div class="box c-pink">
+      <span class="box-tag">AI — Workflow Runner</span>
+      <span class="box-icon">🦙</span>
+      <div class="box-title">Groq · LLaMA 70B</div>
+      <div class="box-desc">
+        Powers the <strong>▶ Run</strong> button. Gets your nodes, calls Composio tools in a loop (up to 10 steps), then writes a plain-English summary of what happened in your accounts.
+      </div>
+    </div>
+
+    <div class="h-arrow" style="padding-top: 60px;">·</div>
+
+    <div class="box c-purple">
+      <span class="box-tag">AI — Chat Assistant</span>
+      <span class="box-icon">🤖</span>
+      <div class="box-title">Claude (Anthropic)</div>
+      <div class="box-desc">
+        Powers the <strong>AI Flow Assistant</strong> sidebar. Can answer questions, help you build workflows, and call Composio tools directly to read your real data.
+        Chat history saved to Supabase.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="arrow">↓<div class="arrow-label">result shown to you</div></div>
+
+  <!-- Row 6: Output -->
+  <div class="row">
+    <div class="box c-gray box-wide" style="text-align:center;">
+      <span class="box-tag">Output</span>
+      <span class="box-icon">✅</span>
+      <div class="box-title">You see the result</div>
+      <div class="box-desc">
+        Dashboard shows your real meetings &amp; emails · Workflow run result appears in the green banner · AI chat replies with answers or actions taken
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div> Frontend / Pages</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div> Auth &amp; AI (Supabase / Claude)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Composio (OAuth bridge)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> Workflow Builder</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e879f9"></div> AI Models</div>
+</div>
+
+</body>
+</html>

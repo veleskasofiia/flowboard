@@ -958,6 +958,66 @@ footer {
 .dash-footer a { color: #93c5fd; text-decoration: none; }
 .dash-footer a:hover { text-decoration: underline; }
 
+/* ── Example workflows ──────────────────────────────────────────────── */
+.dash-examples { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1rem; }
+
+.dash-example {
+  border: 1px solid #e2e8f0;
+  border-top: 3px solid #6366f1;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  background: #fff;
+  transition: box-shadow 0.15s;
+}
+.dash-example:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+
+.dash-example-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.dash-example-title { font-size: 0.97rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; }
+.dash-example-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
+
+.dash-example-btn {
+  flex-shrink: 0;
+  padding: 0.45rem 1.1rem;
+  border: none;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.dash-example-btn:hover { opacity: 0.85; }
+
+.dash-example-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.dash-example-flow-row { display: flex; align-items: center; gap: 6px; }
+
+.dash-example-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+.dash-example-node-icon { font-size: 1.15rem; line-height: 1; }
+.dash-example-node-label { font-size: 0.78rem; font-weight: 700; color: #1e293b; }
+.dash-example-node-desc { font-size: 0.68rem; color: #94a3b8; }
+
+.dash-example-arrow { color: #94a3b8; font-size: 1.1rem; font-weight: 700; }
+
 /* ── Docs page ──────────────────────────────────────────────────────── */
 .docs-page {
   min-height: 100vh;
