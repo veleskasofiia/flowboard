@@ -135,27 +135,17 @@ const nodeTypes: NodeTypes = { appNode: AppNode };
 
 // ─── Custom deletable edge ────────────────────────────────────────────────────
 
-function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, markerEnd, selected }: EdgeProps) {
+function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, markerEnd }: EdgeProps) {
   const { setEdges } = useReactFlow();
-  const [hovered, setHovered] = useState(false);
   const [edgePath, labelX, labelY] = getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition });
-  const showBtn = selected || hovered;
 
   return (
     <>
       <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
       <EdgeLabelRenderer>
         <div
-          style={{
-            position: "absolute",
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            pointerEvents: "all",
-            opacity: showBtn ? 1 : 0,
-            transition: "opacity 0.15s",
-          }}
           className="nodrag nopan"
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
+          style={{ position: "absolute", transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`, pointerEvents: "all" }}
         >
           <button
             className="edge-delete-btn"
@@ -204,7 +194,10 @@ function loadCanvas() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
-    return JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    // Migrate old edges to deletable type
+    parsed.edges = (parsed.edges ?? []).map((e: Edge) => ({ ...e, type: "deletable" }));
+    return parsed;
   } catch {
     return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
   }
@@ -249,7 +242,7 @@ function WorkflowCanvas({
         .then(({ data }) => {
           if (data) {
             setNodes(data.nodes);
-            setEdges(data.edges);
+            setEdges((data.edges ?? []).map((e: Edge) => ({ ...e, type: "deletable" })));
           }
         });
     });

@@ -963,13 +963,13 @@ footer {
 .react-flow__edge-interaction { stroke-width: 20 !important; }
 
 .edge-delete-btn {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 1.5px solid #94a3b8;
   background: white;
-  color: #64748b;
-  font-size: 14px;
+  color: #94a3b8;
+  font-size: 13px;
   line-height: 1;
   cursor: pointer;
   display: flex;
