@@ -52,9 +52,17 @@ const PALETTE_BY_KEY = Object.fromEntries(PALETTE.map((a) => [a.key, a]));
 
 // ─── Custom node ─────────────────────────────────────────────────────────────
 
-type AppNodeData = { label: string; icon: string; color: string; category: "trigger" | "action" };
+type AppNodeData = { label: string; icon: string; color: string; category: "trigger" | "action"; condition?: string; note?: string };
 
-function AppNode({ data, selected }: { data: AppNodeData; selected: boolean }) {
+function AppNode({ data, selected, id }: { data: AppNodeData; selected: boolean; id: string }) {
+  const { setNodes } = useReactFlow();
+  const isIf = data.label === "IF Condition";
+  const isSchedule = data.label === "Schedule";
+
+  function updateField(field: "condition" | "note", value: string) {
+    setNodes((nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, [field]: value } } : n));
+  }
+
   return (
     <div
       style={{
@@ -64,44 +72,56 @@ function AppNode({ data, selected }: { data: AppNodeData; selected: boolean }) {
         boxShadow: selected
           ? `0 0 0 3px ${data.color}33, 0 4px 12px rgba(0,0,0,0.12)`
           : "0 2px 8px rgba(0,0,0,0.08)",
-        minWidth: 180,
+        minWidth: 200,
         overflow: "hidden",
         fontFamily: "Arial, sans-serif",
         transition: "border 0.15s, box-shadow 0.15s",
       }}
     >
-      <Handle
-        type="target"
-        position={Position.Left}
-        style={{ background: data.color, width: 10, height: 10, border: "2px solid white" }}
-      />
+      <Handle type="target" position={Position.Left} style={{ background: data.color, width: 10, height: 10, border: "2px solid white" }} />
 
       {/* Category badge */}
-      <div
-        style={{
-          background: data.color,
-          padding: "3px 10px",
-          fontSize: "0.6rem",
-          color: "white",
-          fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-        }}
-      >
+      <div style={{ background: data.color, padding: "3px 10px", fontSize: "0.6rem", color: "white", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
         {data.category}
       </div>
 
-      {/* Content */}
-      <div style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+      {/* Title row */}
+      <div style={{ padding: "10px 14px 6px", display: "flex", alignItems: "center", gap: 10 }}>
         <span style={{ fontSize: "1.5rem", lineHeight: 1 }}>{data.icon}</span>
         <span style={{ fontWeight: 600, fontSize: "0.88rem", color: "#1e293b" }}>{data.label}</span>
       </div>
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{ background: data.color, width: 10, height: 10, border: "2px solid white" }}
-      />
+      {/* IF Condition — editable condition */}
+      {isIf && (
+        <div style={{ padding: "0 10px 10px" }}>
+          <div style={{ fontSize: "0.65rem", color: "#6b7280", marginBottom: 3, fontWeight: 600, textTransform: "uppercase" }}>Condition</div>
+          <input
+            className="nodrag"
+            style={{ width: "100%", fontSize: "0.78rem", border: "1px solid #e2e8f0", borderRadius: 5, padding: "4px 7px", color: "#1e293b", outline: "none" }}
+            placeholder="e.g. Is it marked important?"
+            value={data.condition ?? ""}
+            onChange={(e) => updateField("condition", e.target.value)}
+          />
+          <div style={{ fontSize: "0.65rem", color: "#94a3b8", marginTop: 4 }}>
+            ✅ True path → top output &nbsp;|&nbsp; ❌ False path → bottom output
+          </div>
+        </div>
+      )}
+
+      {/* Schedule / other nodes — optional note */}
+      {!isIf && (
+        <div style={{ padding: "0 10px 10px" }}>
+          <input
+            className="nodrag"
+            style={{ width: "100%", fontSize: "0.75rem", border: "1px solid #e2e8f0", borderRadius: 5, padding: "4px 7px", color: "#64748b", outline: "none" }}
+            placeholder={isSchedule ? "e.g. Every day at 8 AM" : "Add a note…"}
+            value={data.note ?? ""}
+            onChange={(e) => updateField("note", e.target.value)}
+          />
+        </div>
+      )}
+
+      <Handle type="source" position={Position.Right} style={{ background: data.color, width: 10, height: 10, border: "2px solid white" }} />
     </div>
   );
 }

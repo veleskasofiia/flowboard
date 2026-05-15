@@ -159,6 +159,19 @@ function greeting() {
   return "Good evening";
 }
 
+type Connection = { id: string; appName: string; status: string };
+
+const CONNECTABLE_APPS = [
+  { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
+  { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
+  { key: "outlook",        label: "Outlook",          icon: "📨", color: "#0078d4", composioApp: "outlook" },
+  { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
+  { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
+  { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
+  { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
+  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
+];
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -169,6 +182,9 @@ export default function DashboardPage() {
   const [recentRuns, setRecentRuns] = useState<RunRecord[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [connectingApp, setConnectingApp] = useState<string | null>(null);
+  const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -190,6 +206,7 @@ export default function DashboardPage() {
 
       const runs: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
       setRecentRuns(runs.slice(0, 5));
+      fetchConnections(user.id);
 
       // Load summary — use cache if fresh, else fetch
       const cached = localStorage.getItem(SUMMARY_CACHE_KEY);
@@ -201,6 +218,49 @@ export default function DashboardPage() {
     }
     init();
   }, [router]);
+
+  async function fetchConnections(entityId: string) {
+    try {
+      const res = await fetch(`/api/connect?entityId=${encodeURIComponent(entityId)}`);
+      const data = await res.json();
+      setConnections(data.connections ?? []);
+    } catch { setConnections([]); }
+  }
+
+  async function handleConnect(composioApp: string) {
+    if (!user) return;
+    setConnectingApp(composioApp);
+    try {
+      const callbackUrl = `${window.location.origin}/connect/callback?app=${composioApp}`;
+      const res = await fetch("/api/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appName: composioApp, entityId: user.id, callbackUrl }),
+      });
+      const data = await res.json();
+      if (data.redirectUrl) window.location.href = data.redirectUrl;
+    } catch { /* ignore */ }
+    setConnectingApp(null);
+  }
+
+  async function handleDisconnect(connectionId: string) {
+    setDisconnectingId(connectionId);
+    try {
+      await fetch("/api/connect", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ connectionId }),
+      });
+      if (user) fetchConnections(user.id);
+    } catch { /* ignore */ }
+    setDisconnectingId(null);
+  }
+
+  function getConnection(composioApp: string) {
+    return connections.find(
+      (c) => c.appName?.toLowerCase() === composioApp.toLowerCase() && c.status !== "FAILED"
+    ) ?? null;
+  }
 
   async function fetchSummary(entityId: string) {
     setSummaryLoading(true);
@@ -377,16 +437,52 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* Connect Apps CTA */}
-        <section className="dash-card dash-connect-cta">
-          <div className="dash-connect-cta-inner">
+        {/* Connected Apps — link / unlink */}
+        <section className="dash-card">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
             <div>
-              <h2 className="dash-card-title" style={{ marginBottom: "0.3rem" }}>Connect Your Apps</h2>
-              <p className="dash-card-sub" style={{ margin: 0 }}>Sign in to Gmail, Slack, Notion and more so the AI assistant can take real actions on your behalf.</p>
+              <h2 className="dash-card-title" style={{ marginBottom: "0.15rem" }}>Your Connected Apps</h2>
+              <p className="dash-card-sub" style={{ margin: 0 }}>Connect apps so the AI and workflows can act on your real accounts.</p>
             </div>
-            <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", whiteSpace: "nowrap" }}>
-              🔗 Connect Apps
-            </a>
+          </div>
+          <div className="dash-conn-grid">
+            {CONNECTABLE_APPS.map((app) => {
+              const conn = getConnection(app.composioApp);
+              const isConn = !!conn;
+              const isConnecting = connectingApp === app.composioApp;
+              const isDisconn = disconnectingId === conn?.id;
+              return (
+                <div key={app.key} className="dash-conn-card" style={{ borderColor: isConn ? app.color + "55" : "#e2e8f0" }}>
+                  <div className="dash-conn-card-top">
+                    <span className="dash-conn-icon">{app.icon}</span>
+                    <div>
+                      <div className="dash-conn-label">{app.label}</div>
+                      <div className={`dash-conn-status ${isConn ? "connected" : ""}`}>
+                        {isConn ? "✓ Connected" : "Not connected"}
+                      </div>
+                    </div>
+                  </div>
+                  {isConn ? (
+                    <button
+                      className="dash-conn-btn disconnect"
+                      onClick={() => conn && handleDisconnect(conn.id)}
+                      disabled={isDisconn}
+                    >
+                      {isDisconn ? "Removing…" : "Disconnect"}
+                    </button>
+                  ) : (
+                    <button
+                      className="dash-conn-btn connect"
+                      style={{ background: app.color }}
+                      onClick={() => handleConnect(app.composioApp)}
+                      disabled={isConnecting}
+                    >
+                      {isConnecting ? "Redirecting…" : "Connect"}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 

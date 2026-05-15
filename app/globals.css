@@ -958,6 +958,49 @@ footer {
 .dash-footer a { color: #93c5fd; text-decoration: none; }
 .dash-footer a:hover { text-decoration: underline; }
 
+/* ── Connected apps widget ──────────────────────────────────────────── */
+.dash-conn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+.dash-conn-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+.dash-conn-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.dash-conn-card-top { display: flex; align-items: center; gap: 10px; }
+.dash-conn-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+.dash-conn-label { font-size: 0.82rem; font-weight: 700; color: #1e293b; }
+.dash-conn-status { font-size: 0.7rem; color: #94a3b8; margin-top: 1px; }
+.dash-conn-status.connected { color: #16a34a; font-weight: 600; }
+
+.dash-conn-btn {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 0;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.dash-conn-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.dash-conn-btn.connect { color: #fff; }
+.dash-conn-btn.connect:hover:not(:disabled) { opacity: 0.85; }
+.dash-conn-btn.disconnect {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.dash-conn-btn.disconnect:hover:not(:disabled) { background: #fee2e2; }
+
 /* ── Example workflows ──────────────────────────────────────────────── */
 .dash-examples { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1rem; }
 
