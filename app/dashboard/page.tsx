@@ -20,45 +20,19 @@ type Summary = {
 };
 
 const SUMMARY_CACHE_KEY = "flowboard_summary";
-const SUMMARY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const SUMMARY_TTL_MS = 5 * 60 * 1000;
 
-const APPS = [
-  { key: "gmail",    label: "Gmail",            icon: "📧", color: "#ea4335" },
-  { key: "outlook",  label: "Outlook Mail",     icon: "📨", color: "#0078d4" },
-  { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd" },
-  { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4" },
-  { key: "ical",     label: "iCal",             icon: "🗓️", color: "#007aff" },
-  { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853" },
-  { key: "slack",    label: "Slack",            icon: "💬", color: "#36c5f0" },
-  { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },
-  { key: "notion",   label: "Notion",           icon: "📓", color: "#374151" },
-  { key: "todoist",      label: "Todoist",          icon: "✅", color: "#db4035" },
-  { key: "seznammail",  label: "Seznam Mail",      icon: "✉️", color: "#cc0000" },
-  { key: "seznamcal",  label: "Seznam Calendar",  icon: "📋", color: "#cc0000" },
-];
-
-const STEPS = [
-  {
-    number: "1",
-    icon: "⚡",
-    title: "Choose a Trigger",
-    desc: "In the Workflow page, drag a Webhook or Schedule node from the left panel onto the canvas. This starts your flow.",
-    color: "#f59e0b",
-  },
-  {
-    number: "2",
-    icon: "🔗",
-    title: "Add App Actions",
-    desc: "Drag any app node (Gmail, Slack, Notion…) from the Actions section and drop it on the canvas. Draw an arrow from your trigger to the action.",
-    color: "#2563eb",
-  },
-  {
-    number: "3",
-    icon: "🔀",
-    title: "Add an IF Condition (optional)",
-    desc: 'Drag the "IF Condition" node from the Actions section. Connect your trigger to it, then connect two separate app nodes for the true and false paths.',
-    color: "#7c3aed",
-  },
+const CONNECTABLE_APPS = [
+  { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
+  { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
+  { key: "outlook",        label: "Outlook",          icon: "📨", color: "#0078d4", composioApp: "outlook" },
+  { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
+  { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
+  { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
+  { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
+  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
+  { key: "seznammail",     label: "Seznam Mail",      icon: "✉️", color: "#cc0000", composioApp: "seznammail" },
+  { key: "seznamcal",      label: "Seznam Calendar",  icon: "📋", color: "#cc0000", composioApp: "seznamcal" },
 ];
 
 const AI_PROMPTS = [
@@ -88,11 +62,11 @@ const EXAMPLE_WORKFLOWS = [
       { icon: "📓", label: "Notion", desc: "Log all others to a database" },
     ],
     nodes: [
-      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",     icon: "⏰", color: "#8b5cf6", category: "trigger" } },
-      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Gmail",         icon: "📧", color: "#ea4335", category: "action"  } },
-      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition",  icon: "🔀", color: "#6b7280", category: "action"  } },
-      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Slack",         icon: "💬", color: "#36c5f0", category: "action"  } },
-      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Notion",        icon: "📓", color: "#374151", category: "action"  } },
+      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",    icon: "⏰", color: "#8b5cf6", category: "trigger" as const } },
+      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Gmail",        icon: "📧", color: "#ea4335", category: "action"  as const } },
+      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition", icon: "🔀", color: "#6b7280", category: "action"  as const } },
+      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Slack",        icon: "💬", color: "#36c5f0", category: "action"  as const } },
+      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Notion",       icon: "📓", color: "#374151", category: "action"  as const } },
     ] as ExampleNode[],
     edges: [
       { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
@@ -114,10 +88,10 @@ const EXAMPLE_WORKFLOWS = [
       { icon: "📓", label: "Notion", desc: "Create a prep page per meeting" },
     ],
     nodes: [
-      { id: "1", type: "appNode", position: { x: 60,  y: 180 }, data: { label: "Schedule",        icon: "⏰", color: "#8b5cf6", category: "trigger" } },
-      { id: "2", type: "appNode", position: { x: 300, y: 180 }, data: { label: "Google Calendar",  icon: "📅", color: "#4285f4", category: "action"  } },
-      { id: "3", type: "appNode", position: { x: 540, y: 180 }, data: { label: "Gmail",            icon: "📧", color: "#ea4335", category: "action"  } },
-      { id: "4", type: "appNode", position: { x: 780, y: 180 }, data: { label: "Notion",           icon: "📓", color: "#374151", category: "action"  } },
+      { id: "1", type: "appNode", position: { x: 60,  y: 180 }, data: { label: "Schedule",       icon: "⏰", color: "#8b5cf6", category: "trigger" as const } },
+      { id: "2", type: "appNode", position: { x: 300, y: 180 }, data: { label: "Google Calendar", icon: "📅", color: "#4285f4", category: "action"  as const } },
+      { id: "3", type: "appNode", position: { x: 540, y: 180 }, data: { label: "Gmail",           icon: "📧", color: "#ea4335", category: "action"  as const } },
+      { id: "4", type: "appNode", position: { x: 780, y: 180 }, data: { label: "Notion",          icon: "📓", color: "#374151", category: "action"  as const } },
     ] as ExampleNode[],
     edges: [
       { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
@@ -139,11 +113,11 @@ const EXAMPLE_WORKFLOWS = [
       { icon: "💬", label: "Slack", desc: "Notify team in #clients" },
     ],
     nodes: [
-      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",    icon: "⏰", color: "#8b5cf6", category: "trigger" } },
-      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Todoist",      icon: "✅", color: "#db4035", category: "action"  } },
-      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition", icon: "🔀", color: "#6b7280", category: "action"  } },
-      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Outlook Mail", icon: "📨", color: "#0078d4", category: "action"  } },
-      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Slack",        icon: "💬", color: "#36c5f0", category: "action"  } },
+      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",    icon: "⏰", color: "#8b5cf6", category: "trigger" as const } },
+      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Todoist",      icon: "✅", color: "#db4035", category: "action"  as const } },
+      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition", icon: "🔀", color: "#6b7280", category: "action"  as const } },
+      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Outlook Mail", icon: "📨", color: "#0078d4", category: "action"  as const } },
+      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Slack",        icon: "💬", color: "#36c5f0", category: "action"  as const } },
     ] as ExampleNode[],
     edges: [
       { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
@@ -162,19 +136,6 @@ function greeting() {
 }
 
 type Connection = { id: string; appName: string; status: string };
-
-const CONNECTABLE_APPS = [
-  { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
-  { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
-  { key: "outlook",        label: "Outlook",          icon: "📨", color: "#0078d4", composioApp: "outlook" },
-  { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
-  { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
-  { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
-  { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
-  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
-  { key: "seznammail",     label: "Seznam Mail",      icon: "✉️", color: "#cc0000", composioApp: "seznammail" },
-  { key: "seznamcal",      label: "Seznam Calendar",  icon: "📋", color: "#cc0000", composioApp: "seznamcal" },
-];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -212,7 +173,6 @@ export default function DashboardPage() {
       setRecentRuns(runs.slice(0, 5));
       fetchConnections(user.id);
 
-      // Load summary — use cache if fresh, else fetch
       const cached = localStorage.getItem(SUMMARY_CACHE_KEY);
       if (cached) {
         const { ts, data } = JSON.parse(cached);
@@ -303,315 +263,226 @@ export default function DashboardPage() {
     return <div className="dash-loading"><div className="dash-spinner" /></div>;
   }
 
-  const joinedDate = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })
-    : "—";
-
   return (
     <div className="dash-page">
       <NavBar onSignOut={handleSignOut} />
 
       <main className="dash-main">
 
-        {/* Welcome */}
-        <div className="dash-top-row">
-          <div className="dash-welcome">
-            <h1>{greeting()}, <span>{user?.email?.split("@")[0]}</span> 👋</h1>
-            <p>Member since {joinedDate} · {daysAsMember} days with FlowBoard · {messageCount} AI messages</p>
+        {/* Greeting */}
+        <div className="dash-greeting-row">
+          <div>
+            <h1 className="dash-greeting-title">
+              {greeting()}, <span>{user?.email?.split("@")[0]}</span>!
+            </h1>
+            <p className="dash-greeting-sub">Here&apos;s what&apos;s happening with your apps today.</p>
+          </div>
+          <button
+            className="dash-refresh-btn"
+            onClick={() => user && fetchSummary(user.id)}
+            disabled={summaryLoading}
+          >
+            {summaryLoading ? "Loading…" : "↺ Refresh"}
+          </button>
+        </div>
+
+        {/* 4 stat cards */}
+        <div className="dash-stats-row">
+          <div className="dash-stat-card" style={{ borderTopColor: "#4285f4" }}>
+            <span className="dash-stat-label">Meetings this week</span>
+            <span className="dash-stat-value">
+              {summaryLoading ? "…" : summary?.meetings_count ?? "—"}
+            </span>
+            {summary?.next_meeting
+              ? <span className="dash-stat-sub">Next: {summary.next_meeting.title}</span>
+              : !summaryLoading && <a href="/connect" className="dash-stat-connect">Connect calendar →</a>}
+          </div>
+          <div className="dash-stat-card" style={{ borderTopColor: "#ea4335" }}>
+            <span className="dash-stat-label">Unread Gmail</span>
+            <span className="dash-stat-value">
+              {summaryLoading ? "…" : summary?.gmail_unread != null
+                ? `${summary.gmail_unread}${summary.gmail_has_more ? "+" : ""}`
+                : "—"}
+            </span>
+            {!summaryLoading && summary?.gmail_unread == null && (
+              <a href="/connect" className="dash-stat-connect">Connect Gmail →</a>
+            )}
+          </div>
+          <div className="dash-stat-card" style={{ borderTopColor: "#0078d4" }}>
+            <span className="dash-stat-label">Unread Outlook</span>
+            <span className="dash-stat-value">
+              {summaryLoading ? "…" : summary?.outlook_unread ?? "—"}
+            </span>
+            {!summaryLoading && summary?.outlook_unread == null && (
+              <a href="/connect" className="dash-stat-connect">Connect Outlook →</a>
+            )}
+          </div>
+          <div className="dash-stat-card" style={{ borderTopColor: "#8b5cf6" }}>
+            <span className="dash-stat-label">AI Messages</span>
+            <span className="dash-stat-value">{messageCount}</span>
+            <span className="dash-stat-sub">{daysAsMember} days with FlowBoard</span>
           </div>
         </div>
 
-        {/* Your Week — real data from connected apps */}
-        <section className="dash-card dash-week">
-          <div className="dash-week-header">
-            <h2 className="dash-card-title" style={{ margin: 0 }}>Your Week at a Glance</h2>
-            <button
-              className="dash-week-refresh"
-              onClick={() => user && fetchSummary(user.id)}
-              disabled={summaryLoading}
-            >
-              {summaryLoading ? "Loading…" : "↺ Refresh"}
-            </button>
-          </div>
+        {/* Two-column layout */}
+        <div className="dash-content-grid">
 
-          {summaryLoading && !summary && (
-            <div className="dash-week-loading">
-              <div className="dash-spinner" style={{ width: 28, height: 28 }} />
-              <span>Fetching your meetings and emails…</span>
-            </div>
-          )}
+          {/* Left: meetings + recent runs */}
+          <div className="dash-content-left">
 
-          {!summaryLoading && !summary && (
-            <div className="dash-how-to">
-              <p className="dash-how-to-title">To see your real meetings and emails here:</p>
-              <ol className="dash-how-to-steps">
-                <li>Go to <a href="/connect"><strong>Connect Apps</strong></a> in the top navigation.</li>
-                <li>Click <strong>Connect Gmail</strong> and sign in with your Google account.</li>
-                <li>Click <strong>Connect Outlook Mail</strong> and sign in with your Microsoft account.</li>
-                <li>Click <strong>Connect Google Calendar</strong> and/or <strong>Connect Outlook Mail</strong> (Outlook Calendar is included automatically).</li>
-                <li>Come back here and click <strong>↺ Refresh</strong>.</li>
-              </ol>
-              <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>🔗 Go to Connect Apps</a>
-            </div>
-          )}
-
-          {summary && !summary.error && (
-            <>
-              <div className="dash-week-stats">
-                {/* Meetings this week */}
-                <div className="dash-week-stat" style={{ borderColor: "#4285f4" }}>
-                  <span className="dash-week-icon">📅</span>
-                  <span className="dash-week-val">
-                    {summary.meetings_count !== null ? summary.meetings_count : "—"}
-                  </span>
-                  <span className="dash-week-label">meetings this week</span>
-                  {summary.next_meeting && (
-                    <span className="dash-week-sub">
-                      Next: {summary.next_meeting.title}<br />
-                      {new Date(summary.next_meeting.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}{" "}
-                      {new Date(summary.next_meeting.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  )}
+            <section className="dash-card">
+              <h2 className="dash-card-title">This Week&apos;s Meetings</h2>
+              {summary?.meetings && summary.meetings.length > 0 ? (
+                <div className="dash-schedule-list">
+                  {summary.meetings.slice(0, 6).map((m, i) => (
+                    <div key={i} className="dash-schedule-row">
+                      <div className="dash-schedule-time">
+                        <span>{new Date(m.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
+                        <span>{new Date(m.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+                      </div>
+                      <div className="dash-schedule-event" style={{ borderLeftColor: m.source === "google" ? "#4285f4" : "#0078d4" }}>
+                        <span className="dash-schedule-title">{m.title}</span>
+                        <span className="dash-schedule-src">{m.source === "google" ? "Google Calendar" : "Outlook"}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                {/* Gmail unread */}
-                <div className="dash-week-stat" style={{ borderColor: "#ea4335" }}>
-                  <span className="dash-week-icon">📧</span>
-                  <span className="dash-week-val">
-                    {summary.gmail_unread !== null
-                      ? `${summary.gmail_unread}${summary.gmail_has_more ? "+" : ""}`
-                      : "—"}
-                  </span>
-                  <span className="dash-week-label">unread Gmail</span>
-                  {summary.gmail_unread === null && (
-                    <a href="/connect" className="dash-week-connect">Connect Gmail →</a>
-                  )}
+              ) : (
+                <div className="dash-empty-state">
+                  {summaryLoading
+                    ? <span>Loading meetings…</span>
+                    : <span>No meetings this week. <a href="/connect">Connect a calendar →</a></span>}
                 </div>
+              )}
+            </section>
 
-                {/* Outlook unread */}
-                <div className="dash-week-stat" style={{ borderColor: "#0078d4" }}>
-                  <span className="dash-week-icon">📨</span>
-                  <span className="dash-week-val">
-                    {summary.outlook_unread !== null ? summary.outlook_unread : "—"}
-                  </span>
-                  <span className="dash-week-label">unread Outlook</span>
-                  {summary.outlook_unread === null && (
-                    <a href="/connect" className="dash-week-connect">Connect Outlook →</a>
-                  )}
-                </div>
+            <section className="dash-card">
+              <div className="dash-card-header">
+                <h2 className="dash-card-title" style={{ margin: 0 }}>Recent Workflow Runs</h2>
+                <a href="/workflow" className="dash-card-link">Open Builder →</a>
               </div>
-
-              {/* Meeting list */}
-              {summary.meetings.length > 0 && (
-                <div className="dash-meeting-list">
-                  <p className="dash-meeting-list-title">This week&apos;s meetings</p>
-                  {summary.meetings.slice(0, 8).map((m, i) => (
-                    <div key={i} className="dash-meeting-row">
-                      <span className="dash-meeting-src">{m.source === "google" ? "📅" : "📆"}</span>
-                      <span className="dash-meeting-title">{m.title}</span>
-                      <span className="dash-meeting-time">
-                        {new Date(m.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}{" "}
-                        {new Date(m.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                      </span>
+              {recentRuns.length === 0 ? (
+                <div className="dash-empty-state">
+                  <span>No runs yet. <a href="/workflow">Run your first workflow →</a></span>
+                </div>
+              ) : (
+                <div className="dash-runs-list" style={{ marginTop: "0.75rem" }}>
+                  {recentRuns.map((run) => (
+                    <div key={run.id} className="dash-run-item">
+                      <div className="dash-run-meta">
+                        <span className="dash-run-nodes">{run.nodes.join(" → ")}</span>
+                        <span className="dash-run-ts">
+                          {new Date(run.ts).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <pre className="dash-run-result">{run.result}</pre>
                     </div>
                   ))}
                 </div>
               )}
+            </section>
 
-              {summary.meetings_count === null && summary.gmail_unread === null && summary.outlook_unread === null && (
-                <div className="dash-how-to" style={{ marginTop: "0.75rem" }}>
-                  <p className="dash-how-to-title">No apps connected yet. Here&apos;s how to fix that:</p>
-                  <ol className="dash-how-to-steps">
-                    <li>Go to <a href="/connect"><strong>Connect Apps</strong></a> in the navigation bar.</li>
-                    <li>Click <strong>Connect Gmail</strong> → sign in with Google → come back.</li>
-                    <li>Click <strong>Connect Outlook Mail</strong> → sign in with Microsoft → come back.</li>
-                    <li>Click <strong>Connect Google Calendar</strong> if you use it.</li>
-                    <li>Click <strong>↺ Refresh</strong> on this card.</li>
-                  </ol>
-                  <a href="/connect" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>🔗 Connect Apps</a>
-                </div>
-              )}
-            </>
-          )}
-
-          {summary?.error && (
-            <div className="dash-week-empty">
-              <p>Could not load your data. <button className="dash-week-retry" onClick={() => user && fetchSummary(user.id)}>Try again</button></p>
-            </div>
-          )}
-        </section>
-
-        {/* Connected Apps — link / unlink */}
-        <section className="dash-card">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-            <div>
-              <h2 className="dash-card-title" style={{ marginBottom: "0.15rem" }}>Your Connected Apps</h2>
-              <p className="dash-card-sub" style={{ margin: 0 }}>Connect apps so the AI and workflows can act on your real accounts.</p>
-            </div>
           </div>
-          <div className="dash-conn-grid">
-            {CONNECTABLE_APPS.map((app) => {
-              const conn = getConnection(app.composioApp);
-              const isConn = !!conn;
-              const isConnecting = connectingApp === app.composioApp;
-              const isDisconn = disconnectingId === conn?.id;
-              return (
-                <div key={app.key} className="dash-conn-card" style={{ borderColor: isConn ? app.color + "55" : "#e2e8f0" }}>
-                  <div className="dash-conn-card-top">
-                    <span className="dash-conn-icon">{app.icon}</span>
-                    <div>
-                      <div className="dash-conn-label">{app.label}</div>
-                      <div className={`dash-conn-status ${isConn ? "connected" : ""}`}>
-                        {isConn ? "✓ Connected" : "Not connected"}
-                      </div>
-                    </div>
-                  </div>
-                  {isConn ? (
-                    <button
-                      className="dash-conn-btn disconnect"
-                      onClick={() => conn && handleDisconnect(conn.id)}
-                      disabled={isDisconn}
-                    >
-                      {isDisconn ? "Removing…" : "Disconnect"}
-                    </button>
-                  ) : (
-                    <button
-                      className="dash-conn-btn connect"
-                      style={{ background: app.color }}
-                      onClick={() => handleConnect(app.composioApp)}
-                      disabled={isConnecting}
-                    >
-                      {isConnecting ? "Redirecting…" : "Connect"}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
 
-        {/* How to build a workflow */}
-        <section className="dash-card dash-guide">
-          <h2 className="dash-card-title">How to Build a Workflow</h2>
-          <p className="dash-card-sub">
-            Open the <a href="/workflow">Workflow Builder</a> and follow these three steps.
-          </p>
-          <div className="dash-steps">
-            {STEPS.map((s) => (
-              <div key={s.number} className="dash-step" style={{ borderTopColor: s.color }}>
-                <div className="dash-step-num" style={{ background: s.color }}>{s.number}</div>
-                <div className="dash-step-icon">{s.icon}</div>
-                <h3 className="dash-step-title">{s.title}</h3>
-                <p className="dash-step-desc">{s.desc}</p>
+          {/* Right: connected apps */}
+          <div className="dash-content-right">
+            <section className="dash-card">
+              <div className="dash-card-header">
+                <h2 className="dash-card-title" style={{ margin: 0 }}>Your Connected Apps</h2>
               </div>
-            ))}
-          </div>
-          <a href="/workflow" className="dash-action-btn primary" style={{ marginTop: "1.25rem", display: "inline-flex" }}>
-            ⚡ Open Workflow Builder
-          </a>
-        </section>
-
-        {/* Example Workflows */}
-        <section className="dash-card">
-          <h2 className="dash-card-title">Example Workflows</h2>
-          <p className="dash-card-sub">Click <strong>Load</strong> to open any example directly in the Workflow Builder.</p>
-          <div className="dash-examples">
-            {EXAMPLE_WORKFLOWS.map((wf) => (
-              <div key={wf.id} className="dash-example" style={{ borderTopColor: wf.color }}>
-                <div className="dash-example-header">
-                  <div>
-                    <h3 className="dash-example-title">{wf.title}</h3>
-                    <p className="dash-example-desc">{wf.description}</p>
-                  </div>
-                  <button className="dash-example-btn" style={{ background: wf.color }} onClick={() => loadWorkflow(wf)}>
-                    ⚡ Load
-                  </button>
-                </div>
-                <div className="dash-example-flow">
-                  {wf.steps.map((step, i) => (
-                    <div key={i} className="dash-example-flow-row">
-                      <div className="dash-example-node">
-                        <span className="dash-example-node-icon">{step.icon}</span>
+              <p className="dash-card-sub">Connect apps so the AI and workflows can act on your real accounts.</p>
+              <div className="dash-conn-grid">
+                {CONNECTABLE_APPS.map((app) => {
+                  const conn = getConnection(app.composioApp);
+                  const isConn = !!conn;
+                  const isConnecting = connectingApp === app.composioApp;
+                  const isDisconn = disconnectingId === conn?.id;
+                  return (
+                    <div key={app.key} className="dash-conn-card" style={{ borderColor: isConn ? app.color + "55" : "#e2e8f0" }}>
+                      <div className="dash-conn-card-top">
+                        <span className="dash-conn-icon">{app.icon}</span>
                         <div>
-                          <div className="dash-example-node-label">{step.label}</div>
-                          <div className="dash-example-node-desc">{step.desc}</div>
+                          <div className="dash-conn-label">{app.label}</div>
+                          <div className={`dash-conn-status ${isConn ? "connected" : ""}`}>
+                            {isConn ? "✓ Connected" : "Not connected"}
+                          </div>
                         </div>
                       </div>
-                      {i < wf.steps.length - 1 && <span className="dash-example-arrow">→</span>}
+                      {isConn ? (
+                        <button
+                          className="dash-conn-btn disconnect"
+                          onClick={() => conn && handleDisconnect(conn.id)}
+                          disabled={isDisconn}
+                        >
+                          {isDisconn ? "Removing…" : "Disconnect"}
+                        </button>
+                      ) : (
+                        <button
+                          className="dash-conn-btn connect"
+                          style={{ background: app.color }}
+                          onClick={() => handleConnect(app.composioApp)}
+                          disabled={isConnecting}
+                        >
+                          {isConnecting ? "Redirecting…" : "Connect"}
+                        </button>
+                      )}
                     </div>
-                  ))}
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+
+        </div>
+
+        {/* Example Workflows as project cards */}
+        <section className="dash-card">
+          <div className="dash-card-header">
+            <h2 className="dash-card-title" style={{ margin: 0 }}>Example Workflows</h2>
+            <a href="/workflow" className="dash-card-link">Open Builder →</a>
+          </div>
+          <p className="dash-card-sub" style={{ marginTop: "0.25rem" }}>Click Load to open any example directly in the Workflow Builder.</p>
+          <div className="dash-projects-grid">
+            {EXAMPLE_WORKFLOWS.map((wf) => (
+              <div key={wf.id} className="dash-project-card" style={{ borderTopColor: wf.color }}>
+                <div className="dash-project-icon" style={{ background: wf.color + "22", color: wf.color }}>
+                  {wf.steps[0]?.icon}
                 </div>
+                <div className="dash-project-info">
+                  <h3 className="dash-project-title">{wf.title}</h3>
+                  <p className="dash-project-desc">{wf.description}</p>
+                  <div className="dash-project-tags">
+                    {wf.tags.map((tag) => (
+                      <span key={tag} className="dash-project-tag">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  className="dash-project-load"
+                  style={{ background: wf.color }}
+                  onClick={() => loadWorkflow(wf)}
+                >
+                  ⚡ Load
+                </button>
               </div>
             ))}
           </div>
         </section>
 
-        <div className="dash-bottom">
-          {/* Apps */}
-          <section className="dash-card">
-            <h2 className="dash-card-title">Supported Apps</h2>
-            <p className="dash-card-sub">Drag these from the left panel in the Workflow Builder.</p>
-            <div className="dash-apps-grid2">
-              {APPS.map((app) => (
-                <div key={app.key} className="dash-app2" style={{ borderColor: app.color + "55" }}>
-                  <span style={{ fontSize: "1.3rem" }}>{app.icon}</span>
-                  <span className="dash-app2-label">{app.label}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* AI prompt ideas */}
-          <section className="dash-card">
-            <h2 className="dash-card-title">Ask the AI Assistant</h2>
-            <p className="dash-card-sub">
-              Open the <a href="/workflow">Workflow Builder</a>, then copy a prompt below and paste it into the AI chat.
-            </p>
-            <div className="dash-prompts">
-              {AI_PROMPTS.map((p) => (
-                <button
-                  key={p}
-                  className="dash-prompt-btn"
-                  onClick={() => copyPrompt(p)}
-                >
-                  <span className="dash-prompt-text">{p}</span>
-                  <span className="dash-prompt-copy">
-                    {copied === p ? "✓ Copied" : "Copy"}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        {/* Recent workflow runs */}
-        <section className="dash-card dash-runs">
-          <h2 className="dash-card-title">Recent Workflow Runs</h2>
+        {/* AI prompt ideas */}
+        <section className="dash-card">
+          <h2 className="dash-card-title">Ask the AI Assistant</h2>
           <p className="dash-card-sub">
-            Results from your last runs in the <a href="/workflow">Workflow Builder</a>.
+            Open the <a href="/workflow">Workflow Builder</a>, then copy a prompt and paste it into the AI chat.
           </p>
-          {recentRuns.length === 0 ? (
-            <div className="dash-runs-empty">
-              <span>No runs yet.</span>
-              <a href="/workflow" className="dash-action-btn primary" style={{ display: "inline-flex", marginTop: "0.75rem" }}>
-                ▶ Run your first workflow
-              </a>
-            </div>
-          ) : (
-            <div className="dash-runs-list">
-              {recentRuns.map((run) => (
-                <div key={run.id} className="dash-run-item">
-                  <div className="dash-run-meta">
-                    <span className="dash-run-nodes">{run.nodes.join(" → ")}</span>
-                    <span className="dash-run-ts">
-                      {new Date(run.ts).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  </div>
-                  <pre className="dash-run-result">{run.result}</pre>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="dash-prompts">
+            {AI_PROMPTS.map((p) => (
+              <button key={p} className="dash-prompt-btn" onClick={() => copyPrompt(p)}>
+                <span className="dash-prompt-text">{p}</span>
+                <span className="dash-prompt-copy">{copied === p ? "✓ Copied" : "Copy"}</span>
+              </button>
+            ))}
+          </div>
         </section>
 
       </main>
