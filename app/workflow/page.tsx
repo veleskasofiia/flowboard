@@ -50,8 +50,6 @@ const PALETTE: AppEntry[] = [
   { key: "discord",  label: "Discord",             icon: "🎮", color: "#5865f2", category: "action"  },
   { key: "notion",   label: "Notion",              icon: "📓", color: "#374151", category: "action"  },
   { key: "todoist",     label: "Todoist",             icon: "✅", color: "#db4035", category: "action"  },
-  { key: "seznammail", label: "Seznam Mail",        icon: "✉️", color: "#cc0000", category: "action"  },
-  { key: "seznamcal",  label: "Seznam Calendar",   icon: "📋", color: "#cc0000", category: "action"  },
   { key: "ifelse",     label: "IF Condition",       icon: "🔀", color: "#6b7280", category: "action"  },
 ];
 

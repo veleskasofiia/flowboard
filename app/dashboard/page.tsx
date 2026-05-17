@@ -31,8 +31,6 @@ const CONNECTABLE_APPS = [
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
   { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
   { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
-  { key: "seznammail",     label: "Seznam Mail",      icon: "✉️", color: "#cc0000", composioApp: "seznammail" },
-  { key: "seznamcal",      label: "Seznam Calendar",  icon: "📋", color: "#cc0000", composioApp: "seznamcal" },
 ];
 
 const AI_PROMPTS = [
