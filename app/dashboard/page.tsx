@@ -189,6 +189,7 @@ export default function DashboardPage() {
   const [emails, setEmails] = useState<EmailItem[] | null>(null);
   const [emailsLoading, setEmailsLoading] = useState(false);
   const [emailTab, setEmailTab] = useState<"all" | "gmail" | "outlook">("all");
+  const [emailSources, setEmailSources] = useState<{ gmail: boolean; outlook: boolean }>({ gmail: false, outlook: false });
 
   useEffect(() => {
     async function init() {
@@ -294,6 +295,7 @@ export default function DashboardPage() {
       });
       const data = await res.json();
       setEmails(data.emails ?? []);
+      if (data.sources) setEmailSources(data.sources);
     } catch {
       setEmails([]);
     }
@@ -493,9 +495,11 @@ export default function DashboardPage() {
             const filtered = emailTab === "all" ? emails : emails.filter((e) => e.source === emailTab);
             if (filtered.length === 0) return (
               <div className="dash-inbox-empty">
-                {emails.length === 0
-                  ? <span>No emails found. <a href="/connect">Connect Gmail or Outlook →</a></span>
-                  : <span>No {emailTab} emails to show.</span>}
+                {emailTab !== "all" && emails.length > 0
+                  ? <span>No {emailTab === "gmail" ? "Gmail" : "Outlook"} emails to show.</span>
+                  : !emailSources.gmail && !emailSources.outlook
+                  ? <span>No connected mail apps. <a href="/connect">Connect Gmail or Outlook →</a></span>
+                  : <span>Your inbox is empty.</span>}
               </div>
             );
             return (
