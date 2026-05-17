@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  let appName = "";
   try {
-    const { appName, entityId, callbackUrl } = await req.json();
+    const body = await req.json();
+    const { entityId, callbackUrl } = body;
+    appName = body.appName ?? "";
 
     if (!process.env.COMPOSIO_API_KEY) {
       return NextResponse.json({ error: "Composio not configured" }, { status: 500 });
@@ -19,8 +22,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ redirectUrl: connRequest.redirectUrl });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Connection failed";
-    console.error("Connect error:", message);
+    const raw = err instanceof Error ? err.message : String(err);
+    console.error("Connect error:", raw);
+    const message = raw.toLowerCase().includes("internal server error") || raw.toLowerCase().includes("500")
+      ? `Composio could not start the connection for "${appName}". Check that your COMPOSIO_API_KEY is valid and that the app integration is enabled in your Composio dashboard.`
+      : raw;
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
