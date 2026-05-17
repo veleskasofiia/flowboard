@@ -190,6 +190,9 @@ export default function DashboardPage() {
   const [emailsLoading, setEmailsLoading] = useState(false);
   const [emailTab, setEmailTab] = useState<"all" | "gmail" | "outlook">("all");
   const [emailSources, setEmailSources] = useState<{ gmail: boolean; outlook: boolean }>({ gmail: false, outlook: false });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -305,6 +308,26 @@ export default function DashboardPage() {
   async function handleSignOut() {
     await supabase.auth.signOut();
     router.push("/");
+  }
+
+  async function handleDeleteAccount() {
+    if (!user) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch("/api/delete-account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      const data = await res.json();
+      if (data.error) { setDeleteError(data.error); setDeleting(false); return; }
+      await supabase.auth.signOut();
+      router.push("/");
+    } catch {
+      setDeleteError("Something went wrong. Please try again.");
+      setDeleting(false);
+    }
   }
 
   function copyPrompt(prompt: string) {
@@ -703,7 +726,38 @@ export default function DashboardPage() {
           )}
         </section>
 
+        {/* Danger Zone */}
+        <section className="dash-card dash-danger-zone">
+          <h2 className="dash-card-title" style={{ color: "#dc2626" }}>Danger Zone</h2>
+          <p className="dash-card-sub">Permanently delete your account and all associated data. This cannot be undone.</p>
+          {deleteError && <p className="dash-danger-error">{deleteError}</p>}
+          <button className="dash-danger-btn" onClick={() => setShowDeleteConfirm(true)}>
+            Delete My Account
+          </button>
+        </section>
+
       </main>
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="dash-modal-overlay">
+          <div className="dash-modal">
+            <h3 className="dash-modal-title">Delete your account?</h3>
+            <p className="dash-modal-body">
+              This will permanently delete your FlowBoard account, all your messages, and workflow data. <strong>This cannot be undone.</strong>
+            </p>
+            {deleteError && <p className="dash-danger-error">{deleteError}</p>}
+            <div className="dash-modal-actions">
+              <button className="dash-modal-cancel" onClick={() => { setShowDeleteConfirm(false); setDeleteError(null); }} disabled={deleting}>
+                Cancel
+              </button>
+              <button className="dash-modal-confirm" onClick={handleDeleteAccount} disabled={deleting}>
+                {deleting ? "Deleting…" : "Yes, delete my account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="dash-footer">
         <p>© 2026 FlowBoard · <a href="/docs">Documentation</a> · <a href="/">Home</a></p>
