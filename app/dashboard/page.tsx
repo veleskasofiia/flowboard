@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import NavBar from "@/components/NavBar";
 
 type RunRecord = { id: number; result: string; nodes: string[]; ts: string };
+type EmailItem = { id: string; subject: string; from: string; snippet: string; date: string; source: "gmail" | "outlook"; isRead: boolean };
 
 type Meeting = { title: string; start: string; source: string };
 type Summary = {
@@ -185,6 +186,9 @@ export default function DashboardPage() {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [connectingApp, setConnectingApp] = useState<string | null>(null);
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
+  const [emails, setEmails] = useState<EmailItem[] | null>(null);
+  const [emailsLoading, setEmailsLoading] = useState(false);
+  const [emailTab, setEmailTab] = useState<"all" | "gmail" | "outlook">("all");
 
   useEffect(() => {
     async function init() {
@@ -207,6 +211,7 @@ export default function DashboardPage() {
       const runs: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
       setRecentRuns(runs.slice(0, 5));
       fetchConnections(user.id);
+      fetchEmails(user.id);
 
       // Load summary — use cache if fresh, else fetch
       const cached = localStorage.getItem(SUMMARY_CACHE_KEY);
@@ -277,6 +282,22 @@ export default function DashboardPage() {
       setSummary({ meetings_count: null, meetings: [], next_meeting: null, gmail_unread: null, gmail_has_more: false, outlook_unread: null, connected: [], error: "failed" });
     }
     setSummaryLoading(false);
+  }
+
+  async function fetchEmails(entityId: string) {
+    setEmailsLoading(true);
+    try {
+      const res = await fetch("/api/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entityId }),
+      });
+      const data = await res.json();
+      setEmails(data.emails ?? []);
+    } catch {
+      setEmails([]);
+    }
+    setEmailsLoading(false);
   }
 
   async function handleSignOut() {
@@ -433,6 +454,74 @@ export default function DashboardPage() {
           {summary?.error && (
             <div className="dash-week-empty">
               <p>Could not load your data. <button className="dash-week-retry" onClick={() => user && fetchSummary(user.id)}>Try again</button></p>
+            </div>
+          )}
+        </section>
+
+        {/* Inbox */}
+        <section className="dash-card">
+          <div className="dash-inbox-header">
+            <h2 className="dash-card-title" style={{ margin: 0 }}>Inbox</h2>
+            <div className="dash-inbox-tabs">
+              {(["all", "gmail", "outlook"] as const).map((t) => (
+                <button
+                  key={t}
+                  className={`dash-inbox-tab${emailTab === t ? " active" : ""}`}
+                  onClick={() => setEmailTab(t)}
+                >
+                  {t === "all" ? "All" : t === "gmail" ? "📧 Gmail" : "📨 Outlook"}
+                </button>
+              ))}
+            </div>
+            <button
+              className="dash-week-refresh"
+              onClick={() => user && fetchEmails(user.id)}
+              disabled={emailsLoading}
+            >
+              {emailsLoading ? "Loading…" : "↺ Refresh"}
+            </button>
+          </div>
+
+          {emailsLoading && !emails && (
+            <div className="dash-week-loading">
+              <div className="dash-spinner" style={{ width: 24, height: 24 }} />
+              <span>Fetching your emails…</span>
+            </div>
+          )}
+
+          {!emailsLoading && emails !== null && (() => {
+            const filtered = emailTab === "all" ? emails : emails.filter((e) => e.source === emailTab);
+            if (filtered.length === 0) return (
+              <div className="dash-inbox-empty">
+                {emails.length === 0
+                  ? <span>No emails found. <a href="/connect">Connect Gmail or Outlook →</a></span>
+                  : <span>No {emailTab} emails to show.</span>}
+              </div>
+            );
+            return (
+              <div className="dash-inbox-list">
+                {filtered.map((email) => (
+                  <div key={email.id} className={`dash-inbox-row${email.isRead ? " read" : ""}`}>
+                    <span className="dash-inbox-src">{email.source === "gmail" ? "📧" : "📨"}</span>
+                    <div className="dash-inbox-body">
+                      <div className="dash-inbox-top">
+                        <span className="dash-inbox-from">{email.from.replace(/<.*>/, "").trim() || email.from}</span>
+                        <span className="dash-inbox-date">
+                          {email.date ? new Date(email.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+                        </span>
+                      </div>
+                      <div className="dash-inbox-subject">{email.subject}</div>
+                      <div className="dash-inbox-snippet">{email.snippet}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+          {!emailsLoading && emails === null && (
+            <div className="dash-inbox-empty">
+              <span>Connect Gmail or Outlook to see your inbox. <a href="/connect">Go to Connect Apps →</a></span>
             </div>
           )}
         </section>
