@@ -32,7 +32,9 @@ const APPS = [
   { key: "slack",    label: "Slack",            icon: "💬", color: "#36c5f0" },
   { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },
   { key: "notion",   label: "Notion",           icon: "📓", color: "#374151" },
-  { key: "todoist",  label: "Todoist",          icon: "✅", color: "#db4035" },
+  { key: "todoist",      label: "Todoist",          icon: "✅", color: "#db4035" },
+  { key: "seznammail",  label: "Seznam Mail",      icon: "✉️", color: "#cc0000" },
+  { key: "seznamcal",  label: "Seznam Calendar",  icon: "📋", color: "#cc0000" },
 ];
 
 const STEPS = [

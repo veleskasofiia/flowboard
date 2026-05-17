@@ -444,6 +444,19 @@ html, body {
 }
 .auth-switch a { color: #2563eb; font-weight: 600; text-decoration: none; }
 
+.auth-gdpr {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.auth-gdpr input[type="checkbox"] { margin-top: 0.15rem; flex-shrink: 0; accent-color: #2563eb; }
+.auth-gdpr a { color: #2563eb; font-weight: 600; text-decoration: none; }
+.auth-gdpr a:hover { text-decoration: underline; }
+
 /* ── Dashboard ───────────────────────────────────────────────────── */
 .dash-loading {
   min-height: 100vh;
@@ -794,7 +807,9 @@ html, body {
 .app-tile.gdrive   { border-top-color: #34a853; }
 .app-tile.ocal     { border-top-color: #0f6cbd; }
 .app-tile.ical     { border-top-color: #007aff; }
-.app-tile.todoist  { border-top-color: #db4035; }
+.app-tile.todoist      { border-top-color: #db4035; }
+.app-tile.seznammail  { border-top-color: #cc0000; }
+.app-tile.seznamcal   { border-top-color: #cc0000; }
 
 /* Why section */
 .why-text {
@@ -1308,6 +1323,25 @@ footer {
 }
 .docs-footer a { color: #93c5fd; text-decoration: none; }
 .docs-footer a:hover { text-decoration: underline; }
+
+.docs-presentation-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(34,211,238,0.08));
+  border: 1px solid rgba(99,102,241,0.35);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.docs-presentation-banner:hover { border-color: #6366f1; transform: translateY(-2px); }
+.docs-presentation-icon { font-size: 2rem; flex-shrink: 0; }
+.docs-presentation-banner strong { display: block; color: #c7d2fe; font-size: 1rem; margin-bottom: 0.2rem; }
+.docs-presentation-banner p { color: #8892b0; font-size: 0.88rem; margin: 0; }
+.docs-presentation-arrow { font-size: 1.3rem; color: #6366f1; margin-left: auto; flex-shrink: 0; }
 
 /* ── Dashboard: Your Week ───────────────────────────────────────────── */
 .dash-week { margin-bottom: 0; }

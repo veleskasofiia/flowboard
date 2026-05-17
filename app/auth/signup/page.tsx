@@ -10,6 +10,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [gdpr, setGdpr] = useState(false);
   const router = useRouter();
 
   async function handleSignup(e: React.FormEvent) {
@@ -79,8 +80,20 @@ export default function SignupPage() {
             required
             minLength={6}
           />
+          <label className="auth-gdpr">
+            <input
+              type="checkbox"
+              checked={gdpr}
+              onChange={(e) => setGdpr(e.target.checked)}
+              required
+            />
+            <span>
+              I agree to the processing of my personal data in accordance with the{" "}
+              <a href="https://gdpr.eu" target="_blank" rel="noopener noreferrer">GDPR</a>.
+            </span>
+          </label>
           {error && <p className="auth-error">{error}</p>}
-          <button className="auth-btn" type="submit" disabled={loading}>
+          <button className="auth-btn" type="submit" disabled={loading || !gdpr}>
             {loading ? "Creating account…" : "Create Account"}
           </button>
         </form>

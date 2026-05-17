@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowBoard — Project Presentation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background: #f9fafb;
+      scroll-behavior: smooth;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: #1e293b;
+      padding: 0 1.5rem;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 0.25rem; flex: 1; }
+    .nav-link {
+      padding: 0.35rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #94a3b8;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-link:hover { background: #334155; color: white; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(180deg, #1e40af 0%, #7c3aed 50%, #ede9fe 85%, #f9fafb 100%);
+      color: white;
+      text-align: center;
+      padding: 4rem 1.5rem 5rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 { font-size: 2.8rem; font-weight: 700; line-height: 1.15; margin-bottom: 1rem; }
+    .hero p  { font-size: 1.15rem; opacity: 0.9; max-width: 560px; margin: 0 auto 2rem; font-weight: 400; line-height: 1.6; }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 0.75rem 1.75rem;
+      background: white;
+      color: #2563eb;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: #f3f4f6; transform: scale(1.04); }
+    .btn-outline {
+      padding: 0.75rem 1.75rem;
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── MOCK WORKFLOW ── */
+    .mock-section {
+      max-width: 680px;
+      margin: -2.5rem auto 0;
+      padding: 0 1.5rem;
+    }
+    .mock-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      padding: 1.5rem 2rem;
+    }
+    .mock-card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    .mock-flow { display: flex; flex-direction: column; gap: 0.4rem; }
+    .mock-node {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.6rem 0.9rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #334155;
+    }
+    .mock-node.trigger { border-left: 3px solid #f59e0b; }
+    .mock-node.action  { border-left: 3px solid #2563eb; }
+    .mock-node.cond    { border-left: 3px solid #7c3aed; }
+    .mock-arrow { text-align: center; color: #cbd5e1; font-size: 1rem; }
+
+    /* ── SECTION LAYOUT ── */
+    .section-block {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6366f1;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 0.6rem;
+    }
+    .section-sub {
+      color: #555;
+      font-size: 1rem;
+      margin-bottom: 2.5rem;
+      max-width: 580px;
+    }
+    .divider {
+      height: 1px;
+      background: #e2e8f0;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── FOR WHO ── */
+    .for-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.25rem;
+    }
+    .for-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-top: 4px solid #2563eb;
+    }
+    .for-card:nth-child(2) { border-top-color: #7c3aed; }
+    .for-card:nth-child(3) { border-top-color: #0891b2; }
+    .for-card:nth-child(4) { border-top-color: #16a34a; }
+    .for-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.12); }
+    .for-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .for-card h3 { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.4rem; }
+    .for-card p  { font-size: 0.87rem; color: #555; line-height: 1.6; }
+
+    /* ── TECH STACK ── */
+    .tech-section { background: white; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .tech-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .tech-card:hover { border-color: #93c5fd; transform: translateY(-3px); }
+    .tech-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .tech-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      color: white;
+    }
+    .tech-card h3 { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+    .tech-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-top: 0.1rem;
+    }
+    .why-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6366f1;
+      margin: 0.75rem 0 0.2rem;
+    }
+    .tech-card p { font-size: 0.85rem; color: #555; line-height: 1.6; }
+
+    /* ── APPS GRID ── */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .app-chip {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+      border-top: 4px solid #cbd5e1;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .app-chip:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.12); }
+    .app-chip.gmail      { border-top-color: #ea4335; }
+    .app-chip.outlook    { border-top-color: #0078d4; }
+    .app-chip.ocal       { border-top-color: #0f6cbd; }
+    .app-chip.gcal       { border-top-color: #4285f4; }
+    .app-chip.ical       { border-top-color: #007aff; }
+    .app-chip.gdrive     { border-top-color: #34a853; }
+    .app-chip.slack      { border-top-color: #36c5f0; }
+    .app-chip.discord    { border-top-color: #5865f2; }
+    .app-chip.notion     { border-top-color: #000000; }
+    .app-chip.todoist    { border-top-color: #db4035; }
+    .chip-icon  { font-size: 1.8rem; }
+    .chip-name  { font-size: 0.85rem; font-weight: 600; color: #1e293b; text-align: center; }
+    .chip-cat   { font-size: 0.72rem; color: #94a3b8; }
+    .chip-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    /* ── ARCHITECTURE ── */
+    .arch-section { background: white; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+    .arch-flow {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .arch-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .arch-box:hover { border-color: #93c5fd; }
+    .arch-box h4 { font-size: 0.92rem; font-weight: 700; color: #1e293b; margin-bottom: 0.2rem; }
+    .arch-box p  { font-size: 0.82rem; color: #555; }
+    .arch-down   { text-align: center; color: #cbd5e1; font-size: 1.4rem; padding: 0.3rem 0; }
+    .arch-split  { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .arch-box.blue   { border-top: 3px solid #2563eb; }
+    .arch-box.purple { border-top: 3px solid #7c3aed; }
+    .arch-box.yellow { border-top: 3px solid #f59e0b; }
+    .arch-box.green  { border-top: 3px solid #16a34a; }
+    .arch-box.teal   { border-top: 3px solid #0891b2; }
+
+    /* ── FILE TREE ── */
+    .tree {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 2rem;
+      font-family: "Courier New", monospace;
+      font-size: 0.85rem;
+      line-height: 2;
+      overflow-x: auto;
+      color: #e2e8f0;
+    }
+    .tree .dir  { color: #93c5fd; font-weight: 700; }
+    .tree .hl   { color: #86efac; }
+    .tree .note { color: #64748b; font-size: 0.78rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #1e293b;
+      color: #94a3b8;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.88rem;
+    }
+    footer strong { color: white; }
+    footer a { color: #93c5fd; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .arch-split { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">⚡ FlowBoard</a>
+  <div class="nav-links">
+    <a class="nav-link" href="#for-who">For Who</a>
+    <a class="nav-link" href="#tech">Tech Stack</a>
+    <a class="nav-link" href="#apps">Apps</a>
+    <a class="nav-link" href="#architecture">Architecture</a>
+    <a class="nav-link" href="#structure">Structure</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Full-Stack AI Project</div>
+  <h1>Build Automations<br>with FlowBoard</h1>
+  <p>A visual workflow builder that connects your favourite apps — Gmail, Slack, Notion, and more — powered by an AI assistant that understands what you want to do.</p>
+  <div class="hero-btns">
+    <a href="https://flow-board-app-mu.vercel.app" class="btn-primary" target="_blank">Open App ↗</a>
+    <a href="#tech" class="btn-outline">See Tech Stack</a>
+  </div>
+</div>
+
+<!-- MOCK WORKFLOW -->
+<div class="mock-section">
+  <div class="mock-card">
+    <div class="mock-card-title">Example Workflow</div>
+    <div class="mock-flow">
+      <div class="mock-node trigger">⏰ &nbsp;Schedule — Every day at 8 AM</div>
+      <div class="mock-arrow">↓</div>
+      <div class="mock-node cond">🔀 &nbsp;IF Condition — Has unread emails?</div>
+      <div class="mock-arrow">↓</div>
+      <div class="mock-node action">📧 &nbsp;Gmail — Send daily digest</div>
+      <div class="mock-arrow">↓</div>
+      <div class="mock-node action">💬 &nbsp;Slack — Post summary to #alerts</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOR WHO -->
+<div id="for-who">
+  <div class="section-block">
+    <div class="section-label">Target Audience</div>
+    <h2>Who is FlowBoard for?</h2>
+    <p class="section-sub">Anyone who uses multiple apps daily and wants to automate repetitive work between them — without writing code.</p>
+    <div class="for-grid">
+      <div class="for-card">
+        <div class="for-icon">💼</div>
+        <h3>Freelancers & Solopreneurs</h3>
+        <p>Automate client follow-ups and calendar scheduling across Gmail, Notion, and Google Calendar.</p>
+      </div>
+      <div class="for-card">
+        <div class="for-icon">📣</div>
+        <h3>Marketers & Creators</h3>
+        <p>Connect Slack alerts to new leads, post to Notion when a campaign fires, or get daily email digests.</p>
+      </div>
+      <div class="for-card">
+        <div class="for-icon">🧑‍💻</div>
+        <h3>Small Teams & Startups</h3>
+        <p>Build internal automations — webhook triggers, task creation in Todoist, team notifications in Discord or Slack.</p>
+      </div>
+      <div class="for-card">
+        <div class="for-icon">🎓</div>
+        <h3>Students & No-Coders</h3>
+        <p>No programming needed. Drag, drop, connect nodes, and let the AI assistant guide you step by step.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- TECH STACK -->
+<div id="tech" class="tech-section">
+  <div class="section-block">
+    <div class="section-label">Technology</div>
+    <h2>Tech Stack & Why</h2>
+    <p class="section-sub">Every technology was chosen for a specific reason — here is what powers FlowBoard.</p>
+    <div class="tech-grid">
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">▲</div>
+          <div>
+            <h3>Next.js 16 (App Router)</h3>
+            <span class="tech-tag">Frontend + Backend</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Full-stack React framework. API routes live alongside pages — no separate backend needed. Server components keep secrets out of the browser.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">🔐</div>
+          <div>
+            <h3>Supabase</h3>
+            <span class="tech-tag">Auth + Database</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Authentication and Postgres database out of the box. Stores user accounts, chat history, and saved workflow canvases. Generous free tier.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">🤖</div>
+          <div>
+            <h3>Groq — LLaMA 3.3 70B</h3>
+            <span class="tech-tag">AI / LLM</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Powers the AI chat assistant. Groq runs LLaMA 3.3 at extremely high speed — perfect for real-time chat. Free developer tier.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">🔌</div>
+          <div>
+            <h3>Composio</h3>
+            <span class="tech-tag">Integrations + Tool Use</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Handles OAuth for Gmail, Slack, Notion, Google Calendar and more via one API. Also lets the AI execute real actions on behalf of users.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">🔵</div>
+          <div>
+            <h3>ReactFlow</h3>
+            <span class="tech-tag">Visual Canvas</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Drag-and-drop canvas for building workflows visually. Provides nodes, edges, zoom/pan, and custom rendering. Canvas auto-saves to localStorage.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">🎞</div>
+          <div>
+            <h3>Framer Motion</h3>
+            <span class="tech-tag">Animations</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Smooth entrance animations on dashboard tiles and cards. Keeps the UI polished without writing custom CSS keyframes.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">🔷</div>
+          <div>
+            <h3>TypeScript</h3>
+            <span class="tech-tag">Type Safety</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Strict typing across all components and API routes. Catches shape mismatches at compile time rather than at runtime.</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-header">
+          <div class="tech-icon">☁️</div>
+          <div>
+            <h3>Vercel</h3>
+            <span class="tech-tag">Deployment</span>
+          </div>
+        </div>
+        <div class="why-label">Why</div>
+        <p>Zero-config deployment for Next.js. Push to GitHub → auto builds and deploys. CDN, env vars, and preview deployments — free on Hobby plan.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- APPS -->
+<div id="apps">
+  <div class="section-block">
+    <div class="section-label">Integrations</div>
+    <h2>Apps Users Can Connect</h2>
+    <p class="section-sub">Connect each app once via OAuth. The AI assistant and workflows can then act on your real accounts.</p>
+    <div class="apps-grid">
+      <div class="app-chip gmail">
+        <div class="chip-icon">📧</div>
+        <div class="chip-name">Gmail</div>
+        <div class="chip-cat">Email</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip outlook">
+        <div class="chip-icon">📨</div>
+        <div class="chip-name">Outlook Mail</div>
+        <div class="chip-cat">Email</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip ocal">
+        <div class="chip-icon">📆</div>
+        <div class="chip-name">Outlook Calendar</div>
+        <div class="chip-cat">Calendar</div>
+        <div class="chip-badge">via Outlook</div>
+      </div>
+      <div class="app-chip gcal">
+        <div class="chip-icon">📅</div>
+        <div class="chip-name">Google Calendar</div>
+        <div class="chip-cat">Calendar</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip ical">
+        <div class="chip-icon">🗓️</div>
+        <div class="chip-name">iCal</div>
+        <div class="chip-cat">Calendar</div>
+      </div>
+      <div class="app-chip gdrive">
+        <div class="chip-icon">📁</div>
+        <div class="chip-name">Google Drive</div>
+        <div class="chip-cat">Files</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip slack">
+        <div class="chip-icon">💬</div>
+        <div class="chip-name">Slack</div>
+        <div class="chip-cat">Messaging</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip discord">
+        <div class="chip-icon">🎮</div>
+        <div class="chip-name">Discord</div>
+        <div class="chip-cat">Messaging</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip notion">
+        <div class="chip-icon">📓</div>
+        <div class="chip-name">Notion</div>
+        <div class="chip-cat">Productivity</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip todoist">
+        <div class="chip-icon">✅</div>
+        <div class="chip-name">Todoist</div>
+        <div class="chip-cat">Tasks</div>
+        <div class="chip-badge">OAuth</div>
+      </div>
+      <div class="app-chip" style="border-top-color:#cc0000">
+        <div class="chip-icon">✉️</div>
+        <div class="chip-name">Seznam Mail</div>
+        <div class="chip-cat">Email</div>
+      </div>
+      <div class="app-chip" style="border-top-color:#cc0000">
+        <div class="chip-icon">📋</div>
+        <div class="chip-name">Seznam Calendar</div>
+        <div class="chip-cat">Calendar</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ARCHITECTURE -->
+<div id="architecture" class="arch-section">
+  <div class="section-block">
+    <div class="section-label">Architecture</div>
+    <h2>How It Works</h2>
+    <p class="section-sub">Full request lifecycle — from the browser all the way to third-party APIs.</p>
+    <div class="arch-flow">
+      <div class="arch-box blue">
+        <h4>🌐 Browser — Next.js React</h4>
+        <p>User logs in, builds a canvas, sends a chat message</p>
+      </div>
+      <div class="arch-down">↓</div>
+      <div class="arch-box teal">
+        <h4>⚙️ Next.js API Routes (server-side)</h4>
+        <p>/api/agent — AI chat &nbsp;·&nbsp; /api/connect — OAuth &nbsp;·&nbsp; /api/summary — live app data</p>
+      </div>
+      <div class="arch-down">↓ splits into ↓</div>
+      <div class="arch-split">
+        <div class="arch-box yellow">
+          <h4>🤖 Groq API</h4>
+          <p>LLaMA 3.3 70B. Receives the message, decides which Composio tool to call, returns the final reply.</p>
+        </div>
+        <div class="arch-box green">
+          <h4>🔐 Supabase</h4>
+          <p>Verifies auth session, stores chat messages and saved canvases.</p>
+        </div>
+      </div>
+      <div class="arch-down">↓</div>
+      <div class="arch-box purple">
+        <h4>🔌 Composio</h4>
+        <p>Executes real actions on Gmail, Slack, Notion, Google Calendar using the user's OAuth token</p>
+      </div>
+      <div class="arch-down">↓</div>
+      <div class="arch-box blue">
+        <h4>📬 Third-party APIs</h4>
+        <p>Gmail API · Slack API · Notion API · Google Calendar API — real data returned to the user</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FILE STRUCTURE -->
+<div id="structure">
+  <div class="section-block">
+    <div class="section-label">Project Structure</div>
+    <h2>File Structure</h2>
+    <p class="section-sub">Next.js App Router — every folder under <code style="background:#eff6ff;color:#2563eb;padding:0.1em 0.4em;border-radius:4px;font-size:0.9em">app/</code> is a route.</p>
+    <div class="tree">
+<span class="dir">flowboard/</span>
+├── <span class="dir">app/</span>
+│   ├── <span class="hl">page.tsx</span>             <span class="note">← Landing page</span>
+│   ├── <span class="dir">dashboard/</span>
+│   │   └── <span class="hl">page.tsx</span>         <span class="note">← Live stats, connected apps, example workflows</span>
+│   ├── <span class="dir">workflow/</span>
+│   │   └── <span class="hl">page.tsx</span>         <span class="note">← ReactFlow canvas + AI chat (main feature)</span>
+│   ├── <span class="dir">connect/</span>
+│   │   └── <span class="hl">page.tsx</span>         <span class="note">← OAuth connect / disconnect apps</span>
+│   ├── <span class="dir">auth/login/</span>  <span class="dir">auth/signup/</span>
+│   ├── <span class="dir">api/</span>
+│   │   ├── <span class="hl">agent/route.ts</span>       <span class="note">← Groq + Composio agentic loop</span>
+│   │   ├── <span class="hl">connect/route.ts</span>     <span class="note">← OAuth initiation + disconnect</span>
+│   │   └── <span class="hl">summary/route.ts</span>     <span class="note">← Fetches live email / calendar counts</span>
+│   └── <span class="hl">globals.css</span>
+├── <span class="dir">components/</span>
+│   └── <span class="hl">NavBar.tsx</span>
+├── <span class="dir">lib/</span>
+│   └── <span class="hl">supabaseClient.ts</span>    <span class="note">← Singleton Supabase client</span>
+├── <span class="hl">next.config.js</span>           <span class="note">← Redirects</span>
+└── <span class="hl">.env.local</span>              <span class="note">← SUPABASE keys, GROQ_API_KEY, COMPOSIO_API_KEY</span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built by <strong>Sofiia Veleska</strong> &nbsp;·&nbsp; <strong>FlowBoard</strong> — Visual AI Workflow Builder</p>
+  <p style="margin-top:0.5rem;font-size:0.82rem;">Next.js &nbsp;·&nbsp; Supabase &nbsp;·&nbsp; Groq &nbsp;·&nbsp; Composio &nbsp;·&nbsp; ReactFlow &nbsp;·&nbsp; Vercel</p>
+  <p style="margin-top:0.75rem;">
+    <a href="https://flow-board-app-mu.vercel.app">flow-board-app-mu.vercel.app</a>
+  </p>
+</footer>
+
+</body>
+</html>

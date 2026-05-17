@@ -30,6 +30,7 @@ export default function DocsPage() {
             <li><a href="#dashboard">Dashboard</a></li>
             <li><a href="#technology">Technology</a></li>
             <li><a href="#faq">FAQ</a></li>
+            <li><a href="/presentation.html" target="_blank">📊 Project Presentation ↗</a></li>
           </ul>
         </aside>
 
@@ -44,6 +45,20 @@ export default function DocsPage() {
               automations in plain English.
             </p>
           </section>
+
+          <a
+            href="/presentation.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="docs-presentation-banner"
+          >
+            <span className="docs-presentation-icon">📊</span>
+            <div>
+              <strong>Project Presentation</strong>
+              <p>Tech stack, architecture, integrations, and who FlowBoard is built for — all in one visual page.</p>
+            </div>
+            <span className="docs-presentation-arrow">↗</span>
+          </a>
 
           <hr className="docs-divider" />
 
@@ -187,6 +202,8 @@ export default function DocsPage() {
                 ["Discord", "🎮", "Send messages or read channels in your Discord server."],
                 ["Notion", "📓", "Create or update Notion pages and databases."],
                 ["Todoist", "✅", "Create, complete, or list tasks in Todoist."],
+                ["Seznam Mail", "✉️", "Read or send emails via Seznam Mail (Czech email service)."],
+                ["Seznam Calendar", "📋", "Read or manage events in Seznam Calendar."],
               ].map(([name, icon, desc]) => (
                 <div key={name} className="docs-node-row">
                   <span><strong>{name}</strong></span>

@@ -16,6 +16,8 @@ const APPS = [
   { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
   { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
   { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
+  { key: "seznammail",    label: "Seznam Mail",      icon: "✉️", color: "#cc0000", composioApp: null,              note: "OAuth not supported — use Gmail or Outlook" },
+  { key: "seznamcal",    label: "Seznam Calendar",  icon: "📋", color: "#cc0000", composioApp: null,              note: "OAuth not supported — use Google Calendar or Outlook" },
 ];
 
 type ConnectedApp = { id: string; appName: string; status: string };
