@@ -539,8 +539,11 @@ export default function DashboardPage() {
           )}
         </section>
 
+        {/* Inbox + Tasks two-column row */}
+        <div className="dash-inbox-tasks-row">
+
         {/* Inbox */}
-        <section className="dash-card">
+        <section className="dash-card dash-col-inbox">
           <div className="dash-inbox-header">
             <h2 className="dash-card-title" style={{ margin: 0 }}>Inbox</h2>
             <div className="dash-inbox-tabs">
@@ -615,7 +618,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Task Panel */}
-        <section className="dash-card">
+        <section className="dash-card dash-col-tasks">
           <div className="dash-tasks-header">
             <h2 className="dash-card-title" style={{ margin: 0 }}>My Tasks</h2>
             <div className="dash-inbox-tabs">
@@ -666,6 +669,8 @@ export default function DashboardPage() {
             )}
           </ul>
         </section>
+
+        </div>{/* end dash-inbox-tasks-row */}
 
         {/* Connected Apps — link / unlink */}
         <section className="dash-card">

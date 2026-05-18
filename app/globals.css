@@ -1679,6 +1679,21 @@ footer {
 .dash-inbox-empty a { color: #2563eb; text-decoration: none; }
 .dash-inbox-empty a:hover { text-decoration: underline; }
 
+/* ─── Inbox + Tasks two-column layout ──────────────────────────────────────── */
+.dash-inbox-tasks-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+.dash-col-inbox,
+.dash-col-tasks {
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .dash-inbox-tasks-row { grid-template-columns: 1fr; }
+}
+
 /* ─── Task panel ────────────────────────────────────────────────────────────── */
 .dash-tasks-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
 .dash-task-form { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
