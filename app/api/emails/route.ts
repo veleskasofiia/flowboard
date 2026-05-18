@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 export type EmailItem = {
   id: string;
+  threadId?: string;
   subject: string;
   from: string;
   snippet: string;
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
 
           emails.push({
             id: msg.id ?? msg.messageId ?? "",
+            threadId: msg.threadId ?? msg.id ?? msg.messageId ?? "",
             subject: msg.subject || msg.Subject || "(no subject)",
             from: msg.sender || msg.from || msg.From || "Gmail",
             snippet: msg.snippet ?? msg.body ?? msg.bodyPreview ?? "",

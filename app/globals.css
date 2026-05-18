@@ -1643,6 +1643,22 @@ footer {
 .dash-inbox-tab.active { background: #2563eb; border-color: #2563eb; color: white; font-weight: 600; }
 
 .dash-inbox-list { display: flex; flex-direction: column; }
+.dash-inbox-read-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #2563eb;
+  background: #2563eb;
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+.dash-inbox-row.read .dash-inbox-read-dot { background: transparent; }
+.dash-inbox-read-dot:hover { border-color: #1d4ed8; background: #1d4ed8; }
+.dash-inbox-row.read .dash-inbox-read-dot:hover { background: #dbeafe; border-color: #2563eb; }
 .dash-inbox-row {
   display: flex;
   gap: 0.75rem;

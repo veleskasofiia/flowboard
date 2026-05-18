@@ -6,7 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import NavBar from "@/components/NavBar";
 
 type RunRecord = { id: number; result: string; nodes: string[]; ts: string };
-type EmailItem = { id: string; subject: string; from: string; snippet: string; date: string; source: "gmail" | "outlook"; isRead: boolean };
+type EmailItem = { id: string; threadId?: string; subject: string; from: string; snippet: string; date: string; source: "gmail" | "outlook"; isRead: boolean };
 
 type Meeting = { title: string; start: string; source: string };
 type Summary = {
@@ -305,6 +305,27 @@ export default function DashboardPage() {
     setEmailsLoading(false);
   }
 
+  async function toggleEmailRead(email: EmailItem) {
+    if (!user) return;
+    const markAsRead = !email.isRead;
+    // Optimistic update
+    setEmails((prev) =>
+      prev ? prev.map((e) => e.id === email.id ? { ...e, isRead: markAsRead } : e) : prev
+    );
+    try {
+      await fetch("/api/emails/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entityId: user.id, emailId: email.id, threadId: email.threadId, source: email.source, markAsRead }),
+      });
+    } catch {
+      // Revert on failure
+      setEmails((prev) =>
+        prev ? prev.map((e) => e.id === email.id ? { ...e, isRead: email.isRead } : e) : prev
+      );
+    }
+  }
+
   async function handleSignOut() {
     await supabase.auth.signOut();
     router.push("/");
@@ -529,6 +550,11 @@ export default function DashboardPage() {
               <div className="dash-inbox-list">
                 {filtered.map((email) => (
                   <div key={email.id} className={`dash-inbox-row${email.isRead ? " read" : ""}`}>
+                    <button
+                      className="dash-inbox-read-dot"
+                      title={email.isRead ? "Mark as unread" : "Mark as read"}
+                      onClick={() => toggleEmailRead(email)}
+                    />
                     <span className="dash-inbox-src">{email.source === "gmail" ? "📧" : "📨"}</span>
                     <div className="dash-inbox-body">
                       <div className="dash-inbox-top">
