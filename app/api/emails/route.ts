@@ -35,7 +35,12 @@ export async function POST(req: Request) {
         verbose: false,
         user_id: "me",
       }),
-      exec("OUTLOOK_OUTLOOK_SEARCH_MESSAGES", { query: "isDraft:false", size: 15 }),
+      exec("OUTLOOK_OUTLOOK_LIST_MESSAGES", {
+        folder: "inbox",
+        top: 15,
+        orderby: ["receivedDateTime desc"],
+        user_id: "me",
+      }),
     ]);
 
     // ── Gmail ───────────────────────────────────────────────────────────
