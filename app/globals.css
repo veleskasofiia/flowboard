@@ -1644,8 +1644,8 @@ footer {
 
 .dash-inbox-list { display: flex; flex-direction: column; }
 .dash-inbox-read-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   border: 2px solid #2563eb;
   background: #2563eb;
@@ -1653,28 +1653,28 @@ footer {
   padding: 0;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-  margin-top: 4px;
-  align-self: flex-start;
+  align-self: center;
 }
 .dash-inbox-row.read .dash-inbox-read-dot { background: transparent; }
 .dash-inbox-read-dot:hover { border-color: #1d4ed8; background: #1d4ed8; }
 .dash-inbox-row.read .dash-inbox-read-dot:hover { background: #dbeafe; border-color: #2563eb; }
+.dash-inbox-list { max-height: 420px; overflow-y: auto; }
 .dash-inbox-row {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
   border-bottom: 1px solid #f1f5f9;
-  align-items: flex-start;
+  align-items: center;
 }
 .dash-inbox-row:last-child { border-bottom: none; }
-.dash-inbox-row.read .dash-inbox-subject { font-weight: 400; color: #64748b; }
-.dash-inbox-src { font-size: 1.1rem; padding-top: 2px; flex-shrink: 0; }
-.dash-inbox-body { flex: 1; min-width: 0; }
-.dash-inbox-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.15rem; }
-.dash-inbox-from { font-size: 0.78rem; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
-.dash-inbox-date { font-size: 0.7rem; color: #94a3b8; white-space: nowrap; flex-shrink: 0; }
-.dash-inbox-subject { font-size: 0.8rem; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.15rem; }
-.dash-inbox-snippet { font-size: 0.73rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-inbox-row.read .dash-inbox-subject { font-weight: 400; color: #94a3b8; }
+.dash-inbox-src { font-size: 0.95rem; flex-shrink: 0; }
+.dash-inbox-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0; }
+.dash-inbox-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.4rem; }
+.dash-inbox-from { font-size: 0.75rem; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
+.dash-inbox-date { font-size: 0.68rem; color: #94a3b8; white-space: nowrap; flex-shrink: 0; }
+.dash-inbox-subject { font-size: 0.78rem; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-inbox-snippet { display: none; }
 .dash-inbox-empty { padding: 1.5rem 0; font-size: 0.82rem; color: #94a3b8; text-align: center; }
 .dash-inbox-empty a { color: #2563eb; text-decoration: none; }
 .dash-inbox-empty a:hover { text-decoration: underline; }
