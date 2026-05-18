@@ -29,32 +29,55 @@ export async function POST(req: Request) {
     const sources = { gmail: false, outlook: false };
 
     const [gmailResult, outlookResult] = await Promise.allSettled([
-      exec("GMAIL_LIST_THREADS", { query: "in:inbox", max_results: 15 }),
+      exec("GMAIL_FETCH_EMAILS", {
+        max_results: 15,
+        label_ids: ["INBOX"],
+        verbose: false,
+        user_id: "me",
+      }),
       exec("OUTLOOK_OUTLOOK_SEARCH_MESSAGES", { query: "isDraft:false", size: 15 }),
     ]);
 
-    // ── Gmail: use thread list data directly (snippet + id) ─────────────
+    // ── Gmail ───────────────────────────────────────────────────────────
     if (gmailResult.status === "fulfilled" && !gmailResult.value?.error) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = gmailResult.value.data as any;
-        const threads: { id: string; snippet: string }[] = Array.isArray(data?.threads) ? data.threads : [];
-        for (const t of threads) {
+        const d = gmailResult.value.data as any;
+        // Handle multiple possible response shapes
+        const msgs: unknown[] =
+          Array.isArray(d?.messages) ? d.messages :
+          Array.isArray(d?.response_data?.messages) ? d.response_data.messages :
+          Array.isArray(d?.response_data) ? d.response_data :
+          [];
+
+        console.log("Gmail fetch shape sample:", JSON.stringify(msgs[0] ?? d).slice(0, 300));
+
+        for (const m of msgs) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const msg = m as any;
+          const isUnread = Array.isArray(msg.labelIds)
+            ? msg.labelIds.includes("UNREAD")
+            : Array.isArray(msg.labels)
+            ? msg.labels.includes("UNREAD")
+            : false;
+
           emails.push({
-            id: t.id,
-            subject: "(Gmail thread)",
-            from: "Gmail",
-            snippet: t.snippet ?? "",
-            date: "",
+            id: msg.id ?? msg.messageId ?? "",
+            subject: msg.subject || msg.Subject || "(no subject)",
+            from: msg.sender || msg.from || msg.From || "Gmail",
+            snippet: msg.snippet ?? msg.body ?? msg.bodyPreview ?? "",
+            date: msg.date ?? msg.Date ?? msg.time ?? "",
             source: "gmail",
-            isRead: false,
+            isRead: !isUnread,
           });
         }
-        sources.gmail = true;
-      } catch { /* skip */ }
+        if (msgs.length > 0) sources.gmail = true;
+      } catch (e) {
+        console.error("Gmail parse error:", e);
+      }
     }
 
-    // ── Outlook: full metadata available from search ─────────────────────
+    // ── Outlook ─────────────────────────────────────────────────────────
     if (outlookResult.status === "fulfilled" && !outlookResult.value?.error) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,11 +97,10 @@ export async function POST(req: Request) {
             isRead: msg.isRead !== false,
           });
         }
-        sources.outlook = true;
+        if (msgs.length > 0) sources.outlook = true;
       } catch { /* skip */ }
     }
 
-    // Sort Outlook emails by date; Gmail threads keep list order
     emails.sort((a, b) => {
       if (!a.date && !b.date) return 0;
       if (!a.date) return 1;
