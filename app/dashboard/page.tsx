@@ -196,6 +196,7 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<{ id: number; name: string; completed: boolean }[]>([]);
   const [taskInput, setTaskInput] = useState("");
   const [taskFilter, setTaskFilter] = useState<"all" | "active" | "done">("all");
+  const [taskError, setTaskError] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -331,24 +332,48 @@ export default function DashboardPage() {
   }
 
   async function fetchTasks(userId: string) {
-    const { data } = await supabase
+    // Try with user_id filter first; fall back to unfiltered if column missing
+    let { data, error } = await supabase
       .from("todos")
       .select("id, name, completed")
       .eq("user_id", userId)
       .order("id", { ascending: true });
+    if (error) {
+      ({ data } = await supabase
+        .from("todos")
+        .select("id, name, completed")
+        .order("id", { ascending: true }));
+    }
     setTasks(data ?? []);
   }
 
   async function addTask() {
     const name = taskInput.trim();
     if (!name || !user) return;
-    setTaskInput("");
-    const { data } = await supabase
+    setTaskError(null);
+
+    // Try inserting with user_id; fall back without it if the column doesn't exist
+    let { data, error } = await supabase
       .from("todos")
       .insert({ name, completed: false, user_id: user.id })
       .select("id, name, completed")
       .single();
-    if (data) setTasks((prev) => [...prev, data]);
+
+    if (error) {
+      ({ data, error } = await supabase
+        .from("todos")
+        .insert({ name, completed: false })
+        .select("id, name, completed")
+        .single());
+    }
+
+    if (error || !data) {
+      setTaskError("Could not save task. Check your Supabase todos table exists.");
+      return;
+    }
+
+    setTaskInput("");
+    setTasks((prev) => [...prev, data]);
   }
 
   async function toggleTask(id: number, completed: boolean) {
@@ -646,6 +671,7 @@ export default function DashboardPage() {
             />
             <button className="dash-task-add" type="submit" disabled={!taskInput.trim()}>Add</button>
           </form>
+          {taskError && <p className="dash-task-error">{taskError}</p>}
 
           <ul className="dash-task-list">
             {tasks
