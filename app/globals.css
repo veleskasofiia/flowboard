@@ -1679,6 +1679,59 @@ footer {
 .dash-inbox-empty a { color: #2563eb; text-decoration: none; }
 .dash-inbox-empty a:hover { text-decoration: underline; }
 
+/* ─── Task panel ────────────────────────────────────────────────────────────── */
+.dash-tasks-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.dash-task-form { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.dash-task-input {
+  flex: 1;
+  padding: 0.45rem 0.75rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.dash-task-input:focus { border-color: #2563eb; }
+.dash-task-add {
+  padding: 0.45rem 1rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.dash-task-add:hover { background: #1d4ed8; }
+.dash-task-add:disabled { background: #94a3b8; cursor: not-allowed; }
+.dash-task-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.dash-task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.dash-task-item:last-child { border-bottom: none; }
+.dash-task-check { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; flex-shrink: 0; }
+.dash-task-name { flex: 1; font-size: 0.85rem; color: #1e293b; transition: color 0.15s; }
+.dash-task-item.done .dash-task-name { text-decoration: line-through; color: #94a3b8; }
+.dash-task-del {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.dash-task-del:hover { color: #ef4444; }
+.dash-task-empty { font-size: 0.82rem; color: #94a3b8; padding: 1rem 0; text-align: center; }
+
 /* ─── Danger zone & delete modal ───────────────────────────────────────────── */
 .dash-danger-zone { border: 1.5px solid #fee2e2; }
 .dash-danger-btn {
