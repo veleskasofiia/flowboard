@@ -36,44 +36,60 @@ export async function POST(req: Request) {
 
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    // ── With Composio tools ──────────────────────────────────────────────────
+    // ── Try with Composio tools, fall back to plain chat on any error ────────
     const composioKey = process.env.COMPOSIO_API_KEY;
-    if (composioKey && composioKey.length > 20) {
-      const { OpenAIToolSet } = await import("composio-core");
-      const toolset = new OpenAIToolSet({ apiKey: composioKey });
+    let tools: Anthropic.Tool[] = [];
 
-      const rawTools = await toolset.getTools({
-        apps: ["gmail", "googlecalendar", "slack", "notion"],
+    if (composioKey && composioKey.length > 20) {
+      try {
+        const { OpenAIToolSet } = await import("composio-core");
+        const toolset = new OpenAIToolSet({ apiKey: composioKey });
+        const rawTools = await toolset.getTools({
+          apps: ["gmail", "googlecalendar", "slack", "notion"],
+        });
+        // Convert OpenAI-style tools to Anthropic format; skip any with invalid schemas
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tools = (rawTools as any[]).flatMap((t) => {
+          try {
+            const schema = t.function.parameters;
+            if (!schema || schema.type !== "object") return [];
+            return [{
+              name: t.function.name,
+              description: t.function.description ?? "",
+              input_schema: schema as Anthropic.Tool["input_schema"],
+            }];
+          } catch { return []; }
+        });
+      } catch (e) {
+        console.error("Composio tools load error:", e);
+        // Continue without tools
+      }
+    }
+
+    const messages: Anthropic.MessageParam[] = [
+      { role: "user", content: message },
+    ];
+
+    const composioKey2 = process.env.COMPOSIO_API_KEY;
+    for (let step = 0; step < 10; step++) {
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        ...(tools.length > 0 ? { tools } : {}),
+        messages,
       });
 
-      // Convert OpenAI-style tools to Anthropic tool format
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tools: Anthropic.Tool[] = rawTools.map((t: any) => ({
-        name: t.function.name,
-        description: t.function.description ?? "",
-        input_schema: t.function.parameters as Anthropic.Tool["input_schema"],
-      }));
+      if (response.stop_reason !== "tool_use") {
+        const textBlock = response.content.find((b) => b.type === "text");
+        return NextResponse.json({ reply: (textBlock as Anthropic.TextBlock)?.text ?? "Done." });
+      }
 
-      const messages: Anthropic.MessageParam[] = [
-        { role: "user", content: message },
-      ];
+      messages.push({ role: "assistant", content: response.content });
 
-      for (let step = 0; step < 10; step++) {
-        const response = await anthropic.messages.create({
-          model: "claude-sonnet-4-6",
-          max_tokens: 4096,
-          system: SYSTEM_PROMPT,
-          tools,
-          messages,
-        });
-
-        if (response.stop_reason !== "tool_use") {
-          const textBlock = response.content.find((b) => b.type === "text");
-          return NextResponse.json({ reply: (textBlock as Anthropic.TextBlock)?.text ?? "Done." });
-        }
-
-        messages.push({ role: "assistant", content: response.content });
-
+      if (composioKey2 && composioKey2.length > 20) {
+        const { OpenAIToolSet } = await import("composio-core");
+        const toolset = new OpenAIToolSet({ apiKey: composioKey2 });
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of response.content) {
           if (block.type !== "tool_use") continue;
@@ -91,27 +107,15 @@ export async function POST(req: Request) {
         }
         messages.push({ role: "user", content: toolResults });
       }
-
-      return NextResponse.json({ reply: "Reached maximum steps without a final answer." });
     }
 
-    // ── Plain chat (no Composio) ─────────────────────────────────────────────
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: message }],
-    });
-
-    const textBlock = response.content.find((b) => b.type === "text");
-    return NextResponse.json({
-      reply: (textBlock as Anthropic.TextBlock)?.text ?? "Sorry, I couldn't generate a reply.",
-    });
+    return NextResponse.json({ reply: "Reached maximum steps without a final answer." });
 
   } catch (err) {
-    console.error("Agent error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Agent error:", msg);
     return NextResponse.json(
-      { reply: "Something went wrong. Please try again." },
+      { reply: `Error: ${msg}` },
       { status: 500 }
     );
   }
