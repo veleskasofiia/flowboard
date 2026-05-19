@@ -53,21 +53,33 @@ export async function POST(req: Request) {
     const connected: string[] = [];
 
     // ── Google Calendar ─────────────────────────────────────────────────
-    // Response shape: { data: { items: [...], ... } }
     let gcalOk = false;
-    if (gcalResult.status === "fulfilled" && !gcalResult.value?.error) {
-      try {
-        const d = gcalResult.value.data;
-        const items: unknown[] = Array.isArray(d?.items) ? d.items : [];
-        for (const ev of items) {
-          const e = ev as Record<string, unknown>;
-          const s = (e.start as Record<string, string> | undefined);
-          const start = s?.dateTime ?? s?.date ?? null;
-          if (start && e.summary) meetings.push({ title: e.summary as string, start, source: "google" });
-        }
-        gcalOk = true;
-        connected.push("googlecalendar");
-      } catch { /* ignore */ }
+    if (gcalResult.status === "fulfilled") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const val = gcalResult.value as any;
+      console.log("GCal result error:", val?.error, "| data keys:", Object.keys(val?.data ?? {}));
+      if (!val?.error) {
+        try {
+          const d = val.data;
+          // Try both direct and nested response_data shapes
+          const items: unknown[] =
+            Array.isArray(d?.items) ? d.items :
+            Array.isArray(d?.response_data?.items) ? d.response_data.items :
+            Array.isArray(d?.response_data) ? d.response_data :
+            [];
+          console.log("GCal items count:", items.length);
+          for (const ev of items) {
+            const e = ev as Record<string, unknown>;
+            const s = (e.start as Record<string, string> | undefined);
+            const start = s?.dateTime ?? s?.date ?? null;
+            if (start && e.summary) meetings.push({ title: e.summary as string, start, source: "google" });
+          }
+          gcalOk = true;
+          connected.push("googlecalendar");
+        } catch (e) { console.error("GCal parse error:", e); }
+      }
+    } else {
+      console.error("GCal fetch failed:", gcalResult.reason);
     }
 
     // ── Gmail ───────────────────────────────────────────────────────────
