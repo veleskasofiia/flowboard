@@ -39,7 +39,6 @@ type AppEntry = {
 
 const PALETTE: AppEntry[] = [
   { key: "webhook",  label: "Webhook",            icon: "⚡", color: "#f59e0b", category: "trigger" },
-  { key: "schedule", label: "Schedule",            icon: "⏰", color: "#8b5cf6", category: "trigger" },
   { key: "gmail",    label: "Gmail",               icon: "📧", color: "#ea4335", category: "action"  },
   { key: "outlook",  label: "Outlook Mail",        icon: "📨", color: "#0078d4", category: "action"  },
   { key: "ocal",     label: "Outlook Calendar",    icon: "📆", color: "#0f6cbd", category: "action"  },
@@ -62,7 +61,7 @@ type AppNodeData = { label: string; icon: string; color: string; category: "trig
 function AppNode({ data, selected, id }: { data: AppNodeData; selected: boolean; id: string }) {
   const { setNodes } = useReactFlow();
   const isIf = data.label === "IF Condition";
-  const isSchedule = data.label === "Schedule";
+
 
   function updateField(field: "condition" | "note", value: string) {
     setNodes((nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, [field]: value } } : n));
@@ -119,7 +118,7 @@ function AppNode({ data, selected, id }: { data: AppNodeData; selected: boolean;
           <input
             className="nodrag"
             style={{ width: "100%", fontSize: "0.75rem", border: "1px solid #e2e8f0", borderRadius: 5, padding: "4px 7px", color: "#64748b", outline: "none" }}
-            placeholder={isSchedule ? "e.g. Every day at 8 AM" : "Add a note…"}
+            placeholder="Add a note…"
             value={data.note ?? ""}
             onChange={(e) => updateField("note", e.target.value)}
           />
