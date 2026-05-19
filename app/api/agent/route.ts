@@ -47,8 +47,9 @@ export async function POST(req: Request) {
         const rawTools = await toolset.getTools({
           apps: ["gmail", "googlecalendar", "slack", "notion"],
         });
+        // Groq allows max 128 tools — take the first 128
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tools = rawTools as any;
+        tools = (rawTools as any[]).slice(0, 128);
       } catch (e) {
         console.error("Composio tools load error:", e);
       }
