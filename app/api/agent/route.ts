@@ -47,9 +47,19 @@ export async function POST(req: Request) {
         const rawTools = await toolset.getTools({
           apps: ["gmail", "googlecalendar", "slack", "notion"],
         });
-        // Groq allows max 128 tools — take the first 128
+        // Sanitize schemas: remove `pattern` fields (Groq rejects some Unicode patterns)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tools = (rawTools as any[]).slice(0, 128);
+        function stripPatterns(obj: any): any {
+          if (Array.isArray(obj)) return obj.map(stripPatterns);
+          if (obj && typeof obj === "object") {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { pattern, ...rest } = obj;
+            return Object.fromEntries(Object.entries(rest).map(([k, v]) => [k, stripPatterns(v)]));
+          }
+          return obj;
+        }
+        // Groq allows max 128 tools
+        tools = (rawTools as any[]).slice(0, 128).map(stripPatterns);
       } catch (e) {
         console.error("Composio tools load error:", e);
       }
