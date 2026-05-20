@@ -487,7 +487,7 @@ export default function DashboardPage() {
                   <span className="dash-week-val">
                     {summary.meetings_count !== null ? summary.meetings_count : "—"}
                   </span>
-                  <span className="dash-week-label">meetings this week</span>
+                  <span className="dash-week-label">upcoming meetings</span>
                   {summary.next_meeting && (
                     <span className="dash-week-sub">
                       Next: {summary.next_meeting.title}<br />
@@ -527,7 +527,7 @@ export default function DashboardPage() {
               {/* Meeting list */}
               {summary.meetings.length > 0 && (
                 <div className="dash-meeting-list">
-                  <p className="dash-meeting-list-title">This week&apos;s meetings</p>
+                  <p className="dash-meeting-list-title">Upcoming meetings (next 14 days)</p>
                   {summary.meetings.slice(0, 8).map((m, i) => (
                     <div key={i} className="dash-meeting-row">
                       <span className="dash-meeting-src">{m.source === "google" ? "📅" : "📆"}</span>

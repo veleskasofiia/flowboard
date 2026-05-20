@@ -16,12 +16,13 @@ export async function POST(req: Request) {
     const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
 
     const today = new Date();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-    monday.setHours(0, 0, 0, 0);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
+    today.setHours(0, 0, 0, 0);
+    const twoWeeksLater = new Date(today);
+    twoWeeksLater.setDate(today.getDate() + 14);
+    twoWeeksLater.setHours(23, 59, 59, 999);
+    // Keep monday/sunday aliases for Outlook filter
+    const monday = today;
+    const sunday = twoWeeksLater;
 
     const exec = (action: string, params: Record<string, unknown>) =>
       toolset.executeAction({ action, params, entityId });
