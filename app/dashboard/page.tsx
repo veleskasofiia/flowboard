@@ -193,10 +193,6 @@ export default function DashboardPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<{ id: number; name: string; completed: boolean }[]>([]);
-  const [taskInput, setTaskInput] = useState("");
-  const [taskFilter, setTaskFilter] = useState<"all" | "active" | "done">("all");
-  const [taskError, setTaskError] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -220,7 +216,6 @@ export default function DashboardPage() {
       setRecentRuns(runs.slice(0, 5));
       fetchConnections(user.id);
       fetchEmails(user.id);
-      fetchTasks(user.id);
 
       // Load summary — use cache if fresh, else fetch
       const cached = localStorage.getItem(SUMMARY_CACHE_KEY);
@@ -329,61 +324,6 @@ export default function DashboardPage() {
         prev ? prev.map((e) => e.id === email.id ? { ...e, isRead: email.isRead } : e) : prev
       );
     }
-  }
-
-  async function fetchTasks(userId: string) {
-    // Try with user_id filter first; fall back to unfiltered if column missing
-    let { data, error } = await supabase
-      .from("todos")
-      .select("id, name, completed")
-      .eq("user_id", userId)
-      .order("id", { ascending: true });
-    if (error) {
-      ({ data } = await supabase
-        .from("todos")
-        .select("id, name, completed")
-        .order("id", { ascending: true }));
-    }
-    setTasks(data ?? []);
-  }
-
-  async function addTask() {
-    const name = taskInput.trim();
-    if (!name || !user) return;
-    setTaskError(null);
-
-    // Try inserting with user_id; fall back without it if the column doesn't exist
-    let { data, error } = await supabase
-      .from("todos")
-      .insert({ name, completed: false, user_id: user.id })
-      .select("id, name, completed")
-      .single();
-
-    if (error) {
-      ({ data, error } = await supabase
-        .from("todos")
-        .insert({ name, completed: false })
-        .select("id, name, completed")
-        .single());
-    }
-
-    if (error || !data) {
-      setTaskError("Could not save task. Check your Supabase todos table exists.");
-      return;
-    }
-
-    setTaskInput("");
-    setTasks((prev) => [...prev, data]);
-  }
-
-  async function toggleTask(id: number, completed: boolean) {
-    setTasks((prev) => prev.map((t) => t.id === id ? { ...t, completed } : t));
-    await supabase.from("todos").update({ completed }).eq("id", id);
-  }
-
-  async function deleteTask(id: number) {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    await supabase.from("todos").delete().eq("id", id);
   }
 
   async function handleSignOut() {
@@ -564,11 +504,8 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* Inbox + Tasks two-column row */}
-        <div className="dash-inbox-tasks-row">
-
         {/* Inbox */}
-        <section className="dash-card dash-col-inbox">
+        <section className="dash-card">
           <div className="dash-inbox-header">
             <h2 className="dash-card-title" style={{ margin: 0 }}>Inbox</h2>
             <div className="dash-inbox-tabs">
@@ -641,62 +578,6 @@ export default function DashboardPage() {
             </div>
           )}
         </section>
-
-        {/* Task Panel */}
-        <section className="dash-card dash-col-tasks">
-          <div className="dash-tasks-header">
-            <h2 className="dash-card-title" style={{ margin: 0 }}>My Tasks</h2>
-            <div className="dash-inbox-tabs">
-              {(["all", "active", "done"] as const).map((f) => (
-                <button
-                  key={f}
-                  className={`dash-inbox-tab${taskFilter === f ? " active" : ""}`}
-                  onClick={() => setTaskFilter(f)}
-                >
-                  {f === "all" ? "All" : f === "active" ? "Active" : "Done"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <form
-            className="dash-task-form"
-            onSubmit={(e) => { e.preventDefault(); addTask(); }}
-          >
-            <input
-              className="dash-task-input"
-              placeholder="Add a task…"
-              value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value)}
-            />
-            <button className="dash-task-add" type="submit" disabled={!taskInput.trim()}>Add</button>
-          </form>
-          {taskError && <p className="dash-task-error">{taskError}</p>}
-
-          <ul className="dash-task-list">
-            {tasks
-              .filter((t) => taskFilter === "all" ? true : taskFilter === "active" ? !t.completed : t.completed)
-              .map((task) => (
-                <li key={task.id} className={`dash-task-item${task.completed ? " done" : ""}`}>
-                  <input
-                    type="checkbox"
-                    className="dash-task-check"
-                    checked={task.completed}
-                    onChange={(e) => toggleTask(task.id, e.target.checked)}
-                  />
-                  <span className="dash-task-name">{task.name}</span>
-                  <button className="dash-task-del" onClick={() => deleteTask(task.id)} title="Delete task">×</button>
-                </li>
-              ))}
-            {tasks.filter((t) => taskFilter === "all" ? true : taskFilter === "active" ? !t.completed : t.completed).length === 0 && (
-              <li className="dash-task-empty">
-                {taskFilter === "done" ? "No completed tasks yet." : taskFilter === "active" ? "All done! 🎉" : "No tasks yet. Add one above."}
-              </li>
-            )}
-          </ul>
-        </section>
-
-        </div>{/* end dash-inbox-tasks-row */}
 
         {/* Connected Apps — link / unlink */}
         <section className="dash-card">
