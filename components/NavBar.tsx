@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 const LINKS = [
@@ -12,6 +13,22 @@ const LINKS = [
 export default function NavBar({ onSignOut }: { onSignOut?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("flowboard_theme");
+    const dark = stored === "dark";
+    setIsDark(dark);
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  }, []);
+
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    const theme = next ? "dark" : "light";
+    localStorage.setItem("flowboard_theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  }
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -36,6 +53,14 @@ export default function NavBar({ onSignOut }: { onSignOut?: () => void }) {
           </a>
         ))}
       </nav>
+      <button
+        className="app-nav-theme"
+        onClick={toggleTheme}
+        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {isDark ? "☀️" : "🌙"}
+      </button>
       <button className="app-nav-signout" onClick={handleSignOut}>Sign Out</button>
     </header>
   );

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -22,6 +22,17 @@ type Summary = {
 
 const SUMMARY_CACHE_KEY = "flowboard_summary";
 const SUMMARY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const ACTIVITY_KEY = "flowboard_activity";
+
+type ActivityEntry = { ts: string; text: string; icon: string };
+
+function logActivity(icon: string, text: string) {
+  const prev: ActivityEntry[] = JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]");
+  const next = [{ ts: new Date().toISOString(), text, icon }, ...prev].slice(0, 20);
+  localStorage.setItem(ACTIVITY_KEY, JSON.stringify(next));
+}
+
+type Toast = { id: number; icon: string; text: string };
 
 const APPS = [
   { key: "gmail",    label: "Gmail",            icon: "📧", color: "#ea4335" },
@@ -195,6 +206,11 @@ export default function DashboardPage() {
   const [taskInput, setTaskInput] = useState("");
   const [taskFilter, setTaskFilter] = useState<"all" | "active" | "done">("all");
   const [taskError, setTaskError] = useState<string | null>(null);
+  const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const prevUnreadRef = useRef<number | null>(null);
+  const notifiedMeetingsRef = useRef<Set<string>>(new Set());
+  const toastIdRef = useRef(0);
 
   useEffect(() => {
     async function init() {
@@ -216,9 +232,15 @@ export default function DashboardPage() {
 
       const runs: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
       setRecentRuns(runs.slice(0, 5));
+      setActivityLog(JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]"));
       fetchConnections(user.id);
       fetchEmails(user.id);
       fetchTasks(user.id);
+
+      // Request browser notification permission
+      if (typeof Notification !== "undefined" && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
 
       // Load summary — use cache if fresh, else fetch
       const cached = localStorage.getItem(SUMMARY_CACHE_KEY);
@@ -285,6 +307,8 @@ export default function DashboardPage() {
       const data: Summary = await res.json();
       setSummary(data);
       localStorage.setItem(SUMMARY_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+      logActivity("📅", "Synced calendar & email counts");
+      setActivityLog(JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]"));
     } catch {
       setSummary({ meetings_count: null, meetings: [], next_meeting: null, gmail_unread: null, gmail_has_more: false, outlook_unread: null, connected: [], error: "failed" });
     }
@@ -302,6 +326,8 @@ export default function DashboardPage() {
       const data = await res.json();
       setEmails(data.emails ?? []);
       if (data.sources) setEmailSources(data.sources);
+      logActivity("📧", "Fetched inbox emails");
+      setActivityLog(JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]"));
     } catch {
       setEmails([]);
     }
@@ -414,6 +440,64 @@ export default function DashboardPage() {
     setCopied(prompt);
     setTimeout(() => setCopied(null), 1500);
   }
+
+  function showToast(icon: string, text: string) {
+    const id = ++toastIdRef.current;
+    setToasts((prev) => [...prev, { id, icon, text }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 5000);
+  }
+
+  // Polling for notifications every 3 minutes
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entityId: user.id }),
+        });
+        const data: Summary = await res.json();
+        setSummary(data);
+        localStorage.setItem(SUMMARY_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+
+        // Check unread email increase
+        if (data.gmail_unread !== null) {
+          if (prevUnreadRef.current !== null && data.gmail_unread > prevUnreadRef.current) {
+            const msg = "New email arrived";
+            showToast("📧", msg);
+            if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+              new Notification("📧 " + msg);
+            }
+          }
+          prevUnreadRef.current = data.gmail_unread;
+        }
+
+        // Check meetings starting within 15 minutes
+        const now = Date.now();
+        for (const meeting of data.meetings ?? []) {
+          const start = new Date(meeting.start).getTime();
+          const diff = start - now;
+          if (diff > 0 && diff <= 15 * 60 * 1000) {
+            const key = meeting.title + meeting.start;
+            if (!notifiedMeetingsRef.current.has(key)) {
+              notifiedMeetingsRef.current.add(key);
+              const msg = `Meeting in 15 min: ${meeting.title}`;
+              showToast("📅", msg);
+              if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+                new Notification("📅 " + msg);
+              }
+            }
+          }
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 3 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   function loadWorkflow(wf: typeof EXAMPLE_WORKFLOWS[0]) {
     localStorage.setItem("flowboard_canvas", JSON.stringify({ nodes: wf.nodes, edges: wf.edges }));
@@ -696,6 +780,28 @@ export default function DashboardPage() {
 
         </div>{/* end dash-inbox-tasks-row */}
 
+        {/* Activity History */}
+        <section className="dash-card dash-activity-card">
+          <h2 className="dash-card-title">Activity History</h2>
+          <p className="dash-card-sub">Recent events from your connected apps and workflows.</p>
+          {activityLog.length === 0 ? (
+            <div className="dash-activity-empty">No activity yet. Refresh your inbox or calendar to get started.</div>
+          ) : (
+            <ul className="dash-activity-list">
+              {activityLog.slice(0, 10).map((entry, i) => (
+                <li key={i} className="dash-activity-row">
+                  <span className="dash-activity-icon">{entry.icon}</span>
+                  <span className="dash-activity-text">{entry.text}</span>
+                  <span className="dash-activity-ts">
+                    {new Date(entry.ts).toLocaleDateString("en-US", { month: "short", day: "numeric" })}{" "}
+                    {new Date(entry.ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* Connected Apps — link / unlink */}
         <section className="dash-card">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
@@ -769,7 +875,7 @@ export default function DashboardPage() {
         {/* Example Workflows */}
         <section className="dash-card">
           <h2 className="dash-card-title">Example Workflows</h2>
-          <p className="dash-card-sub">Click <strong>Load</strong> to open any example directly in the Workflow Builder.</p>
+          <p className="dash-card-sub">Click <strong>Open in Builder</strong> to load any example directly into the Workflow Builder.</p>
           <div className="dash-examples">
             {EXAMPLE_WORKFLOWS.map((wf) => (
               <div key={wf.id} className="dash-example" style={{ borderTopColor: wf.color }}>
@@ -779,7 +885,7 @@ export default function DashboardPage() {
                     <p className="dash-example-desc">{wf.description}</p>
                   </div>
                   <button className="dash-example-btn" style={{ background: wf.color }} onClick={() => loadWorkflow(wf)}>
-                    ⚡ Load
+                    Open in Builder →
                   </button>
                 </div>
                 <div className="dash-example-flow">
@@ -880,6 +986,19 @@ export default function DashboardPage() {
         </section>
 
       </main>
+
+      {/* Toast notifications */}
+      {toasts.length > 0 && (
+        <div className="toast-container">
+          {toasts.map((t) => (
+            <div key={t.id} className="toast">
+              <span className="toast-icon">{t.icon}</span>
+              <span className="toast-text">{t.text}</span>
+              <button className="toast-close" onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Delete confirmation modal */}
       {showDeleteConfirm && (

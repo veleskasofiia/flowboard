@@ -1810,3 +1810,168 @@ footer {
 .dash-modal-confirm:hover:not(:disabled) { opacity: 0.85; }
 .dash-modal-cancel:disabled,
 .dash-modal-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── NavBar theme toggle ────────────────────────────────────────────── */
+.app-nav-theme {
+  background: none;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  padding: 0.3rem 0.55rem;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  color: inherit;
+  display: flex;
+  align-items: center;
+}
+.app-nav-theme:hover { border-color: #94a3b8; }
+
+/* ── Activity History ───────────────────────────────────────────────── */
+.dash-activity-card { margin-bottom: 0; }
+.dash-activity-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.dash-activity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.84rem;
+}
+.dash-activity-row:last-child { border-bottom: none; }
+.dash-activity-icon { font-size: 1rem; flex-shrink: 0; }
+.dash-activity-text { flex: 1; color: #334155; }
+.dash-activity-ts { font-size: 0.72rem; color: #94a3b8; white-space: nowrap; flex-shrink: 0; }
+.dash-activity-empty { font-size: 0.82rem; color: #94a3b8; padding: 0.75rem 0; }
+
+/* ── Toast notifications ────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+.toast {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 240px;
+  max-width: 340px;
+  pointer-events: all;
+  animation: toastIn 0.25s ease;
+  border-left: 3px solid #6366f1;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+.toast-text { flex: 1; font-size: 0.84rem; color: #1e293b; line-height: 1.4; }
+.toast-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+.toast-close:hover { color: #1e293b; }
+
+/* ── Dark mode ──────────────────────────────────────────────────────── */
+[data-theme="dark"] html,
+[data-theme="dark"] body,
+[data-theme="dark"] {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .dash-page { background: #0f172a; }
+[data-theme="dark"] .dash-loading { background: #0f172a; }
+[data-theme="dark"] .dash-main { color: #f1f5f9; }
+
+/* Cards */
+[data-theme="dark"] .dash-card {
+  background: #1e293b;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .chat-panel { background: #1e293b; }
+[data-theme="dark"] .workflow-toolbar { background: #1e293b; border-bottom-color: #334155; }
+[data-theme="dark"] .palette-sidebar { background: #1e293b; border-right-color: #334155; }
+[data-theme="dark"] .chat-sidebar { background: #1e293b; border-left-color: #334155; }
+
+/* Text */
+[data-theme="dark"] .dash-card-title { color: #f1f5f9; }
+[data-theme="dark"] .dash-card-sub { color: #94a3b8; }
+[data-theme="dark"] .dash-welcome h1 { color: #f1f5f9; }
+[data-theme="dark"] .dash-welcome p { color: #94a3b8; }
+[data-theme="dark"] .dash-step-title { color: #f1f5f9; }
+[data-theme="dark"] .dash-step-desc { color: #94a3b8; }
+[data-theme="dark"] .dash-week-val { color: #f1f5f9; }
+[data-theme="dark"] .dash-week-label { color: #94a3b8; }
+[data-theme="dark"] .dash-conn-label { color: #f1f5f9; }
+[data-theme="dark"] .dash-example-title { color: #f1f5f9; }
+[data-theme="dark"] .dash-example-desc { color: #94a3b8; }
+[data-theme="dark"] .topbar-title { color: #f1f5f9; }
+
+/* Borders */
+[data-theme="dark"] .dash-meeting-row { border-bottom-color: #1e293b; }
+[data-theme="dark"] .dash-task-item { border-bottom-color: #334155; }
+[data-theme="dark"] .dash-inbox-row { border-bottom-color: #1e293b; }
+[data-theme="dark"] .dash-activity-row { border-bottom-color: #334155; }
+
+/* Inputs */
+[data-theme="dark"] .dash-task-input {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+[data-theme="dark"] .dash-task-input:focus { border-color: #6366f1; }
+[data-theme="dark"] .chat-input input {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+[data-theme="dark"] .chat-input input:focus { border-color: #6366f1; }
+[data-theme="dark"] .palette-search {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+/* Stat boxes */
+[data-theme="dark"] .dash-week-stat { background: #1e293b; }
+[data-theme="dark"] .dash-step { background: #0f172a; }
+[data-theme="dark"] .dash-run-item { background: #0f172a; border-color: #334155; }
+[data-theme="dark"] .dash-example { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .dash-example-node { background: #0f172a; border-color: #334155; }
+[data-theme="dark"] .dash-app2 { background: #0f172a; border-color: #334155; }
+[data-theme="dark"] .dash-app2-label { color: #94a3b8; }
+[data-theme="dark"] .dash-prompt-btn { background: #0f172a; border-color: #334155; }
+[data-theme="dark"] .dash-prompt-btn:hover { background: #1e3a5f; border-color: #2563eb; }
+[data-theme="dark"] .dash-prompt-text { color: #94a3b8; }
+[data-theme="dark"] .dash-conn-card { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .dash-inbox-from { color: #f1f5f9; }
+[data-theme="dark"] .dash-inbox-subject { color: #e2e8f0; }
+[data-theme="dark"] .dash-task-name { color: #f1f5f9; }
+[data-theme="dark"] .dash-activity-text { color: #94a3b8; }
+[data-theme="dark"] .dash-meeting-title { color: #f1f5f9; }
+
+/* Modal */
+[data-theme="dark"] .dash-modal { background: #1e293b; }
+[data-theme="dark"] .dash-modal-title { color: #f1f5f9; }
+[data-theme="dark"] .dash-modal-body { color: #94a3b8; }
+[data-theme="dark"] .dash-modal-cancel { background: #1e293b; border-color: #334155; color: #94a3b8; }
+
+/* Toast in dark */
+[data-theme="dark"] .toast { background: #1e293b; }
+[data-theme="dark"] .toast-text { color: #f1f5f9; }
