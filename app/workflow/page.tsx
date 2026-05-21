@@ -48,7 +48,6 @@ const PALETTE: AppEntry[] = [
   { key: "slack",    label: "Slack",               icon: "💬", color: "#36c5f0", category: "action"  },
   { key: "discord",  label: "Discord",             icon: "🎮", color: "#5865f2", category: "action"  },
   { key: "notion",   label: "Notion",              icon: "📓", color: "#374151", category: "action"  },
-  { key: "todoist",     label: "Todoist",             icon: "✅", color: "#db4035", category: "action"  },
   { key: "ifelse",     label: "IF Condition",       icon: "🔀", color: "#6b7280", category: "action"  },
 ];
 

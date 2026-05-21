@@ -14,7 +14,6 @@ const APPS = [
   { key: "slack",    label: "Slack",              icon: "💬" },
   { key: "discord",  label: "Discord",            icon: "🎮" },
   { key: "notion",   label: "Notion",             icon: "📓" },
-  { key: "todoist",     label: "Todoist",            icon: "✅" },
 ] as const;
 
 export default function HomePage() {

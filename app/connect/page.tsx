@@ -15,7 +15,6 @@ const APPS = [
   { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
   { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
   { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
-  { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
 ];
 
 type ConnectedApp = { id: string; appName: string; status: string };

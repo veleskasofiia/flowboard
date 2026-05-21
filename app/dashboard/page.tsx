@@ -33,7 +33,6 @@ const APPS = [
   { key: "slack",    label: "Slack",            icon: "💬", color: "#36c5f0" },
   { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },
   { key: "notion",   label: "Notion",           icon: "📓", color: "#374151" },
-  { key: "todoist",      label: "Todoist",          icon: "✅", color: "#db4035" },
 ];
 
 const STEPS = [
@@ -169,7 +168,6 @@ const CONNECTABLE_APPS = [
   { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
   { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
-  { key: "todoist",        label: "Todoist",          icon: "✅", color: "#db4035", composioApp: "todoist" },
   { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
 ];
 

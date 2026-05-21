@@ -1,7 +1,7 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
-const COMPOSIO_APPS = ["gmail", "googlecalendar", "googledrive", "slack", "notion", "todoist", "discord", "outlook"];
+const COMPOSIO_APPS = ["gmail", "googlecalendar", "googledrive", "slack", "notion", "discord", "outlook"];
 
 export async function POST(req: Request) {
   try {
@@ -38,7 +38,6 @@ For each relevant app node in the workflow:
 - Slack: get recent messages from a channel
 - Notion: list recent pages
 - Google Drive: list recent files
-- Todoist: list open tasks
 - Webhook/Schedule triggers: just acknowledge what triggered the workflow
 
 Call the tools, get real data, then write a concise summary of what the workflow found/did.
