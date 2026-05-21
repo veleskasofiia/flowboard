@@ -104,35 +104,33 @@ html, body {
   box-shadow: 0 6px 32px rgba(124,58,237,0.75), 0 2px 10px rgba(168,85,247,0.4);
   transform: translateY(-3px);
 }
-/* "Sign In" — lighter gradient, slightly transparent feel */
+/* "Sign In" — softer gradient variant */
 .hero-cta-btn-secondary {
-  background: linear-gradient(135deg, rgba(124,58,237,0.55) 0%, rgba(168,85,247,0.55) 55%, rgba(192,132,252,0.55) 100%);
+  background: linear-gradient(135deg, #6d28d9 0%, #9333ea 55%, #a855f7 100%);
   color: #fff;
-  border: 2px solid rgba(192,132,252,0.7);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 14px rgba(124,58,237,0.3);
+  border: 2px solid rgba(192,132,252,0.5);
+  box-shadow: 0 4px 18px rgba(109,40,217,0.45), 0 1px 6px rgba(147,51,234,0.25);
 }
 .hero-cta-btn-secondary:hover {
-  background: linear-gradient(135deg, rgba(124,58,237,0.75) 0%, rgba(168,85,247,0.75) 55%, rgba(192,132,252,0.75) 100%);
-  box-shadow: 0 4px 24px rgba(124,58,237,0.5);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 28px rgba(109,40,217,0.65);
   transform: translateY(-3px);
 }
-/* "Works with your favourite tools" — outline gradient badge */
+/* "Works with your favourite tools" — lighter pill */
 .hero-cta-btn-tertiary {
-  background: transparent;
-  color: #a78bfa;
-  border: 2px solid #a78bfa;
+  background: linear-gradient(135deg, #ede9fe 0%, #f3e8ff 100%);
+  color: #7c3aed;
+  border: 2px solid #c4b5fd;
   font-size: 0.95rem;
   font-weight: 600;
   padding: 0.55rem 1.6rem;
-  box-shadow: 0 0 12px rgba(167,139,250,0.2);
-  background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(192,132,252,0.12) 100%);
+  box-shadow: 0 2px 10px rgba(124,58,237,0.15);
 }
 .hero-cta-btn-tertiary:hover {
-  background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(192,132,252,0.22) 100%);
-  border-color: #c084fc;
-  color: #c084fc;
-  box-shadow: 0 0 20px rgba(167,139,250,0.4);
+  background: linear-gradient(135deg, #ddd6fe 0%, #ede9fe 100%);
+  border-color: #a78bfa;
+  color: #6d28d9;
+  box-shadow: 0 4px 18px rgba(124,58,237,0.3);
   transform: translateY(-2px);
 }
 
