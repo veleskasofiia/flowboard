@@ -84,7 +84,7 @@ export default function HomePage() {
         </section>
 
         {/* ── Scrolling logos ── */}
-        <section className="section-block" style={{ overflow: "hidden", padding: "1.5rem 0" }}>
+        <section className="section-block" style={{ overflow: "hidden", padding: "2.5rem 0" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}>
             <a href="/connect" className="hero-cta-btn-tertiary">Works with your favourite tools</a>
           </div>
