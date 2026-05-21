@@ -522,7 +522,7 @@ html, body {
 .dash-signout:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
 /* Dashboard main */
-.dash-main { padding: 2rem 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; }
+.dash-main { padding: 2rem 2rem; max-width: 1400px; width: 100%; margin: 0 auto; }
 
 .dash-welcome { margin-bottom: 2rem; }
 .dash-welcome h1 { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
@@ -1148,7 +1148,7 @@ footer {
 .docs-layout {
   display: flex;
   flex: 1;
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   padding: 2rem 1.5rem;
