@@ -1506,7 +1506,7 @@ footer {
 .docs-presentation-arrow { font-size: 1.3rem; color: #6366f1; margin-left: auto; flex-shrink: 0; }
 
 /* ── Dashboard: Your Week ───────────────────────────────────────────── */
-.dash-week { margin-bottom: 0; }
+.dash-week { margin-bottom: 2.5rem; }
 .dash-week-header {
   display: flex;
   align-items: center;
