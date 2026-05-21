@@ -22,11 +22,21 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ redirectUrl: connRequest.redirectUrl });
   } catch (err: unknown) {
-    const raw = err instanceof Error ? err.message : String(err);
+    let raw = "Unknown error";
+    try {
+      if (err instanceof Error) raw = err.message;
+      else if (typeof err === "string") raw = err;
+      else if (err && typeof (err as Record<string, unknown>).message === "string")
+        raw = (err as Record<string, unknown>).message as string;
+      else raw = JSON.stringify(err);
+    } catch { /* ignore serialization errors */ }
     console.error("Connect error:", raw);
-    const message = raw.toLowerCase().includes("internal server error") || raw.toLowerCase().includes("500")
-      ? `Composio could not start the connection for "${appName}". Check that your COMPOSIO_API_KEY is valid and that the app integration is enabled in your Composio dashboard.`
-      : raw;
+    const message =
+      raw.toLowerCase().includes("internal server error") || raw.toLowerCase().includes("500")
+        ? `Composio could not start the connection for "${appName}". Check that your COMPOSIO_API_KEY is valid and that the app integration is enabled in your Composio dashboard.`
+        : raw === "Unknown error" || raw === "undefined"
+        ? `Failed to connect "${appName}". Your Composio API key may be invalid or the integration may not be enabled.`
+        : raw;
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
