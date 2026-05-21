@@ -78,6 +78,63 @@ html, body {
   animation: fadeUp 0.65s ease forwards;
 }
 .hero-cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+/* ── Hero gradient buttons ───────────────────────────────────────────── */
+.hero-cta-btn-primary,
+.hero-cta-btn-secondary,
+.hero-cta-btn-tertiary {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.78rem 2.1rem;
+  border-radius: 50px;
+  text-decoration: none;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: box-shadow 0.22s, transform 0.18s, filter 0.18s;
+}
+/* "Get Started Free" — solid gradient, most prominent */
+.hero-cta-btn-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 55%, #c084fc 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 22px rgba(124,58,237,0.55), 0 1px 6px rgba(168,85,247,0.3);
+}
+.hero-cta-btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 32px rgba(124,58,237,0.75), 0 2px 10px rgba(168,85,247,0.4);
+  transform: translateY(-3px);
+}
+/* "Sign In" — lighter gradient, slightly transparent feel */
+.hero-cta-btn-secondary {
+  background: linear-gradient(135deg, rgba(124,58,237,0.55) 0%, rgba(168,85,247,0.55) 55%, rgba(192,132,252,0.55) 100%);
+  color: #fff;
+  border: 2px solid rgba(192,132,252,0.7);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 14px rgba(124,58,237,0.3);
+}
+.hero-cta-btn-secondary:hover {
+  background: linear-gradient(135deg, rgba(124,58,237,0.75) 0%, rgba(168,85,247,0.75) 55%, rgba(192,132,252,0.75) 100%);
+  box-shadow: 0 4px 24px rgba(124,58,237,0.5);
+  transform: translateY(-3px);
+}
+/* "Works with your favourite tools" — outline gradient badge */
+.hero-cta-btn-tertiary {
+  background: transparent;
+  color: #a78bfa;
+  border: 2px solid #a78bfa;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.55rem 1.6rem;
+  box-shadow: 0 0 12px rgba(167,139,250,0.2);
+  background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(192,132,252,0.12) 100%);
+}
+.hero-cta-btn-tertiary:hover {
+  background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(192,132,252,0.22) 100%);
+  border-color: #c084fc;
+  color: #c084fc;
+  box-shadow: 0 0 20px rgba(167,139,250,0.4);
+  transform: translateY(-2px);
+}
 
 /* ── Scrolling marquee ───────────────────────────────────────────────── */
 .marquee-track {

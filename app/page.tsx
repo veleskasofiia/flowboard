@@ -16,13 +16,6 @@ const APPS = [
   { key: "notion",   label: "Notion",           icon: "📓" },
 ] as const;
 
-const TYPEWRITER_PHRASES = [
-  "All your tools, one Flow.",
-  "AI that acts on your behalf.",
-  "Automate Gmail, Slack & Notion.",
-  "Your workflow, on autopilot.",
-];
-
 const WORKFLOW_STEPS = [
   { icon: "⚡", label: "Webhook", desc: "Event received" },
   { icon: "📧", label: "Gmail",   desc: "Fetch emails" },
@@ -37,31 +30,6 @@ export default function HomePage() {
   const [authError, setAuthError] = useState("");
   const [authSuccess, setAuthSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Typewriter
-  const [twText, setTwText] = useState("");
-  const [twPhrase, setTwPhrase] = useState(0);
-  const [twDeleting, setTwDeleting] = useState(false);
-
-  useEffect(() => {
-    const phrase = TYPEWRITER_PHRASES[twPhrase];
-    let timeout: ReturnType<typeof setTimeout>;
-    if (!twDeleting) {
-      if (twText.length < phrase.length) {
-        timeout = setTimeout(() => setTwText(phrase.slice(0, twText.length + 1)), 60);
-      } else {
-        timeout = setTimeout(() => setTwDeleting(true), 1800);
-      }
-    } else {
-      if (twText.length > 0) {
-        timeout = setTimeout(() => setTwText(twText.slice(0, -1)), 35);
-      } else {
-        setTwDeleting(false);
-        setTwPhrase((p) => (p + 1) % TYPEWRITER_PHRASES.length);
-      }
-    }
-    return () => clearTimeout(timeout);
-  }, [twText, twPhrase, twDeleting]);
 
   // Animated workflow step
   const [activeStep, setActiveStep] = useState(0);
@@ -96,10 +64,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Typewriter */}
-        <p className="hero-typewriter">
-          {twText}<span className="tw-cursor">|</span>
-        </p>
+        <p className="hero-typewriter">All your tools, one Flow.</p>
       </header>
 
       <div className="main-content">
@@ -113,14 +78,16 @@ export default function HomePage() {
             Connect Gmail, Slack, Notion and more. Let the AI handle the repetitive work.
           </p>
           <div className="fadeup hero-cta-row" style={{ animationDelay: "0.4s" }}>
-            <a href="/auth/signup" className="header-btn primary" style={{ fontSize: "1rem", padding: "0.75rem 2rem" }}>Get Started Free</a>
-            <a href="/auth/login" className="header-btn" style={{ fontSize: "1rem", padding: "0.75rem 2rem" }}>Sign In</a>
+            <a href="/auth/signup" className="hero-cta-btn-primary">Get Started Free</a>
+            <a href="/auth/login" className="hero-cta-btn-secondary">Sign In</a>
           </div>
         </section>
 
         {/* ── Scrolling logos ── */}
         <section className="section-block" style={{ overflow: "hidden", padding: "1.5rem 0" }}>
-          <p className="section-subtitle" style={{ marginBottom: "1rem" }}>Works with your favourite tools</p>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}>
+            <a href="/connect" className="hero-cta-btn-tertiary">Works with your favourite tools</a>
+          </div>
           <div className="marquee-track">
             <div className="marquee-inner">
               {[...APPS, ...APPS].map((app, i) => (
