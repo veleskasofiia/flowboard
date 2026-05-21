@@ -1975,3 +1975,41 @@ footer {
 /* Toast in dark */
 [data-theme="dark"] .toast { background: #1e293b; }
 [data-theme="dark"] .toast-text { color: #f1f5f9; }
+
+/* ── Catch-all: any remaining dark/gray text → white in dark mode ── */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] label,
+[data-theme="dark"] li,
+[data-theme="dark"] a:not(.app-nav-link):not(.app-nav-logo) {
+  color: #f1f5f9;
+}
+/* Muted/secondary text stays softer */
+[data-theme="dark"] .dash-card-sub,
+[data-theme="dark"] .dash-welcome p,
+[data-theme="dark"] .dash-week-label,
+[data-theme="dark"] .dash-inbox-date,
+[data-theme="dark"] .dash-inbox-snippet,
+[data-theme="dark"] .dash-meeting-time,
+[data-theme="dark"] .dash-activity-time,
+[data-theme="dark"] .dash-activity-text,
+[data-theme="dark"] .dash-example-desc,
+[data-theme="dark"] .dash-step-desc,
+[data-theme="dark"] .dash-run-result,
+[data-theme="dark"] .dash-prompt-text,
+[data-theme="dark"] .dash-task-item.done .dash-task-name,
+[data-theme="dark"] .chat-box p { color: #94a3b8; }
+/* Chat messages — user messages white, AI messages light */
+[data-theme="dark"] .chat-box p strong { color: #f1f5f9; }
+/* Workflow palette labels */
+[data-theme="dark"] .palette-section-title { color: #94a3b8; }
+[data-theme="dark"] .palette-node-label { color: #f1f5f9; }
+/* Connect page */
+[data-theme="dark"] .dash-app2-label { color: #f1f5f9; }
+/* Topbar buttons */
+[data-theme="dark"] .topbar-btn { background: #1e293b; border-color: #334155; color: #f1f5f9; }
+[data-theme="dark"] .topbar-btn:hover { background: #334155; }
