@@ -682,9 +682,9 @@ html, body {
 .dash-signout:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
 /* Dashboard main */
-.dash-main { padding: 2rem 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; }
+.dash-main { padding: 2.5rem 2rem; max-width: 1100px; width: 100%; margin: 0 auto; }
 
-.dash-welcome { margin-bottom: 2rem; }
+.dash-welcome { margin-bottom: 2.5rem; }
 .dash-welcome h1 { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
 .dash-welcome h1 span { color: #6366f1; }
 .dash-welcome p { color: #64748b; font-size: 0.9rem; margin-top: 0.2rem; }
@@ -693,8 +693,8 @@ html, body {
 .dash-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 .dash-stat-card {
   background: white;
@@ -720,15 +720,17 @@ html, body {
 .dash-bottom {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 @media (max-width: 700px) { .dash-bottom { grid-template-columns: 1fr; } }
 
 .dash-card {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 2rem;
 }
 .dash-card-title { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; }
 .dash-card-sub { font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem; }
@@ -796,7 +798,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
   flex-wrap: wrap;
 }
 .dash-mini-stats { display: flex; gap: 1rem; }
@@ -812,7 +814,7 @@ html, body {
 .dash-mini-label { font-size: 0.72rem; color: #94a3b8; font-weight: 500; }
 
 /* Guide / steps */
-.dash-guide { margin-bottom: 1.25rem; }
+.dash-guide { margin-bottom: 2rem; }
 .dash-steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1843,8 +1845,9 @@ footer {
 .dash-inbox-tasks-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 2rem;
   align-items: start;
+  margin-bottom: 2.5rem;
 }
 .dash-col-inbox,
 .dash-col-tasks {
@@ -1988,7 +1991,7 @@ footer {
 .app-nav-theme:hover { border-color: #94a3b8; }
 
 /* ── Activity History ───────────────────────────────────────────────── */
-.dash-activity-card { margin-bottom: 0; }
+.dash-activity-card { margin-bottom: 2rem; }
 .dash-activity-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
 .dash-activity-row {
   display: flex;
