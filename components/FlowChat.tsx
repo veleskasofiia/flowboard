@@ -2,27 +2,41 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
 
+type Msg = { role: string; content: string };
+const LS_KEY = "flowboard_chat";
+
 export default function FlowChat() {
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+  const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadMessages = async () => {
+    const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+
       if (user) {
+        // Try Supabase first
         const { data, error } = await supabase
           .from("messages")
           .select("role, content")
           .eq("user_id", user.id)
           .order("created_at", { ascending: true });
-        if (!error && data) setMessages(data);
-      } else {
-        setMessages([{ role: "assistant", content: "Hi! I can help you build workflows. Ask me anything." }]);
+
+        if (!error && data && data.length > 0) {
+          setMessages(data);
+          localStorage.setItem(LS_KEY, JSON.stringify(data));
+          return;
+        }
+      }
+
+      // Fall back to localStorage
+      const stored = localStorage.getItem(LS_KEY);
+      if (stored) {
+        try { setMessages(JSON.parse(stored)); } catch { /* ignore */ }
       }
     };
-    loadMessages();
+    load();
   }, []);
 
   useEffect(() => {
@@ -35,12 +49,14 @@ export default function FlowChat() {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    const updated = [...messages, { role: "user", content: text }];
+    setMessages(updated);
+    localStorage.setItem(LS_KEY, JSON.stringify(updated));
     setInput("");
     setLoading(true);
 
     if (user) {
-      await supabase.from("messages").insert({ user_id: user.id, role: "user", content: text });
+      supabase.from("messages").insert({ user_id: user.id, role: "user", content: text }).then(() => {});
     }
 
     try {
@@ -52,22 +68,45 @@ export default function FlowChat() {
       const data = await res.json();
       const reply = data.reply ?? "No response received.";
 
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const withReply = [...updated, { role: "assistant", content: reply }];
+      setMessages(withReply);
+      localStorage.setItem(LS_KEY, JSON.stringify(withReply));
 
       if (user) {
-        await supabase.from("messages").insert({ user_id: user.id, role: "assistant", content: reply });
+        supabase.from("messages").insert({ user_id: user.id, role: "assistant", content: reply }).then(() => {});
       }
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Could not reach the AI. Check your internet connection and try again." }]);
+      const withErr = [...updated, { role: "assistant", content: "Could not reach the AI. Check your connection and try again." }];
+      setMessages(withErr);
+      localStorage.setItem(LS_KEY, JSON.stringify(withErr));
     } finally {
       setLoading(false);
     }
   };
 
+  const clearChat = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setMessages([]);
+    localStorage.removeItem(LS_KEY);
+    if (user) {
+      supabase.from("messages").delete().eq("user_id", user.id).then(() => {});
+    }
+  };
+
   return (
     <div className="chat-panel">
-      <h2>🤖 AI Flow Assistant</h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+        <h2 style={{ margin: 0 }}>🤖 AI Flow Assistant</h2>
+        {messages.length > 0 && (
+          <button onClick={clearChat} style={{ fontSize: "0.72rem", color: "#94a3b8", background: "none", border: "none", cursor: "pointer" }}>
+            Clear
+          </button>
+        )}
+      </div>
       <div className="chat-box">
+        {messages.length === 0 && (
+          <p style={{ color: "#94a3b8", fontSize: "0.82rem" }}>Hi! Ask me how to build a workflow.</p>
+        )}
         {messages.map((m, i) => (
           <p key={i}>
             <strong>{m.role === "assistant" ? "AI Flow:" : "You:"}</strong>{" "}
