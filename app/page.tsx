@@ -5,16 +5,16 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
 const APPS = [
-  { key: "gmail",    label: "Gmail",            icon: "📧" },
-  { key: "outlook",  label: "Outlook Mail",     icon: "📨" },
-  { key: "ocal",     label: "Outlook Calendar", icon: "📆" },
-  { key: "calendar", label: "Google Calendar",  icon: "📅" },
-  { key: "ical",     label: "iCal",             icon: "🗓️" },
-  { key: "gdrive",   label: "Google Drive",     icon: "📁" },
-  { key: "slack",    label: "Slack",            icon: "💬" },
-  { key: "discord",  label: "Discord",          icon: "🎮" },
-  { key: "notion",   label: "Notion",           icon: "📓" },
-] as const;
+  { key: "gmail",    label: "Gmail",            icon: "📧", color: "#ea4335" },
+  { key: "outlook",  label: "Outlook Mail",     icon: "📨", color: "#0078d4" },
+  { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd" },
+  { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4" },
+  { key: "ical",     label: "iCal",             icon: "🗓️", color: "#007aff" },
+  { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853" },
+  { key: "slack",    label: "Slack",            icon: "💬", color: "#4a154b" },
+  { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },
+  { key: "notion",   label: "Notion",           icon: "📓", color: "#374151" },
+];
 
 const WORKFLOW_STEPS = [
   { icon: "⚡", label: "Webhook", desc: "Event received" },
@@ -92,7 +92,12 @@ export default function HomePage() {
             <div className="marquee-inner">
               {[...APPS, ...APPS].map((app, i) => (
                 <div key={i} className="marquee-item">
-                  <span style={{ fontSize: "1.8rem" }}>{app.icon}</span>
+                  <div
+                    className="marquee-icon-badge"
+                    style={{ background: `${app.color}18`, border: `2px solid ${app.color}30` }}
+                  >
+                    <span>{app.icon}</span>
+                  </div>
                   <span className="marquee-label">{app.label}</span>
                 </div>
               ))}
