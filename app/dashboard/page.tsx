@@ -208,6 +208,9 @@ export default function DashboardPage() {
   const [taskError, setTaskError] = useState<string | null>(null);
   const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [standupText, setStandupText] = useState<string | null>(null);
+  const [standupLoading, setStandupLoading] = useState(false);
+  const [standupError, setStandupError] = useState<string | null>(null);
   const prevUnreadRef = useRef<number | null>(null);
   const notifiedMeetingsRef = useRef<Set<string>>(new Set());
   const toastIdRef = useRef(0);
@@ -313,6 +316,27 @@ export default function DashboardPage() {
       setSummary({ meetings_count: null, meetings: [], next_meeting: null, gmail_unread: null, gmail_has_more: false, outlook_unread: null, connected: [], error: "failed" });
     }
     setSummaryLoading(false);
+  }
+
+  async function generateStandup() {
+    setStandupLoading(true);
+    setStandupError(null);
+    setStandupText(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const entityId = user?.id ?? "default";
+      const res = await fetch("/api/run/standup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entityId }),
+      });
+      const data = await res.json();
+      if (data.error) setStandupError(data.error);
+      else setStandupText(data.standup);
+    } catch {
+      setStandupError("Failed to generate standup. Please try again.");
+    }
+    setStandupLoading(false);
   }
 
   async function fetchEmails(entityId: string) {
@@ -779,6 +803,55 @@ export default function DashboardPage() {
         </section>
 
         </div>{/* end dash-inbox-tasks-row */}
+
+        {/* Daily Standup */}
+        <section className="dash-card dash-standup-card">
+          <div className="dash-standup-header">
+            <div>
+              <h2 className="dash-card-title" style={{ margin: 0 }}>⚡ Daily Standup</h2>
+              <p className="dash-card-sub" style={{ margin: "0.25rem 0 0" }}>
+                Calendar + emails + Notion tasks compiled into one briefing by AI.
+              </p>
+            </div>
+            <button
+              className="dash-standup-btn"
+              onClick={generateStandup}
+              disabled={standupLoading}
+            >
+              {standupLoading ? "Generating…" : "Generate"}
+            </button>
+          </div>
+
+          {standupError && (
+            <p className="dash-standup-error">{standupError}</p>
+          )}
+
+          {standupLoading && (
+            <div className="dash-standup-loading">
+              <span className="dash-spinner" />
+              <span>Fetching your calendar, emails and Notion tasks…</span>
+            </div>
+          )}
+
+          {standupText && !standupLoading && (
+            <div className="dash-standup-result">
+              {standupText.split("\n").map((line, i) => {
+                const isHeader = /^[📅📬📝⚡]/.test(line.trim());
+                return (
+                  <p key={i} className={isHeader ? "dash-standup-section" : "dash-standup-line"}>
+                    {line || " "}
+                  </p>
+                );
+              })}
+            </div>
+          )}
+
+          {!standupText && !standupLoading && !standupError && (
+            <div className="dash-standup-empty">
+              Click <strong>Generate</strong> to get your personalised briefing — pulls real data from your connected apps.
+            </div>
+          )}
+        </section>
 
         {/* Activity History */}
         <section className="dash-card dash-activity-card">

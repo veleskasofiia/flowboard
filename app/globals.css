@@ -2012,6 +2012,70 @@ footer {
 .app-nav-theme:hover { border-color: #94a3b8; }
 
 /* ── Activity History ───────────────────────────────────────────────── */
+/* ── Daily Standup ───────────────────────────────────────────────────────────── */
+.dash-standup-card { margin-bottom: 2rem; }
+.dash-standup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.dash-standup-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(37,99,235,0.35);
+  transition: filter 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+.dash-standup-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.dash-standup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.dash-standup-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  padding: 1rem 0;
+}
+.dash-standup-empty {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed #e2e8f0;
+  text-align: center;
+}
+.dash-standup-error { font-size: 0.85rem; color: #dc2626; margin: 0 0 0.5rem; }
+.dash-standup-result {
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem 1.5rem;
+}
+.dash-standup-section {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 1rem 0 0.3rem;
+}
+.dash-standup-section:first-child { margin-top: 0; }
+.dash-standup-line {
+  font-size: 0.84rem;
+  color: #374151;
+  margin: 0.15rem 0;
+  line-height: 1.5;
+}
+
 .dash-activity-card { margin-bottom: 2rem; }
 .dash-activity-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
 .dash-activity-row {
