@@ -215,7 +215,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/auth/login"); return; }
+      if (!user) { router.push("/auth/signup"); return; }
       setUser(user);
 
       const { count } = await supabase

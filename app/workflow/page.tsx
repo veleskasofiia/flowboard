@@ -1,5 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -380,6 +381,17 @@ export default function ConnectedAppsPage() {
   const [runResult, setRunResult] = useState<string | null>(null);
   const [saveTrigger, setSaveTrigger] = useState(0);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) { router.push("/auth/signup"); return; }
+      setAuthChecked(true);
+    });
+  }, [router]);
+
+  if (!authChecked) return null;
 
   function handleSave() {
     setSaveStatus("saving");
