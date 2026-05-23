@@ -1,7 +1,17 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
-const COMPOSIO_APPS = ["gmail", "googlecalendar", "googledrive", "slack", "notion", "discord", "outlook"];
+const NODE_TO_APP: Record<string, string> = {
+  "gmail": "gmail",
+  "google calendar": "googlecalendar",
+  "google drive": "googledrive",
+  "slack": "slack",
+  "notion": "notion",
+  "discord": "discord",
+  "outlook": "outlook",
+  "outlook mail": "outlook",
+  "outlook calendar": "outlook",
+};
 
 function stripPatterns(obj: unknown): unknown {
   if (Array.isArray(obj)) return obj.map(stripPatterns);
@@ -36,8 +46,14 @@ export async function POST(req: Request) {
       const { OpenAIToolSet } = await import("composio-core");
       const toolset = new OpenAIToolSet({ apiKey: composioKey });
 
-      const rawTools = await toolset.getTools({ apps: COMPOSIO_APPS });
-      const tools = stripPatterns(rawTools.slice(0, 64)) as typeof rawTools;
+      const appsInWorkflow = [...new Set(
+        (nodes as { label: string }[])
+          .map((n) => NODE_TO_APP[n.label.toLowerCase()])
+          .filter(Boolean)
+      )] as string[];
+      const appsToLoad = appsInWorkflow.length > 0 ? appsInWorkflow : ["gmail", "googlecalendar"];
+      const rawTools = await toolset.getTools({ apps: appsToLoad });
+      const tools = stripPatterns(rawTools.slice(0, 32)) as typeof rawTools;
 
       const messages: Groq.Chat.ChatCompletionMessageParam[] = [
         {
