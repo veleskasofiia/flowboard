@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       )] as string[];
       const appsToLoad = appsInWorkflow.length > 0 ? appsInWorkflow : ["gmail", "googlecalendar"];
       const rawTools = await toolset.getTools({ apps: appsToLoad });
-      const tools = stripPatterns(rawTools.slice(0, 32)) as typeof rawTools;
+      const tools = stripPatterns(rawTools.slice(0, 12)) as typeof rawTools;
 
       const messages: Groq.Chat.ChatCompletionMessageParam[] = [
         {
