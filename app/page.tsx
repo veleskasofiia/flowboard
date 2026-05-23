@@ -9,7 +9,6 @@ const APPS = [
   { key: "outlook",  label: "Outlook Mail",     icon: "📨", color: "#0078d4" },
   { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd" },
   { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4" },
-  { key: "ical",     label: "iCal",             icon: "🗓️", color: "#007aff" },
   { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853" },
   { key: "slack",    label: "Slack",            icon: "💬", color: "#4a154b" },
   { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },

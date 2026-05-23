@@ -10,7 +10,6 @@ const APPS = [
   { key: "outlook",        label: "Outlook Mail",     icon: "📨", color: "#0078d4", composioApp: "outlook",         note: "Also connects Outlook Calendar" },
   { key: "ocal",           label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", composioApp: null,              note: "Included when you connect Outlook Mail" },
   { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
-  { key: "ical",           label: "iCal",             icon: "🗓️", color: "#007aff", composioApp: null,              note: "OAuth not supported — use Google Calendar or Outlook" },
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
   { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
   { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },

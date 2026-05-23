@@ -45,7 +45,6 @@ const PALETTE: AppEntry[] = [
   { key: "outlook",  label: "Outlook Mail",     icon: "📨", color: "#0078d4", category: "action",  desc: "Fetch & send Outlook messages" },
   { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", category: "action",  desc: "Read & create calendar events" },
   { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", category: "action",  desc: "List & create Google events" },
-  { key: "ical",     label: "iCal",             icon: "🗓️", color: "#007aff", category: "action",  desc: "Read Apple Calendar events" },
   { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853", category: "action",  desc: "Upload, read & manage files" },
   { key: "slack",    label: "Slack",            icon: "💬", color: "#36c5f0", category: "action",  desc: "Post messages to any channel" },
   { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2", category: "action",  desc: "Send messages to Discord" },
