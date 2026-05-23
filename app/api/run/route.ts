@@ -3,6 +3,19 @@ import { NextResponse } from "next/server";
 
 const COMPOSIO_APPS = ["gmail", "googlecalendar", "googledrive", "slack", "notion", "discord", "outlook"];
 
+function stripPatterns(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(stripPatterns);
+  if (obj && typeof obj === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      if (k === "pattern") continue;
+      out[k] = stripPatterns(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
 export async function POST(req: Request) {
   try {
     const { nodes, entityId = "default" } = await req.json();
@@ -18,12 +31,13 @@ export async function POST(req: Request) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const composioKey = process.env.COMPOSIO_API_KEY;
 
-    // ── Real execution via Composio (signed-in user with connected apps) ──────
+    // ── Real execution via Composio ──────────────────────────────────────────
     if (composioKey && composioKey.length > 20 && entityId !== "default") {
       const { OpenAIToolSet } = await import("composio-core");
       const toolset = new OpenAIToolSet({ apiKey: composioKey });
 
-      const tools = await toolset.getTools({ apps: COMPOSIO_APPS });
+      const rawTools = await toolset.getTools({ apps: COMPOSIO_APPS });
+      const tools = stripPatterns(rawTools.slice(0, 64)) as typeof rawTools;
 
       const messages: Groq.Chat.ChatCompletionMessageParam[] = [
         {
@@ -31,18 +45,17 @@ export async function POST(req: Request) {
           content: `You are executing a FlowBoard automation workflow for a real user.
 The workflow contains these nodes: ${nodeList}.
 
-Your job is to fetch REAL data from the user's connected accounts using the available tools.
-For each relevant app node in the workflow:
-- Google Calendar or Outlook Calendar: list the user's upcoming events (next 3-5)
-- Gmail or Outlook Mail: fetch the user's latest 3 unread emails (subject + sender)
-- Slack: get recent messages from a channel
+Fetch REAL data from the user's connected accounts using the available tools.
+For each relevant app node:
+- Google Calendar or Outlook Calendar: list upcoming events (next 3-5)
+- Gmail or Outlook Mail: fetch latest 3 unread emails (subject + sender)
+- Slack: get recent messages
 - Notion: list recent pages
 - Google Drive: list recent files
-- Webhook/Schedule triggers: just acknowledge what triggered the workflow
+- Webhook triggers: acknowledge the trigger
 
-Call the tools, get real data, then write a concise summary of what the workflow found/did.
-Format as bullet points, one per app. Be specific — use real subjects, names, times from the tool results.
-Never invent data. If a tool fails or returns nothing, say so honestly.`,
+Call the tools, then write a concise bullet-point summary of what was found.
+Use real data — never invent anything. If a tool fails, say so.`,
         },
         {
           role: "user",
@@ -50,11 +63,11 @@ Never invent data. If a tool fails or returns nothing, say so honestly.`,
         },
       ];
 
-      for (let step = 0; step < 10; step++) {
+      for (let step = 0; step < 8; step++) {
         const response = await groq.chat.completions.create({
           model: "llama-3.3-70b-versatile",
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          messages, tools: tools as any, tool_choice: "auto", max_tokens: 2048,
+          messages, tools: tools as any, tool_choice: "auto", max_tokens: 1024,
         });
 
         const choice = response.choices[0];
@@ -65,21 +78,16 @@ Never invent data. If a tool fails or returns nothing, say so honestly.`,
 
         messages.push(choice.message);
 
-        const toolCalls = choice.message.tool_calls ?? [];
-        for (const call of toolCalls) {
+        for (const call of choice.message.tool_calls ?? []) {
           const result = await toolset.executeToolCall(call, entityId);
-          messages.push({
-            role: "tool",
-            tool_call_id: call.id,
-            content: JSON.stringify(result),
-          });
+          messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
         }
       }
 
       return NextResponse.json({ result: "Workflow completed (reached max steps)." });
     }
 
-    // ── Simulation fallback (not signed in / no Composio) ────────────────────
+    // ── Simulation fallback ──────────────────────────────────────────────────
     const response = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
@@ -87,7 +95,7 @@ Never invent data. If a tool fails or returns nothing, say so honestly.`,
           role: "system",
           content: `You are a workflow simulation engine. The user is not signed in or has not connected their apps yet.
 Simulate the workflow with these nodes: ${nodeList}.
-Return 3-5 bullet points of what would happen. Add a note at the end that says:
+Return 3-5 bullet points of what would happen. Add a note:
 "⚠ This is a simulation. Sign in and connect your apps to see real data."`,
         },
         { role: "user", content: "Simulate the workflow." },
@@ -95,11 +103,10 @@ Return 3-5 bullet points of what would happen. Add a note at the end that says:
       max_tokens: 512,
     });
 
-    return NextResponse.json({
-      result: response.choices[0].message.content ?? "Workflow simulated.",
-    });
+    return NextResponse.json({ result: response.choices[0].message.content ?? "Workflow simulated." });
   } catch (err) {
-    console.error("Run error:", err);
-    return NextResponse.json({ result: "Workflow run failed. Please try again." }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Run error:", msg);
+    return NextResponse.json({ result: `Run failed: ${msg}` }, { status: 500 });
   }
 }
