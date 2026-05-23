@@ -1113,6 +1113,19 @@ footer {
   line-height: 1;
 }
 .run-result-close:hover { color: #1e293b; }
+.notion-save-btn {
+  background: #374151;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.notion-save-btn:hover:not(:disabled) { background: #1f2937; }
+.notion-save-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 .run-result-body {
   font-family: inherit;
   font-size: 0.85rem;

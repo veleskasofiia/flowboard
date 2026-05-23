@@ -448,6 +448,8 @@ export default function ConnectedAppsPage() {
   const loadTemplateRef = useRef<((n: Node[], e: Edge[]) => void) | null>(null);
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState<string | null>(null);
+  const [runNodes, setRunNodes] = useState<{ label: string }[]>([]);
+  const [notionStatus, setNotionStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveTrigger, setSaveTrigger] = useState(0);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [authChecked, setAuthChecked] = useState(false);
@@ -469,7 +471,7 @@ export default function ConnectedAppsPage() {
   }
 
   async function handleRun() {
-    setRunning(true); setRunResult(null);
+    setRunning(true); setRunResult(null); setNotionStatus("idle");
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const entityId = user?.id ?? "default";
@@ -477,6 +479,7 @@ export default function ConnectedAppsPage() {
         label: (n.data as AppNodeData).label,
         category: (n.data as AppNodeData).category,
       }));
+      setRunNodes(payload);
       const res = await fetch("/api/run", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nodes: payload, entityId }),
@@ -491,6 +494,23 @@ export default function ConnectedAppsPage() {
       setRunResult("Run failed. Please try again.");
     }
     setRunning(false);
+  }
+
+  async function handleSaveToNotion() {
+    if (!runResult) return;
+    setNotionStatus("saving");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const entityId = user?.id ?? "default";
+      const res = await fetch("/api/run/notion-log", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nodes: runNodes, result: runResult, entityId }),
+      });
+      const data = await res.json();
+      setNotionStatus(data.ok ? "saved" : "error");
+    } catch {
+      setNotionStatus("error");
+    }
   }
 
   return (
@@ -513,7 +533,12 @@ export default function ConnectedAppsPage() {
         <div className="run-result-banner">
           <div className="run-result-inner">
             <span className="run-result-title">✅ Workflow Result</span>
-            <button className="run-result-close" onClick={() => setRunResult(null)}>✕</button>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              <button className="notion-save-btn" onClick={handleSaveToNotion} disabled={notionStatus === "saving" || notionStatus === "saved"}>
+                {notionStatus === "saving" ? "Saving…" : notionStatus === "saved" ? "📓 Saved to Notion" : notionStatus === "error" ? "⚠ Notion failed" : "📓 Save to Notion"}
+              </button>
+              <button className="run-result-close" onClick={() => { setRunResult(null); setNotionStatus("idle"); }}>✕</button>
+            </div>
           </div>
           <pre className="run-result-body">{runResult}</pre>
         </div>
