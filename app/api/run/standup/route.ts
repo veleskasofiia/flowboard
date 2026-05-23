@@ -1,6 +1,20 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
+// Groq rejects Composio schemas that contain `pattern` fields with non-standard regex
+function stripPatterns(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(stripPatterns);
+  if (obj && typeof obj === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      if (k === "pattern") continue;
+      out[k] = stripPatterns(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
 export async function POST(req: Request) {
   try {
     const { entityId = "default" } = await req.json();
@@ -17,7 +31,7 @@ export async function POST(req: Request) {
     const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
 
     const rawTools = await toolset.getTools({ apps: ["gmail", "googlecalendar", "notion", "slack"] });
-    const tools = rawTools.slice(0, 64); // stay well within token limits
+    const tools = stripPatterns(rawTools.slice(0, 64)) as typeof rawTools;
 
     const today = new Date();
     const todayStr = today.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
