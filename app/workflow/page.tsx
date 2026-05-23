@@ -225,7 +225,7 @@ function DeletableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition,
       <circle r="5" fill={dotColor} opacity="0.9"
         style={{ filter: `drop-shadow(0 0 4px ${dotColor})` }}>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <animateMotion dur="3.5s" repeatCount="indefinite" path={edgePath} {...({} as any)} />
+        <animateMotion dur="7s" repeatCount="indefinite" path={edgePath} {...({} as any)} />
       </circle>
 
       <EdgeLabelRenderer>
