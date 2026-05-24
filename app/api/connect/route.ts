@@ -17,6 +17,9 @@ function friendlyConnectError(raw: string, appName: string): string {
   if (lower.includes("rate limit") || lower.includes("429") || lower.includes("too many requests")) {
     return `Composio's API rate limit was hit. Please wait 30 seconds and try connecting "${appName}" again.`;
   }
+  if (lower.includes("access denied") || lower.includes("403") || lower.includes("forbidden") || lower.includes("unauthorized") || lower.includes("401")) {
+    return `Access denied for "${appName}". Your Composio API key may be expired or invalid — check it at app.composio.dev and update the COMPOSIO_API_KEY in your Vercel environment variables.`;
+  }
   if (lower.includes("internal server error") || lower.includes("500")) {
     return `Composio could not start the connection for "${appName}". Check that your COMPOSIO_API_KEY is valid and the app integration is enabled in your Composio dashboard.`;
   }
