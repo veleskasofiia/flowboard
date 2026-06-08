@@ -21,10 +21,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "not_configured" }, { status: 500 });
     }
 
-    const { OpenAIToolSet } = await import("composio-core");
-    const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
-    const exec = (action: string, params: Record<string, unknown>) =>
-      toolset.executeAction({ action, params, entityId });
+    const { Composio } = await import("@composio/core");
+    const composio = new Composio({ apiKey: process.env.COMPOSIO_API_KEY });
+    const exec = (slug: string, args: Record<string, unknown>) =>
+      composio.tools.execute(slug, { userId: entityId, dangerouslySkipVersionCheck: true, arguments: args });
 
     const emails: EmailItem[] = [];
     const sources = { gmail: false, outlook: false };
@@ -36,11 +36,11 @@ export async function POST(req: Request) {
         verbose: false,
         user_id: "me",
       }),
-      exec("OUTLOOK_OUTLOOK_LIST_MESSAGES", {
-        folder: "inbox",
+      exec("OUTLOOK_GET_MAIL_DELTA", {
+        folder_id: "inbox",
         top: 15,
-        orderby: ["receivedDateTime desc"],
         user_id: "me",
+        select: ["id", "subject", "from", "receivedDateTime", "isRead", "bodyPreview"],
       }),
     ]);
 
@@ -48,7 +48,8 @@ export async function POST(req: Request) {
     if (gmailResult.status === "fulfilled" && !gmailResult.value?.error) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const d = gmailResult.value.data as any;
+        const val = gmailResult.value as any;
+        const d = val?.data ?? val;
         // Handle multiple possible response shapes
         const msgs: unknown[] =
           Array.isArray(d?.messages) ? d.messages :
@@ -88,8 +89,10 @@ export async function POST(req: Request) {
     if (outlookResult.status === "fulfilled" && !outlookResult.value?.error) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const d = outlookResult.value.data as any;
-        const msgs: unknown[] = Array.isArray(d?.response_data?.value) ? d.response_data.value : [];
+        const val = outlookResult.value as any;
+        const d = val?.data ?? val;
+        const msgs: unknown[] = Array.isArray(d?.response_data?.value) ? d.response_data.value :
+          Array.isArray(d?.value) ? d.value : [];
         for (const m of msgs) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const msg = m as any;

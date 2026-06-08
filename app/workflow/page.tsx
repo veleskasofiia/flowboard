@@ -46,9 +46,6 @@ const PALETTE: AppEntry[] = [
   { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", category: "action",  desc: "Read & create calendar events" },
   { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", category: "action",  desc: "List & create Google events" },
   { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853", category: "action",  desc: "Upload, read & manage files" },
-  { key: "slack",    label: "Slack",            icon: "💬", color: "#36c5f0", category: "action",  desc: "Post messages to any channel" },
-  { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2", category: "action",  desc: "Send messages to Discord" },
-  { key: "notion",   label: "Notion",           icon: "📓", color: "#374151", category: "action",  desc: "Create & update Notion pages" },
   { key: "ifelse",   label: "IF Condition",     icon: "🔀", color: "#6b7280", category: "action",  desc: "Branch flow based on a condition" },
 ];
 
@@ -60,14 +57,14 @@ type Template = { id: string; name: string; emoji: string; desc: string; nodes: 
 
 const TEMPLATES: Template[] = [
   {
-    id: "email-slack",
-    name: "Email → Slack",
+    id: "email-outlook",
+    name: "Gmail → Outlook",
     emoji: "📧",
-    desc: "Fetch new emails and post a summary to Slack",
+    desc: "Fetch unread Gmail emails and forward a digest via Outlook",
     nodes: [
       { id: "t1", type: "appNode", position: { x: 80,  y: 200 }, data: { ...PALETTE_BY_KEY["webhook"] } },
       { id: "t2", type: "appNode", position: { x: 340, y: 200 }, data: { ...PALETTE_BY_KEY["gmail"],   note: "Fetch unread emails" } },
-      { id: "t3", type: "appNode", position: { x: 600, y: 200 }, data: { ...PALETTE_BY_KEY["slack"],   note: "Post summary to #general" } },
+      { id: "t3", type: "appNode", position: { x: 600, y: 200 }, data: { ...PALETTE_BY_KEY["outlook"], note: "Forward digest" } },
     ],
     edges: [
       { id: "te1", source: "t1", target: "t2", type: "deletable", animated: true, style: { stroke: "#f59e0b", strokeWidth: 2.5 }, data: { color: "#f59e0b" } },
@@ -75,14 +72,14 @@ const TEMPLATES: Template[] = [
     ],
   },
   {
-    id: "calendar-slack",
+    id: "calendar-digest",
     name: "Calendar Digest",
     emoji: "📅",
-    desc: "Post today's schedule to Slack",
+    desc: "Get today's schedule and email yourself a summary",
     nodes: [
       { id: "t1", type: "appNode", position: { x: 80,  y: 200 }, data: { ...PALETTE_BY_KEY["webhook"]  } },
       { id: "t2", type: "appNode", position: { x: 340, y: 200 }, data: { ...PALETTE_BY_KEY["calendar"], note: "Get today's events" } },
-      { id: "t3", type: "appNode", position: { x: 600, y: 200 }, data: { ...PALETTE_BY_KEY["slack"],    note: "Post daily digest" } },
+      { id: "t3", type: "appNode", position: { x: 600, y: 200 }, data: { ...PALETTE_BY_KEY["gmail"],    note: "Send daily digest" } },
     ],
     edges: [
       { id: "te1", source: "t1", target: "t2", type: "deletable", animated: true, style: { stroke: "#f59e0b", strokeWidth: 2.5 }, data: { color: "#f59e0b" } },
@@ -90,15 +87,15 @@ const TEMPLATES: Template[] = [
     ],
   },
   {
-    id: "filter-notion",
-    name: "Filter → Notion",
+    id: "filter-outlook",
+    name: "Filter → Outlook",
     emoji: "🔀",
-    desc: "Save important emails to a Notion database",
+    desc: "Filter important Gmail emails and forward them via Outlook",
     nodes: [
       { id: "t1", type: "appNode", position: { x: 60,  y: 200 }, data: { ...PALETTE_BY_KEY["webhook"] } },
       { id: "t2", type: "appNode", position: { x: 300, y: 200 }, data: { ...PALETTE_BY_KEY["gmail"],   note: "Fetch emails" } },
       { id: "t3", type: "appNode", position: { x: 540, y: 200 }, data: { ...PALETTE_BY_KEY["ifelse"],  condition: "Is it important?" } },
-      { id: "t4", type: "appNode", position: { x: 780, y: 140 }, data: { ...PALETTE_BY_KEY["notion"],  note: "Save to database" } },
+      { id: "t4", type: "appNode", position: { x: 780, y: 140 }, data: { ...PALETTE_BY_KEY["outlook"], note: "Forward to inbox" } },
     ],
     edges: [
       { id: "te1", source: "t1", target: "t2", type: "deletable", animated: true, style: { stroke: "#f59e0b", strokeWidth: 2.5 }, data: { color: "#f59e0b" } },
@@ -256,13 +253,24 @@ const DEFAULT_EDGES: Edge[] = [
 
 const STORAGE_KEY = "flowboard_canvas";
 
+const REMOVED_APPS = new Set(["slack", "notion", "discord"]);
+
 function loadCanvas() {
   if (typeof window === "undefined") return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
     const parsed = JSON.parse(saved);
-    parsed.edges = (parsed.edges ?? []).map((e: Edge) => ({ ...e, type: "deletable" }));
+    // Strip out removed apps from saved canvas
+    const removedIds = new Set<string>();
+    parsed.nodes = (parsed.nodes ?? []).filter((n: Node) => {
+      const label = String((n.data as Record<string, unknown>)?.label ?? "").toLowerCase();
+      if (REMOVED_APPS.has(label)) { removedIds.add(n.id); return false; }
+      return true;
+    });
+    parsed.edges = (parsed.edges ?? [])
+      .filter((e: Edge) => !removedIds.has(e.source) && !removedIds.has(e.target))
+      .map((e: Edge) => ({ ...e, type: "deletable" }));
     return parsed;
   } catch {
     return { nodes: DEFAULT_NODES, edges: DEFAULT_EDGES };
@@ -309,8 +317,16 @@ function WorkflowCanvas({
       supabase.from("workflows").select("nodes, edges").eq("user_id", user.id).maybeSingle()
         .then(({ data }) => {
           if (data) {
-            setNodes(data.nodes);
-            setEdges((data.edges ?? []).map((e: Edge) => ({ ...e, type: "deletable" })));
+            const removedIds = new Set<string>();
+            const filteredNodes = (data.nodes ?? []).filter((n: Node) => {
+              const label = String((n.data as Record<string, unknown>)?.label ?? "").toLowerCase();
+              if (REMOVED_APPS.has(label)) { removedIds.add(n.id); return false; }
+              return true;
+            });
+            setNodes(filteredNodes);
+            setEdges((data.edges ?? [])
+              .filter((e: Edge) => !removedIds.has(e.source) && !removedIds.has(e.target))
+              .map((e: Edge) => ({ ...e, type: "deletable" })));
           }
         });
     });
@@ -448,8 +464,6 @@ export default function ConnectedAppsPage() {
   const loadTemplateRef = useRef<((n: Node[], e: Edge[]) => void) | null>(null);
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState<string | null>(null);
-  const [runNodes, setRunNodes] = useState<{ label: string }[]>([]);
-  const [notionStatus, setNotionStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveTrigger, setSaveTrigger] = useState(0);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [authChecked, setAuthChecked] = useState(false);
@@ -471,7 +485,7 @@ export default function ConnectedAppsPage() {
   }
 
   async function handleRun() {
-    setRunning(true); setRunResult(null); setNotionStatus("idle");
+    setRunning(true); setRunResult(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const entityId = user?.id ?? "default";
@@ -479,7 +493,6 @@ export default function ConnectedAppsPage() {
         label: (n.data as AppNodeData).label,
         category: (n.data as AppNodeData).category,
       }));
-      setRunNodes(payload);
       const res = await fetch("/api/run", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nodes: payload, entityId }),
@@ -494,23 +507,6 @@ export default function ConnectedAppsPage() {
       setRunResult("Run failed. Please try again.");
     }
     setRunning(false);
-  }
-
-  async function handleSaveToNotion() {
-    if (!runResult) return;
-    setNotionStatus("saving");
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const entityId = user?.id ?? "default";
-      const res = await fetch("/api/run/notion-log", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nodes: runNodes, result: runResult, entityId }),
-      });
-      const data = await res.json();
-      setNotionStatus(data.ok ? "saved" : "error");
-    } catch {
-      setNotionStatus("error");
-    }
   }
 
   return (
@@ -533,12 +529,7 @@ export default function ConnectedAppsPage() {
         <div className="run-result-banner">
           <div className="run-result-inner">
             <span className="run-result-title">✅ Workflow Result</span>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-              <button className="notion-save-btn" onClick={handleSaveToNotion} disabled={notionStatus === "saving" || notionStatus === "saved"}>
-                {notionStatus === "saving" ? "Saving…" : notionStatus === "saved" ? "📓 Saved to Notion" : notionStatus === "error" ? "⚠ Notion failed" : "📓 Save to Notion"}
-              </button>
-              <button className="run-result-close" onClick={() => { setRunResult(null); setNotionStatus("idle"); }}>✕</button>
-            </div>
+            <button className="run-result-close" onClick={() => setRunResult(null)}>✕</button>
           </div>
           <pre className="run-result-body">{runResult}</pre>
         </div>

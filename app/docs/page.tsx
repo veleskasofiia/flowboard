@@ -40,7 +40,7 @@ export default function DocsPage() {
             <h1>FlowBoard Documentation</h1>
             <p className="docs-lead">
               FlowBoard is a browser-based visual workflow builder. Connect your favourite apps —
-              Gmail, Slack, Notion, Google Calendar, and more — by dragging nodes onto a canvas and
+              Gmail, Outlook, Google Calendar, and more — by dragging nodes onto a canvas and
               drawing connections between them. An AI assistant helps you design and understand your
               automations in plain English.
             </p>
@@ -146,8 +146,7 @@ export default function DocsPage() {
               Click <strong>▶ Run</strong> in the top bar. FlowBoard reads every node currently on
               the canvas and sends them to the AI simulation engine. Within a few seconds a result
               banner appears below the top bar showing what each step of the workflow produced (e.g.
-              how many emails were found, which calendar event is next, which Slack message was
-              sent).
+              how many emails were found, which calendar event is next).
             </p>
             <p>
               Run results are saved locally in your browser. Your <a href="/dashboard">Dashboard</a>{" "}
@@ -196,14 +195,7 @@ export default function DocsPage() {
                 ["Outlook Mail", "📨", "Read or send emails via Microsoft Outlook."],
                 ["Outlook Calendar", "📆", "Create, read, or update Microsoft Outlook calendar events."],
                 ["Google Calendar", "📅", "Create, read, or update Google Calendar events."],
-                ["iCal", "🗓️", "Subscribe to or read iCal feeds."],
                 ["Google Drive", "📁", "Upload, download, or organise files in Google Drive."],
-                ["Slack", "💬", "Post messages or read channels in your Slack workspace."],
-                ["Discord", "🎮", "Send messages or read channels in your Discord server."],
-                ["Notion", "📓", "Create or update Notion pages and databases."],
-                ["Todoist", "✅", "Create, complete, or list tasks in Todoist."],
-                ["Seznam Mail", "✉️", "Read or send emails via Seznam Mail (Czech email service)."],
-                ["Seznam Calendar", "📋", "Read or manage events in Seznam Calendar."],
               ].map(([name, icon, desc]) => (
                 <div key={name} className="docs-node-row">
                   <span><strong>{name}</strong></span>
@@ -220,7 +212,7 @@ export default function DocsPage() {
               to the IF node — one for the <em>true</em> path and one for the <em>false</em> path.
             </p>
             <div className="docs-example">
-              <p><strong>Example:</strong> Schedule → IF Condition → Gmail (true path) + Slack (false path)</p>
+              <p><strong>Example:</strong> Schedule → IF Condition → Gmail (true path) + Outlook Mail (false path)</p>
               <p>
                 The AI assistant can help you decide what condition to use. Ask it: <em>"How do I
                 filter emails by subject with the IF Condition node?"</em>
@@ -238,7 +230,7 @@ export default function DocsPage() {
               FlowBoard UI looks like and can answer questions like:
             </p>
             <ul>
-              <li>"How do I connect Gmail to Slack?"</li>
+              <li>"How do I connect Gmail to Outlook?"</li>
               <li>"How do I use the IF Condition node?"</li>
               <li>"What is the difference between Webhook and Schedule?"</li>
               <li>"How do I connect Outlook Calendar to Google Calendar?"</li>
@@ -342,10 +334,11 @@ export default function DocsPage() {
             </details>
 
             <details className="docs-faq-item">
-              <summary>Does FlowBoard actually connect to my Gmail / Slack?</summary>
+              <summary>Does FlowBoard actually connect to my Gmail and Outlook?</summary>
               <p>
-                The current version simulates workflow runs using AI-generated output. Real OAuth
-                connections to external apps (Gmail, Slack, etc.) are on the roadmap.
+                Yes. Gmail, Outlook Mail, Outlook Calendar, and Google Calendar are all real
+                connections via Composio OAuth. Your dashboard inbox shows live emails, and the
+                Daily Standup pulls real calendar events and unread messages from your accounts.
               </p>
             </details>
 

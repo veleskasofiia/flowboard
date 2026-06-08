@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Composio } from "@composio/core";
 
 function extractMessage(err: unknown): string {
   try {
@@ -18,33 +19,15 @@ function friendlyConnectError(raw: string, appName: string): string {
     return `Composio's API rate limit was hit. Please wait 30 seconds and try connecting "${appName}" again.`;
   }
   if (lower.includes("access denied") || lower.includes("403") || lower.includes("forbidden") || lower.includes("unauthorized") || lower.includes("401")) {
-    return `Access denied for "${appName}". Your Composio API key may be expired or invalid — check it at app.composio.dev and update the COMPOSIO_API_KEY in your Vercel environment variables.`;
+    return `Access denied for "${appName}". Your Composio API key may be expired or invalid — check it at app.composio.dev and update COMPOSIO_API_KEY in your environment variables.`;
   }
-  if (lower.includes("internal server error") || lower.includes("500")) {
-    return `Composio could not start the connection for "${appName}". Check that your COMPOSIO_API_KEY is valid and the app integration is enabled in your Composio dashboard.`;
+  if (lower.includes("no auth config") || lower.includes("not found")) {
+    return `Could not find a connection setup for "${appName}" in your Composio account. Make sure the integration is enabled at app.composio.dev.`;
   }
   if (!raw || raw === "Unknown error" || raw === "undefined") {
     return `Failed to connect "${appName}". Your Composio API key may be invalid or the integration may not be enabled.`;
   }
   return raw;
-}
-
-async function initiateWithRetry(
-  entity: { initiateConnection: (opts: unknown) => Promise<{ redirectUrl: string }> },
-  appName: string,
-  callbackUrl: string,
-  retries = 1
-): Promise<{ redirectUrl: string }> {
-  try {
-    return await entity.initiateConnection({ appName, config: { redirectUrl: callbackUrl } });
-  } catch (err) {
-    const msg = extractMessage(err).toLowerCase();
-    if (retries > 0 && (msg.includes("rate limit") || msg.includes("429"))) {
-      await new Promise((r) => setTimeout(r, 3000));
-      return initiateWithRetry(entity, appName, callbackUrl, retries - 1);
-    }
-    throw err;
-  }
 }
 
 export async function POST(req: Request) {
@@ -58,12 +41,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Composio not configured" }, { status: 500 });
     }
 
-    const { OpenAIToolSet } = await import("composio-core");
-    const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
-    const entity = toolset.client.getEntity(entityId);
+    const composio = new Composio({ apiKey: process.env.COMPOSIO_API_KEY });
 
-    const connRequest = await initiateWithRetry(entity, appName, callbackUrl);
-    return NextResponse.json({ redirectUrl: connRequest.redirectUrl });
+    const authConfigsResult = await composio.authConfigs.list({});
+    const authConfig = authConfigsResult.items.find(
+      (c: Record<string, unknown>) =>
+        (c.toolkit as Record<string, unknown>)?.slug?.toString().toLowerCase() === appName.toLowerCase() &&
+        c.isComposioManaged === true
+    );
+
+    if (!authConfig) {
+      return NextResponse.json(
+        { error: `No auth config found for "${appName}". Enable the integration at app.composio.dev.` },
+        { status: 400 }
+      );
+    }
+
+    const connReq = await composio.connectedAccounts.initiate(entityId, authConfig.id as string, { callbackUrl });
+
+    return NextResponse.json({ redirectUrl: connReq.redirectUrl });
   } catch (err: unknown) {
     const raw = extractMessage(err);
     console.error("Connect error:", raw);
@@ -80,13 +76,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ connections: [] });
     }
 
-    const { OpenAIToolSet } = await import("composio-core");
-    const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
-    // Return full objects so the frontend has the connection id for disconnect
-    const all = await toolset.client.connectedAccounts.list({});
-    const connections = all.items
-      .filter((c: Record<string, unknown>) => c.clientUniqueUserId === entityId)
-      .map((c: Record<string, unknown>) => ({ id: c.id, appName: c.appName, status: c.status }));
+    const composio = new Composio({ apiKey: process.env.COMPOSIO_API_KEY });
+    const result = await composio.connectedAccounts.list({ userIds: [entityId] });
+    const connections = result.items.map((c: Record<string, unknown>) => ({
+      id: c.id,
+      appName: (c.toolkit as Record<string, unknown>)?.slug ?? "",
+      status: c.status,
+    }));
 
     return NextResponse.json({ connections });
   } catch (err: unknown) {
@@ -102,9 +98,8 @@ export async function DELETE(req: Request) {
     if (!process.env.COMPOSIO_API_KEY || !connectionId) {
       return NextResponse.json({ error: "Missing params" }, { status: 400 });
     }
-    const { OpenAIToolSet } = await import("composio-core");
-    const toolset = new OpenAIToolSet({ apiKey: process.env.COMPOSIO_API_KEY });
-    await toolset.client.connectedAccounts.delete({ connectedAccountId: connectionId });
+    const composio = new Composio({ apiKey: process.env.COMPOSIO_API_KEY });
+    await composio.connectedAccounts.delete(connectionId);
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Disconnect failed";

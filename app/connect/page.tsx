@@ -11,9 +11,6 @@ const APPS = [
   { key: "ocal",           label: "Outlook Calendar", icon: "📆", color: "#0f6cbd", composioApp: null,              note: "Included when you connect Outlook Mail" },
   { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
-  { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
-  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
-  { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
 ];
 
 type ConnectedApp = { id: string; appName: string; status: string };
@@ -159,7 +156,7 @@ export default function ConnectPage() {
           <h3>How it works</h3>
           <ol>
             <li>Click <strong>Connect</strong> on any app above.</li>
-            <li>You will be redirected to that app&apos;s sign-in page (e.g. Google, Slack).</li>
+            <li>You will be redirected to that app&apos;s sign-in page (e.g. Google, Microsoft).</li>
             <li>After signing in, you are brought back here and the app shows as <strong>Connected</strong>.</li>
             <li>Go to the <a href="/workflow">Workflow Builder</a> and ask the AI assistant to do something — it will now act on your real accounts.</li>
           </ol>

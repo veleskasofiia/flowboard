@@ -5,9 +5,6 @@ const NODE_TO_APP: Record<string, string> = {
   "gmail": "gmail",
   "google calendar": "googlecalendar",
   "google drive": "googledrive",
-  "slack": "slack",
-  "notion": "notion",
-  "discord": "discord",
   "outlook": "outlook",
   "outlook mail": "outlook",
   "outlook calendar": "outlook",
@@ -65,8 +62,6 @@ Fetch REAL data from the user's connected accounts using the available tools.
 For each relevant app node:
 - Google Calendar or Outlook Calendar: list upcoming events (next 3-5)
 - Gmail or Outlook Mail: fetch latest 3 unread emails (subject + sender)
-- Slack: get recent messages
-- Notion: list recent pages
 - Google Drive: list recent files
 - Webhook triggers: acknowledge the trigger
 

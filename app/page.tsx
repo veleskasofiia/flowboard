@@ -10,16 +10,13 @@ const APPS = [
   { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd" },
   { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4" },
   { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853" },
-  { key: "slack",    label: "Slack",            icon: "💬", color: "#4a154b" },
-  { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },
-  { key: "notion",   label: "Notion",           icon: "📓", color: "#374151" },
 ];
 
 const WORKFLOW_STEPS = [
-  { icon: "⚡", label: "Webhook", desc: "Event received" },
-  { icon: "📧", label: "Gmail",   desc: "Fetch emails" },
-  { icon: "🔀", label: "IF",      desc: "Filter important" },
-  { icon: "💬", label: "Slack",   desc: "Post summary" },
+  { icon: "⚡", label: "Webhook",      desc: "Event received" },
+  { icon: "📧", label: "Gmail",        desc: "Fetch emails" },
+  { icon: "🔀", label: "IF",           desc: "Filter important" },
+  { icon: "📨", label: "Outlook Mail", desc: "Send digest" },
 ];
 
 export default function HomePage() {
@@ -74,7 +71,7 @@ export default function HomePage() {
             One dashboard for everything
           </h2>
           <p className="section-subtitle fadeup" style={{ animationDelay: "0.25s" }}>
-            Connect Gmail, Slack, Notion and more. Let the AI handle the repetitive work.
+            Connect Gmail, Outlook, Google Calendar and more. Let the AI handle the repetitive work.
           </p>
           <div className="fadeup hero-cta-row" style={{ animationDelay: "0.4s" }}>
             <a href="/auth/signup" className="hero-cta-btn-primary">Get Started Free</a>
@@ -142,7 +139,7 @@ export default function HomePage() {
           <p className="why-text">
             FlowBoard brings all your essential tools into one simple, browser‑based dashboard.
             No extra installs, no complicated setup. Just one place to manage Gmail, Outlook,
-            Google Calendar, Slack, Discord, and Notion — with smart automation built in.
+            and Google Calendar — with smart automation built in.
           </p>
           <div className="feature-grid">
             <div className="feature-card">
@@ -169,9 +166,9 @@ export default function HomePage() {
               <p>🎉 Account created! Check your email to confirm, then <a href="/auth/login">sign in</a>.</p>
             </div>
           ) : (
-            <form className="signup-form" onSubmit={handleSignup}>
-              <input type="email" placeholder="Your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <input type="password" placeholder="Choose a password (min 6 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            <form className="signup-form" onSubmit={handleSignup} autoComplete="off">
+              <input type="email" placeholder="Your email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="off" />
+              <input type="password" placeholder="Choose a password (min 6 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" />
               {authError && <p className="auth-error">{authError}</p>}
               <button type="submit" disabled={loading}>{loading ? "Creating account…" : "Create Account"}</button>
               <p className="signin-link">Already have an account? <a href="/auth/login">Sign in</a></p>

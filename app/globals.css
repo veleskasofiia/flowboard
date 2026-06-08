@@ -1894,6 +1894,43 @@ footer {
 .dash-inbox-subject { font-size: 0.78rem; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dash-inbox-snippet { display: none; }
 .dash-inbox-empty { padding: 1.5rem 0; font-size: 0.82rem; color: #94a3b8; text-align: center; }
+
+.dash-inbox-reply-btn {
+  background: none; border: 1px solid #e2e8f0; border-radius: 4px;
+  font-size: 0.65rem; color: #64748b; padding: 1px 6px; cursor: pointer;
+  flex-shrink: 0; line-height: 1.4; transition: all 0.15s;
+}
+.dash-inbox-reply-btn:hover { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+
+.dash-inbox-replied-badge {
+  font-size: 0.6rem; color: #16a34a; background: #dcfce7;
+  border: 1px solid #bbf7d0; border-radius: 4px; padding: 1px 5px;
+  flex-shrink: 0; line-height: 1.4; white-space: nowrap;
+}
+.dash-inbox-row.replied .dash-inbox-subject { color: #64748b; }
+
+.dash-reply-box {
+  margin-top: 8px; display: flex; flex-direction: column; gap: 6px;
+}
+.dash-reply-textarea {
+  width: 100%; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 8px 10px; font-size: 0.8rem; color: #1e293b; resize: vertical;
+  font-family: inherit; line-height: 1.5; outline: none; box-sizing: border-box;
+}
+.dash-reply-textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+.dash-reply-actions { display: flex; gap: 6px; }
+.dash-reply-send {
+  background: #2563eb; color: #fff; border: none; border-radius: 6px;
+  font-size: 0.75rem; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: background 0.15s;
+}
+.dash-reply-send:hover:not(:disabled) { background: #1d4ed8; }
+.dash-reply-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.dash-reply-cancel {
+  background: none; border: 1px solid #e2e8f0; border-radius: 6px;
+  font-size: 0.75rem; color: #64748b; padding: 5px 10px; cursor: pointer; transition: all 0.15s;
+}
+.dash-reply-cancel:hover { background: #f1f5f9; }
+.dash-reply-error { font-size: 0.72rem; color: #dc2626; }
 .dash-inbox-empty a { color: #2563eb; text-decoration: none; }
 .dash-inbox-empty a:hover { text-decoration: underline; }
 

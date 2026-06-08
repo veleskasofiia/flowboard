@@ -23,6 +23,7 @@ type Summary = {
 const SUMMARY_CACHE_KEY = "flowboard_summary";
 const SUMMARY_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const ACTIVITY_KEY = "flowboard_activity";
+const REPLIED_IDS_KEY = "flowboard_replied_ids";
 
 type ActivityEntry = { ts: string; text: string; icon: string };
 
@@ -40,9 +41,6 @@ const APPS = [
   { key: "ocal",     label: "Outlook Calendar", icon: "📆", color: "#0f6cbd" },
   { key: "calendar", label: "Google Calendar",  icon: "📅", color: "#4285f4" },
   { key: "gdrive",   label: "Google Drive",     icon: "📁", color: "#34a853" },
-  { key: "slack",    label: "Slack",            icon: "💬", color: "#36c5f0" },
-  { key: "discord",  label: "Discord",          icon: "🎮", color: "#5865f2" },
-  { key: "notion",   label: "Notion",           icon: "📓", color: "#374151" },
 ];
 
 const STEPS = [
@@ -70,9 +68,9 @@ const STEPS = [
 ];
 
 const AI_PROMPTS = [
-  "How do I connect Gmail to Slack?",
+  "How do I connect Gmail to Outlook?",
   "How do I use the IF Condition node?",
-  "Set up a daily schedule that sends a Notion reminder",
+  "Set up a daily schedule that sends an email digest",
   "What's the difference between Webhook and Schedule?",
   "How do I connect Outlook Calendar to Google Calendar?",
   "Create a workflow that filters emails by subject",
@@ -84,48 +82,45 @@ type ExampleEdge = { id: string; source: string; target: string; type: string; a
 const EXAMPLE_WORKFLOWS = [
   {
     id: "email-digest",
-    title: "Daily Email Digest to Slack",
-    description: "Every morning, fetch unread Gmail threads, filter important ones, and post a summary to your Slack channel.",
-    tags: ["Gmail", "IF Condition", "Slack", "Notion"],
+    title: "Daily Email Digest",
+    description: "Every morning, fetch unread Gmail threads, filter important ones, and forward a digest via Outlook.",
+    tags: ["Gmail", "IF Condition", "Outlook Mail"],
     color: "#6366f1",
     steps: [
       { icon: "⏰", label: "Schedule", desc: "Runs every day at 8 AM" },
       { icon: "📧", label: "Gmail", desc: "Fetch unread inbox threads" },
       { icon: "🔀", label: "IF Condition", desc: "Is it marked important?" },
-      { icon: "💬", label: "Slack", desc: "Post digest to #daily-inbox" },
-      { icon: "📓", label: "Notion", desc: "Log all others to a database" },
+      { icon: "📨", label: "Outlook Mail", desc: "Send digest to yourself" },
     ],
     nodes: [
-      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",     icon: "⏰", color: "#8b5cf6", category: "trigger" } },
-      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Gmail",         icon: "📧", color: "#ea4335", category: "action"  } },
-      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition",  icon: "🔀", color: "#6b7280", category: "action"  } },
-      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Slack",         icon: "💬", color: "#36c5f0", category: "action"  } },
-      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Notion",        icon: "📓", color: "#374151", category: "action"  } },
+      { id: "1", type: "appNode", position: { x: 60,  y: 180 }, data: { label: "Schedule",     icon: "⏰", color: "#8b5cf6", category: "trigger" } },
+      { id: "2", type: "appNode", position: { x: 300, y: 180 }, data: { label: "Gmail",         icon: "📧", color: "#ea4335", category: "action"  } },
+      { id: "3", type: "appNode", position: { x: 540, y: 180 }, data: { label: "IF Condition",  icon: "🔀", color: "#6b7280", category: "action"  } },
+      { id: "4", type: "appNode", position: { x: 760, y: 180 }, data: { label: "Outlook Mail",  icon: "📨", color: "#0078d4", category: "action"  } },
     ] as ExampleNode[],
     edges: [
       { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
       { id: "e2-3", source: "2", target: "3", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
-      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#36c5f0", strokeWidth: 2 } },
-      { id: "e3-5", source: "3", target: "5", type: "smoothstep", animated: true, style: { stroke: "#374151", strokeWidth: 2 } },
+      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#0078d4", strokeWidth: 2 } },
     ] as ExampleEdge[],
   },
   {
     id: "meeting-prep",
-    title: "Automatic Meeting Prep Notes",
-    description: "Before each meeting, pull calendar details, search related emails, and create a Notion prep page automatically.",
-    tags: ["Schedule", "Google Calendar", "Gmail", "Notion"],
+    title: "Automatic Meeting Prep",
+    description: "Before each meeting, pull calendar details, search related emails, and send a prep summary to yourself.",
+    tags: ["Schedule", "Google Calendar", "Gmail", "Outlook Mail"],
     color: "#0ea5e9",
     steps: [
       { icon: "⏰", label: "Schedule", desc: "Runs every morning at 7 AM" },
       { icon: "📅", label: "Google Calendar", desc: "Get today's meetings" },
       { icon: "📧", label: "Gmail", desc: "Find related email threads" },
-      { icon: "📓", label: "Notion", desc: "Create a prep page per meeting" },
+      { icon: "📨", label: "Outlook Mail", desc: "Send prep summary email" },
     ],
     nodes: [
       { id: "1", type: "appNode", position: { x: 60,  y: 180 }, data: { label: "Schedule",        icon: "⏰", color: "#8b5cf6", category: "trigger" } },
       { id: "2", type: "appNode", position: { x: 300, y: 180 }, data: { label: "Google Calendar",  icon: "📅", color: "#4285f4", category: "action"  } },
       { id: "3", type: "appNode", position: { x: 540, y: 180 }, data: { label: "Gmail",            icon: "📧", color: "#ea4335", category: "action"  } },
-      { id: "4", type: "appNode", position: { x: 780, y: 180 }, data: { label: "Notion",           icon: "📓", color: "#374151", category: "action"  } },
+      { id: "4", type: "appNode", position: { x: 780, y: 180 }, data: { label: "Outlook Mail",     icon: "📨", color: "#0078d4", category: "action"  } },
     ] as ExampleNode[],
     edges: [
       { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
@@ -135,29 +130,26 @@ const EXAMPLE_WORKFLOWS = [
   },
   {
     id: "client-followup",
-    title: "Weekly Client Follow-up System",
-    description: "Every Friday, check overdue Todoist tasks, send follow-up emails via Outlook, and notify your team on Slack.",
-    tags: ["Schedule", "Todoist", "IF Condition", "Outlook", "Slack"],
+    title: "Weekly Follow-up Emails",
+    description: "Every Friday, check upcoming calendar events, filter client meetings, and send follow-up emails via Gmail.",
+    tags: ["Schedule", "Google Calendar", "IF Condition", "Gmail"],
     color: "#f59e0b",
     steps: [
       { icon: "⏰", label: "Schedule", desc: "Runs every Friday at 4 PM" },
-      { icon: "✅", label: "Todoist", desc: "Get overdue tasks" },
-      { icon: "🔀", label: "IF Condition", desc: "Is the task a client task?" },
-      { icon: "📨", label: "Outlook Mail", desc: "Send follow-up email to client" },
-      { icon: "💬", label: "Slack", desc: "Notify team in #clients" },
+      { icon: "📅", label: "Google Calendar", desc: "Get next week's events" },
+      { icon: "🔀", label: "IF Condition", desc: "Is it a client meeting?" },
+      { icon: "📧", label: "Gmail", desc: "Send follow-up email to client" },
     ],
     nodes: [
-      { id: "1", type: "appNode", position: { x: 60,  y: 160 }, data: { label: "Schedule",    icon: "⏰", color: "#8b5cf6", category: "trigger" } },
-      { id: "2", type: "appNode", position: { x: 300, y: 160 }, data: { label: "Todoist",      icon: "✅", color: "#db4035", category: "action"  } },
-      { id: "3", type: "appNode", position: { x: 540, y: 160 }, data: { label: "IF Condition", icon: "🔀", color: "#6b7280", category: "action"  } },
-      { id: "4", type: "appNode", position: { x: 760, y: 60  }, data: { label: "Outlook Mail", icon: "📨", color: "#0078d4", category: "action"  } },
-      { id: "5", type: "appNode", position: { x: 760, y: 280 }, data: { label: "Slack",        icon: "💬", color: "#36c5f0", category: "action"  } },
+      { id: "1", type: "appNode", position: { x: 60,  y: 180 }, data: { label: "Schedule",        icon: "⏰", color: "#8b5cf6", category: "trigger" } },
+      { id: "2", type: "appNode", position: { x: 300, y: 180 }, data: { label: "Google Calendar",  icon: "📅", color: "#4285f4", category: "action"  } },
+      { id: "3", type: "appNode", position: { x: 540, y: 180 }, data: { label: "IF Condition",     icon: "🔀", color: "#6b7280", category: "action"  } },
+      { id: "4", type: "appNode", position: { x: 760, y: 180 }, data: { label: "Gmail",            icon: "📧", color: "#ea4335", category: "action"  } },
     ] as ExampleNode[],
     edges: [
       { id: "e1-2", source: "1", target: "2", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
       { id: "e2-3", source: "2", target: "3", type: "smoothstep", animated: true, style: { stroke: "#94a3b8", strokeWidth: 2 } },
-      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#0078d4", strokeWidth: 2 } },
-      { id: "e3-5", source: "3", target: "5", type: "smoothstep", animated: true, style: { stroke: "#36c5f0", strokeWidth: 2 } },
+      { id: "e3-4", source: "3", target: "4", type: "smoothstep", animated: true, style: { stroke: "#ea4335", strokeWidth: 2 } },
     ] as ExampleEdge[],
   },
 ];
@@ -175,10 +167,7 @@ const CONNECTABLE_APPS = [
   { key: "gmail",          label: "Gmail",            icon: "📧", color: "#ea4335", composioApp: "gmail" },
   { key: "googlecalendar", label: "Google Calendar",  icon: "📅", color: "#4285f4", composioApp: "googlecalendar" },
   { key: "outlook",        label: "Outlook",          icon: "📨", color: "#0078d4", composioApp: "outlook" },
-  { key: "slack",          label: "Slack",            icon: "💬", color: "#36c5f0", composioApp: "slack" },
-  { key: "notion",         label: "Notion",           icon: "📓", color: "#374151", composioApp: "notion" },
   { key: "googledrive",    label: "Google Drive",     icon: "📁", color: "#34a853", composioApp: "googledrive" },
-  { key: "discord",        label: "Discord",          icon: "🎮", color: "#5865f2", composioApp: "discord" },
 ];
 
 export default function DashboardPage() {
@@ -198,6 +187,11 @@ export default function DashboardPage() {
   const [emailsLoading, setEmailsLoading] = useState(false);
   const [emailTab, setEmailTab] = useState<"all" | "gmail" | "outlook">("all");
   const [emailSources, setEmailSources] = useState<{ gmail: boolean; outlook: boolean }>({ gmail: false, outlook: false });
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replySending, setReplySending] = useState(false);
+  const [replyError, setReplyError] = useState<string | null>(null);
+  const [repliedIds, setRepliedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -207,9 +201,6 @@ export default function DashboardPage() {
   const [taskError, setTaskError] = useState<string | null>(null);
   const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [standupText, setStandupText] = useState<string | null>(null);
-  const [standupLoading, setStandupLoading] = useState(false);
-  const [standupError, setStandupError] = useState<string | null>(null);
   const prevUnreadRef = useRef<number | null>(null);
   const notifiedMeetingsRef = useRef<Set<string>>(new Set());
   const toastIdRef = useRef(0);
@@ -235,6 +226,7 @@ export default function DashboardPage() {
       const runs: RunRecord[] = JSON.parse(localStorage.getItem("flowboard_runs") || "[]");
       setRecentRuns(runs.slice(0, 5));
       setActivityLog(JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]"));
+      setRepliedIds(new Set(JSON.parse(localStorage.getItem(REPLIED_IDS_KEY) || "[]")));
       fetchConnections(user.id);
       fetchEmails(user.id);
       fetchTasks(user.id);
@@ -317,27 +309,6 @@ export default function DashboardPage() {
     setSummaryLoading(false);
   }
 
-  async function generateStandup() {
-    setStandupLoading(true);
-    setStandupError(null);
-    setStandupText(null);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const entityId = user?.id ?? "default";
-      const res = await fetch("/api/run/standup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entityId }),
-      });
-      const data = await res.json();
-      if (data.error) setStandupError(data.error);
-      else setStandupText(data.standup);
-    } catch {
-      setStandupError("Failed to generate standup. Please try again.");
-    }
-    setStandupLoading(false);
-  }
-
   async function fetchEmails(entityId: string) {
     setEmailsLoading(true);
     try {
@@ -375,6 +346,41 @@ export default function DashboardPage() {
       setEmails((prev) =>
         prev ? prev.map((e) => e.id === email.id ? { ...e, isRead: email.isRead } : e) : prev
       );
+    }
+  }
+
+  async function sendReply(email: EmailItem) {
+    if (!user || !replyText.trim()) return;
+    setReplySending(true);
+    setReplyError(null);
+    try {
+      const res = await fetch("/api/emails/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entityId: user.id,
+          emailId: email.id,
+          threadId: email.threadId,
+          source: email.source,
+          body: replyText,
+          recipientEmail: email.from,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) { setReplyError(data.error); return; }
+      setReplyingTo(null);
+      setReplyText("");
+      setRepliedIds((prev) => {
+        const next = new Set(prev);
+        next.add(email.id);
+        localStorage.setItem(REPLIED_IDS_KEY, JSON.stringify([...next]));
+        return next;
+      });
+      logActivity("✉️", `Replied to: ${email.subject}`);
+    } catch {
+      setReplyError("Failed to send reply. Please try again.");
+    } finally {
+      setReplySending(false);
     }
   }
 
@@ -555,7 +561,7 @@ export default function DashboardPage() {
             <h2 className="dash-card-title" style={{ margin: 0 }}>Your Week at a Glance</h2>
             <button
               className="dash-week-refresh"
-              onClick={() => user && fetchSummary(user.id)}
+              onClick={() => { if (user) { localStorage.removeItem(SUMMARY_CACHE_KEY); fetchSummary(user.id); fetchEmails(user.id); } }}
               disabled={summaryLoading}
             >
               {summaryLoading ? "Loading…" : "↺ Refresh"}
@@ -595,7 +601,7 @@ export default function DashboardPage() {
                   <span className="dash-week-label">upcoming meetings</span>
                   {summary.next_meeting && (
                     <span className="dash-week-sub">
-                      Next: {summary.next_meeting.title}<br />
+                      Next: {String(summary.next_meeting.title)}<br />
                       {new Date(summary.next_meeting.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}{" "}
                       {new Date(summary.next_meeting.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                     </span>
@@ -636,7 +642,7 @@ export default function DashboardPage() {
                   {summary.meetings.slice(0, 8).map((m, i) => (
                     <div key={i} className="dash-meeting-row">
                       <span className="dash-meeting-src">{m.source === "google" ? "📅" : "📆"}</span>
-                      <span className="dash-meeting-title">{m.title}</span>
+                      <span className="dash-meeting-title">{String(m.title)}</span>
                       <span className="dash-meeting-time">
                         {new Date(m.start).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}{" "}
                         {new Date(m.start).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
@@ -676,24 +682,27 @@ export default function DashboardPage() {
         <section className="dash-card dash-col-inbox">
           <div className="dash-inbox-header">
             <h2 className="dash-card-title" style={{ margin: 0 }}>Inbox</h2>
-            <div className="dash-inbox-tabs">
-              {(["all", "gmail", "outlook"] as const).map((t) => (
-                <button
-                  key={t}
-                  className={`dash-inbox-tab${emailTab === t ? " active" : ""}`}
-                  onClick={() => setEmailTab(t)}
-                >
-                  {t === "all" ? "All" : t === "gmail" ? "📧 Gmail" : "📨 Outlook"}
-                </button>
-              ))}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="dash-inbox-tabs">
+                {(["all", "gmail", "outlook"] as const).map((t) => (
+                  <button
+                    key={t}
+                    className={`dash-inbox-tab${emailTab === t ? " active" : ""}`}
+                    onClick={() => setEmailTab(t)}
+                  >
+                    {t === "all" ? "All" : t === "gmail" ? "📧 Gmail" : "📨 Outlook"}
+                  </button>
+                ))}
+              </div>
+              <button
+                className="dash-week-refresh"
+                onClick={() => user && fetchEmails(user.id)}
+                disabled={emailsLoading}
+                title="Refresh inbox"
+              >
+                {emailsLoading ? "…" : "↺"}
+              </button>
             </div>
-            <button
-              className="dash-week-refresh"
-              onClick={() => user && fetchEmails(user.id)}
-              disabled={emailsLoading}
-            >
-              {emailsLoading ? "Loading…" : "↺ Refresh"}
-            </button>
           </div>
 
           {emailsLoading && !emails && (
@@ -717,7 +726,7 @@ export default function DashboardPage() {
             return (
               <div className="dash-inbox-list">
                 {filtered.map((email) => (
-                  <div key={email.id} className={`dash-inbox-row${email.isRead ? " read" : ""}`}>
+                  <div key={email.id} className={`dash-inbox-row${email.isRead ? " read" : ""}${replyingTo === email.id ? " replying" : ""}${repliedIds.has(email.id) ? " replied" : ""}`}>
                     <button
                       className="dash-inbox-read-dot"
                       title={email.isRead ? "Mark as unread" : "Mark as read"}
@@ -727,12 +736,51 @@ export default function DashboardPage() {
                     <div className="dash-inbox-body">
                       <div className="dash-inbox-top">
                         <span className="dash-inbox-from">{email.from.replace(/<.*>/, "").trim() || email.from}</span>
-                        <span className="dash-inbox-date">
-                          {email.date ? new Date(email.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
-                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span className="dash-inbox-date">
+                            {email.date ? new Date(email.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+                          </span>
+                          {repliedIds.has(email.id) && (
+                            <span className="dash-inbox-replied-badge">↩ Replied</span>
+                          )}
+                          <button
+                            className="dash-inbox-reply-btn"
+                            title={repliedIds.has(email.id) ? "Reply again" : "Reply"}
+                            onClick={() => {
+                              if (replyingTo === email.id) { setReplyingTo(null); setReplyText(""); setReplyError(null); }
+                              else { setReplyingTo(email.id); setReplyText(""); setReplyError(null); }
+                            }}
+                          >↩ {repliedIds.has(email.id) ? "Again" : "Reply"}</button>
+                        </div>
                       </div>
-                      <div className="dash-inbox-subject">{email.subject}</div>
+                      <div className="dash-inbox-subject">{String(email.subject)}</div>
                       <div className="dash-inbox-snippet">{email.snippet}</div>
+                      {replyingTo === email.id && (
+                        <div className="dash-reply-box">
+                          <textarea
+                            className="dash-reply-textarea"
+                            placeholder={`Reply to ${email.from.replace(/<.*>/, "").trim() || email.from}…`}
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            rows={3}
+                            autoFocus
+                          />
+                          {replyError && <div className="dash-reply-error">{replyError}</div>}
+                          <div className="dash-reply-actions">
+                            <button
+                              className="dash-reply-send"
+                              onClick={() => sendReply(email)}
+                              disabled={replySending || !replyText.trim()}
+                            >
+                              {replySending ? "Sending…" : "Send ↗"}
+                            </button>
+                            <button
+                              className="dash-reply-cancel"
+                              onClick={() => { setReplyingTo(null); setReplyText(""); setReplyError(null); }}
+                            >Cancel</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -802,55 +850,6 @@ export default function DashboardPage() {
         </section>
 
         </div>{/* end dash-inbox-tasks-row */}
-
-        {/* Daily Standup */}
-        <section className="dash-card dash-standup-card">
-          <div className="dash-standup-header">
-            <div>
-              <h2 className="dash-card-title" style={{ margin: 0 }}>⚡ Daily Standup</h2>
-              <p className="dash-card-sub" style={{ margin: "0.25rem 0 0" }}>
-                Calendar + emails + Notion tasks compiled into one briefing by AI.
-              </p>
-            </div>
-            <button
-              className="dash-standup-btn"
-              onClick={generateStandup}
-              disabled={standupLoading}
-            >
-              {standupLoading ? "Generating…" : "Generate"}
-            </button>
-          </div>
-
-          {standupError && (
-            <p className="dash-standup-error">{standupError}</p>
-          )}
-
-          {standupLoading && (
-            <div className="dash-standup-loading">
-              <span className="dash-spinner" />
-              <span>Fetching your calendar, emails and Notion tasks…</span>
-            </div>
-          )}
-
-          {standupText && !standupLoading && (
-            <div className="dash-standup-result">
-              {standupText.split("\n").map((line, i) => {
-                const isHeader = /^[📅📬📝⚡]/.test(line.trim());
-                return (
-                  <p key={i} className={isHeader ? "dash-standup-section" : "dash-standup-line"}>
-                    {line || " "}
-                  </p>
-                );
-              })}
-            </div>
-          )}
-
-          {!standupText && !standupLoading && !standupError && (
-            <div className="dash-standup-empty">
-              Click <strong>Generate</strong> to get your personalised briefing — pulls real data from your connected apps.
-            </div>
-          )}
-        </section>
 
         {/* Activity History */}
         <section className="dash-card dash-activity-card">
@@ -1040,7 +1039,7 @@ export default function DashboardPage() {
                       {new Date(run.ts).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <pre className="dash-run-result">{run.result}</pre>
+                  <pre className="dash-run-result">{String(run.result)}</pre>
                 </div>
               ))}
             </div>
